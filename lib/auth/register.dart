@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/auth/login.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
@@ -145,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             color: Colors.grey.withOpacity(0.1),
             spreadRadius: 2,
             blurRadius: 8,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),

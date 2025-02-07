@@ -6,6 +6,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -99,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => RegisterScreen()));
+                                    builder: (context) => const RegisterScreen()));
                           },
                           child: const Text("Register",
                               style: TextStyle(
@@ -233,7 +234,6 @@ class _LoginScreenState extends State<LoginScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
         child: ElevatedButton(
           onPressed: () {
             if (_emailController.text.isNotEmpty &&

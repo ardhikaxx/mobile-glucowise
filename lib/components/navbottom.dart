@@ -14,7 +14,7 @@ class NavBottom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingNavBar(
-      color: const Color(0xFFFFD0DC),
+      color: Colors.white,
       selectedIconColor: const Color(0xFFC63755),
       unselectedIconColor: const Color(0xFFC63755).withOpacity(0.5),
       borderRadius: 30,

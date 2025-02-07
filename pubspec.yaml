@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   floating_navbar: ^2.0.2
   font_awesome_flutter: ^10.8.0
+  image_card: ^0.0.4
 
 dev_dependencies:
   flutter_test:
