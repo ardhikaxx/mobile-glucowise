@@ -37,6 +37,7 @@ dependencies:
   floating_navbar: ^2.0.2
   font_awesome_flutter: ^10.8.0
   image_card: ^0.0.4
+  quickalert: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,10 @@ flutter:
   assets:
     - assets/logo.png
 
+  fonts:
+    - family: DarumadropOne
+      fonts:
+        - asset: assets/font/DarumadropOne-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

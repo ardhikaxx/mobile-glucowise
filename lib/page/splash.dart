@@ -7,18 +7,38 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
-          context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     });
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          'assets/logo.png',
-          width: 250,
-          height: 250,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/logo.png',
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'GlucoWise',
+              style: TextStyle(
+                fontFamily: 'DarumadropOne',
+                color: Color(0xFF199A8E),
+                fontSize: 45,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
       ),
     );

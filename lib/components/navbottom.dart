@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:floating_navbar/floating_navbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/page/dashboard.dart';
-import 'package:medical_app/page/user.dart';
+import 'package:medical_app/page/profile.dart';
 import 'package:medical_app/page/gluconote.dart';
 import 'package:medical_app/page/glucoscreening.dart';
 import 'package:medical_app/page/glucocheck.dart';
@@ -14,9 +14,9 @@ class NavBottom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingNavBar(
-      color: Colors.white,
-      selectedIconColor: const Color(0xFFC63755),
-      unselectedIconColor: const Color(0xFFC63755).withOpacity(0.5),
+      color: const Color(0xFFF9FAFB),
+      selectedIconColor: const Color(0xFF199A8E),
+      unselectedIconColor: const Color(0xFF199A8E).withOpacity(0.5),
       borderRadius: 30,
       horizontalPadding: 20,
       hapticFeedback: true,
@@ -40,7 +40,7 @@ class NavBottom extends StatelessWidget {
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.kitMedical,
           title: "GlucoCheck",
-          page: const GlucoCheckScreen(),
+          page: GlucoCheckScreen(),
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.user,

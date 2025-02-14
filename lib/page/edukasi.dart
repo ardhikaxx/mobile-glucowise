@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/components/navbottom.dart';
 
-class GlucoNoteScreen extends StatelessWidget {
-  const GlucoNoteScreen({super.key});
+class EdukasiScreen extends StatelessWidget {
+  const EdukasiScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text(
-          "Gluco Note",
+          'Edukasi',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -20,8 +18,8 @@ class GlucoNoteScreen extends StatelessWidget {
             fontWeight: FontWeight.w900,
           ),
         ),
-        backgroundColor: Colors.white,
         centerTitle: true,
+        backgroundColor: Colors.white,
         leading: Padding(
           padding: const EdgeInsets.all(9.0),
           child: Container(
@@ -33,7 +31,7 @@ class GlucoNoteScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const NavBottom()));
+                Navigator.pop(context);
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
@@ -43,31 +41,10 @@ class GlucoNoteScreen extends StatelessWidget {
             ),
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              onPressed: () {
-              },
-              icon: Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF199A8E),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.all(8),
-                child: const Icon(
-                  FontAwesomeIcons.plus,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: const Center(
         child: Text(
-          "Halaman GlucoNote",
+          "Halaman Edukasi",
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),

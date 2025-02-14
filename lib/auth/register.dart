@@ -27,20 +27,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize:
-                MainAxisSize.min, // Menghindari Column memenuhi seluruh layar
+                MainAxisSize.min,
             children: [
               Image.asset(
                 "assets/logo.png",
-                width: 200,
-                height: 200,
+                width: 180,
+                height: 180,
               ),
               const SizedBox(height: 10),
               const Text(
                 "Create Account",
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 32,
+                  fontFamily: 'DarumadropOne',
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFC63755),
+                  color: Color(0xFF199A8E),
                 ),
               ),
               Text(
@@ -65,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obscureText: !_showPassword,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    color: const Color(0xFFD06078),
+                    color: const Color(0xFF199A8E),
                     _showPassword ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () {
@@ -83,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 obscureText: !_showPassword,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    color: const Color(0xFFD06078),
+                    color: const Color(0xFF199A8E),
                     _showPassword ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () {
@@ -118,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: const Text(
                       "Login",
                       style: TextStyle(
-                          color: Color(0xFFC63755),
+                          color: Color(0xFF199A8E),
                           fontSize: 16,
                           fontWeight: FontWeight.bold),
                     ),
@@ -162,22 +163,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
           filled: true,
-          fillColor: Colors.white,
-          labelStyle: const TextStyle(color: Color(0xFFC63755)),
-          prefixIcon: Icon(prefixIcon, color: const Color(0xFFC63755)),
+          fillColor: const Color(0xFFF9FAFB),
+          labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+          prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFC63755), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFC63755), width: 2.0),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-                color: const Color(0xFFC63755).withOpacity(0.5), width: 1.5),
+                color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
           ),
         ),
       ),
@@ -205,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC63755),
+          backgroundColor: const Color(0xFF199A8E),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

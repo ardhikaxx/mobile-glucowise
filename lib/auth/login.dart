@@ -26,12 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
           Positioned(
             top: -50,
             left: -50,
-            child: _buildCircle(200, const Color(0xFFFFD0DC).withOpacity(0.8)),
+            child: _buildCircle(200, const Color(0xFFE8F3F1).withOpacity(0.8)),
           ),
           Positioned(
             bottom: 15,
             right: -40,
-            child: _buildCircle(135, const Color(0xFFD06078).withOpacity(0.5)),
+            child: _buildCircle(135, const Color(0xFFE8F3F1).withOpacity(0.5)),
           ),
           Center(
             child: SingleChildScrollView(
@@ -45,9 +45,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       "Welcome Back!",
                       style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 32,
+                          fontFamily: 'DarumadropOne',
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFC63755)),
+                          color: Color(0xFF199A8E)),
                     ),
                     Text(
                       "Please login to your account",
@@ -68,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: !_showPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          color: const Color(0xFFD06078),
+                          color: const Color(0xFF199A8E),
                           _showPassword
                               ? Icons.visibility
                               : Icons.visibility_off,
@@ -104,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: const Text("Register",
                               style: TextStyle(
-                                  color: Color(0xFFC63755),
+                                  color: Color(0xFF199A8E),
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold)),
                         ),
@@ -158,25 +159,25 @@ class _LoginScreenState extends State<LoginScreen> {
         style: const TextStyle(fontSize: 16, color: Colors.black),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color(0xFFF9FAFB),
           contentPadding:
               const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
-          labelStyle: const TextStyle(color: Color(0xFFD06078)),
-          prefixIcon: Icon(prefixIcon, color: const Color(0xFFD06078)),
+          labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+          prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFC63755), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFC63755), width: 2.0),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-                color: const Color(0xFFC63755).withOpacity(0.5), width: 1.5),
+                color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
           ),
         ),
       ),
@@ -193,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Row(
             children: [
               Checkbox(
-                side: const BorderSide(color: Color(0xFFC63755), width: 1.5),
+                side: const BorderSide(color: Color(0xFF199A8E), width: 1.5),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4.0)),
                 value: _rememberMe,
@@ -202,13 +203,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     _rememberMe = value!;
                   });
                 },
-                activeColor: const Color(0xFFC63755),
+                activeColor: const Color(0xFF199A8E),
                 checkColor: Colors.white,
               ),
               const Text(
                 "Remember me",
                 style: TextStyle(
-                  color: Color(0xFFC63755),
+                  color: Color(0xFF199A8E),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -219,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: const Text(
               "Forgot Password?",
               style: TextStyle(
-                color: Color(0xFFC63755),
+                color: Color(0xFF199A8E),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -248,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFC63755),
+            backgroundColor: const Color(0xFF199A8E),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
