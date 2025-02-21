@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/auth/change_password.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+class ChangePasswordPage extends StatefulWidget {
+  const ChangePasswordPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+  _ChangePasswordPageState createState() => _ChangePasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final TextEditingController inputController = TextEditingController();
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  bool _showNewPassword = false;
+  bool _showRepeatPassword = false;
+
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController repeatPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'Konfirmasi Email',
+          'Ubah Password',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -57,12 +61,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildImageWithBackground(),
               const SizedBox(height: 20),
               const Text(
-                "Lupa Password?",
+                "Ubah Password Anda",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -70,22 +73,52 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                "Masukkan email untuk konfirmasi mereset password Anda.",
+              const Text(
+                "Masukkan password baru Anda di bawah.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey[600],
+                  color: Colors.grey,
                 ),
               ),
               const SizedBox(height: 20),
               _buildInputField(
-                controller: inputController,
-                labelText: "Masukkan Email",
-                prefixIcon: Icons.email,
+                controller: newPasswordController,
+                labelText: "Password Baru",
+                prefixIcon: Icons.lock,
+                obscureText: !_showNewPassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    color: const Color(0xFF199A8E),
+                    _showNewPassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showNewPassword = !_showNewPassword;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 20),
-              _buildConfirmButton(),
+              _buildInputField(
+                controller: repeatPasswordController,
+                labelText: "Ulangi Password Baru",
+                prefixIcon: Icons.lock,
+                obscureText: !_showRepeatPassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    color: const Color(0xFF199A8E),
+                    _showRepeatPassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showRepeatPassword = !_showRepeatPassword;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildChangePasswordButton(),
             ],
           ),
         ),
@@ -103,7 +136,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ),
       child: Center(
         child: Image.asset(
-          'assets/Lock.png',
+          'assets/Key.png',
           width: 120,
           height: 120,
         ),
@@ -116,8 +149,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     required String labelText,
     required IconData prefixIcon,
     bool obscureText = false,
-    Widget? suffixIcon,
-    TextInputType keyboardType = TextInputType.text,
+    required IconButton suffixIcon,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -135,16 +167,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        keyboardType: keyboardType,
         style: const TextStyle(fontSize: 16, color: Colors.black),
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
           labelStyle: const TextStyle(color: Color(0xFF199A8E)),
           prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
-          suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
@@ -160,29 +191,38 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               width: 1.5,
             ),
           ),
+          suffixIcon: suffixIcon,
         ),
       ),
     );
   }
 
-  Widget _buildConfirmButton() {
+  Widget _buildChangePasswordButton() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            if (inputController.text.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChangePasswordPage(),
-                ),
-              );
+            if (newPasswordController.text.isNotEmpty &&
+                repeatPasswordController.text.isNotEmpty) {
+              if (newPasswordController.text == repeatPasswordController.text) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Password berhasil diubah!"),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Password tidak cocok!"),
+                  ),
+                );
+              }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Harap isi email"),
+                  content: Text("Harap isi semua field!"),
                 ),
               );
             }
@@ -196,7 +236,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             elevation: 5,
           ),
           child: const Text(
-            "Konfirmasi",
+            "Ubah",
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
         ),

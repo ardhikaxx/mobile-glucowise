@@ -1,21 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class GlucoCheckForm extends StatelessWidget {
-  GlucoCheckForm({super.key});
+class GlucoCheckForm extends StatefulWidget {
+  const GlucoCheckForm({super.key});
 
+  @override
+  // ignore: library_private_types_in_public_api
+  _GlucoCheckFormState createState() => _GlucoCheckFormState();
+}
+
+class _GlucoCheckFormState extends State<GlucoCheckForm> {
   final _formKey = GlobalKey<FormState>();
+  final _tanggalController = TextEditingController();
   final _tinggiController = TextEditingController();
   final _beratController = TextEditingController();
   final _gulaDarahController = TextEditingController();
   final _umurController = TextEditingController();
+  final _lingkarPinggangController = TextEditingController();
   final _tensiController = TextEditingController();
+  String? _selectedAnswer;
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF199A8E),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _tanggalController.text =
+            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+      });
+    }
+  }
+
+  void _selectAnswer(String answer) {
+    setState(() {
+      _selectedAnswer = answer;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Form Gluco Check',
           style: TextStyle(
@@ -69,6 +111,18 @@ class GlucoCheckForm extends StatelessWidget {
                         color: Colors.grey[700]),
                   ),
                   const SizedBox(height: 15),
+                  _buildDateInputField(),
+                  const SizedBox(height: 15),
+                  _buildFamilyHistoryCard(),
+                  const SizedBox(height: 15),
+                  _buildInputField(
+                    controller: _umurController,
+                    labelText: 'Umur',
+                    prefixIcon: FontAwesomeIcons.calendarDays,
+                    hint: 'Contoh: 35',
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 15),
                   _buildInputField(
                     controller: _tinggiController,
                     labelText: 'Tinggi Badan (cm)',
@@ -94,10 +148,10 @@ class GlucoCheckForm extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
-                    controller: _umurController,
-                    labelText: 'Umur',
-                    prefixIcon: FontAwesomeIcons.calendarDays,
-                    hint: 'Contoh: 35',
+                    controller: _lingkarPinggangController,
+                    labelText: 'Lingkar Pinggang (cm)',
+                    prefixIcon: FontAwesomeIcons.ruler,
+                    hint: 'Contoh: 100',
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 15),
@@ -106,7 +160,7 @@ class GlucoCheckForm extends StatelessWidget {
                     labelText: 'Hasil Tensi Darah (mmHg)',
                     prefixIcon: FontAwesomeIcons.heartCircleCheck,
                     hint: 'Contoh: 120/80',
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 20),
                   _buildProcessButton(),
@@ -114,6 +168,22 @@ class GlucoCheckForm extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateInputField() {
+    return GestureDetector(
+      onTap: () => _selectDate(
+        context,
+      ),
+      child: AbsorbPointer(
+        child: _buildInputField(
+          controller: _tanggalController,
+          labelText: 'Tanggal Pemeriksaan',
+          prefixIcon: FontAwesomeIcons.calendar,
+          hint: 'Pilih Tanggal',
         ),
       ),
     );
@@ -179,6 +249,74 @@ class GlucoCheckForm extends StatelessWidget {
     );
   }
 
+  Widget _buildFamilyHistoryCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Apakah ada keluarga yang memiliki riwayat diabetes?",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildAnswerCard("Iya"),
+              const SizedBox(width: 20),
+              _buildAnswerCard("Tidak"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnswerCard(String answer) {
+    bool isSelected = _selectedAnswer == answer;
+
+    return GestureDetector(
+      onTap: () => _selectAnswer(answer),
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        color: isSelected ? const Color(0xFF199A8E) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: isSelected ? Colors.white : const Color(0xFF199A8E),
+                size: 30,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                answer,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildProcessButton() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -186,9 +324,7 @@ class GlucoCheckForm extends StatelessWidget {
       child: ElevatedButton(
         key: const Key('prosesButton'),
         onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            // Proses data
-          }
+          if (_formKey.currentState!.validate()) {}
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),

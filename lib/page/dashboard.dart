@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_card/image_card.dart';
+import 'package:medical_app/page/detail_edukasi.dart';
 import 'package:medical_app/page/edukasi.dart';
-import 'package:medical_app/page/glucocheck.dart';
-import 'package:medical_app/page/gluconote.dart';
-import 'package:medical_app/page/glucoscreening.dart';
+import 'package:medical_app/page/gluco_check.dart';
+import 'package:medical_app/page/gluco_care.dart';
+import 'package:medical_app/page/gluco_screening.dart';
 import 'package:medical_app/page/profile.dart';
+import 'package:medical_app/data/data_edukasi.dart';
+import 'dart:async';
+import 'dart:math';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -36,16 +40,16 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             UserIntro(),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             SearchInput(),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             CategoryIcons(),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             Text(
               "Gluco Info",
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: Color(0xFF199A8E),
               ),
               textAlign: TextAlign.start,
@@ -57,16 +61,17 @@ class DashboardScreen extends StatelessWidget {
               height: 170,
               weight: 65,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 15),
             Text(
               "Edukasi",
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
                 color: Color(0xFF199A8E),
               ),
               textAlign: TextAlign.start,
             ),
+            SizedBox(height: 10),
             CardEdukasiSwiper(),
           ],
         ),
@@ -81,8 +86,8 @@ class CategoryIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 24,
-      runSpacing: 25,
+      spacing: 25,
+      runSpacing: 5,
       alignment: WrapAlignment.spaceEvenly,
       children: categories.map((category) {
         return CategoryIcon(
@@ -95,9 +100,10 @@ class CategoryIcons extends StatelessWidget {
 }
 
 List<Map<String, dynamic>> categories = [
-  {'icon': FontAwesomeIcons.bookMedical, 'text': 'GlucoNote'},
+  // ignore: deprecated_member_use
   {'icon': FontAwesomeIcons.heartbeat, 'text': 'Screening'},
   {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
+  {'icon': FontAwesomeIcons.pills, 'text': 'GlucoCare'},
   {'icon': FontAwesomeIcons.bookBookmark, 'text': 'Edukasi'},
 ];
 
@@ -120,8 +126,8 @@ class _CategoryIconState extends State<CategoryIcon> {
     Widget targetPage;
 
     switch (widget.text) {
-      case 'GlucoNote':
-        targetPage = const GlucoNoteScreen();
+      case 'GlucoCare':
+        targetPage = const GlucoCareScreen();
         break;
       case 'Screening':
         targetPage = const GlucoScreeningScreen();
@@ -235,28 +241,64 @@ class CardEdukasiSwiper extends StatefulWidget {
 
 class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
   final PageController _pageController = PageController();
-  // int _currentIndex = 0;
+  List<Map<String, String>> displayedData = [];
+  Timer? _scrollTimer;
+  Timer? _updateTimer;
+  int _currentPage = 0;
+  bool _isPageViewBuilt = false;
 
-  List<Map<String, dynamic>> edukasiItems = [
-    {
-      'image':
-          'https://www.tanotofoundation.org/wp-content/uploads/2022/01/WhatsApp-Image-2022-01-18-at-14.42.44-1-1024x768.jpeg',
-      'title': 'Gizi Seimbang',
-      'description': 'Pentingnya makanan sehat untuk penderita diabetes.'
-    },
-    {
-      'image':
-          'https://p2ptm.kemkes.go.id/uploads//TmQwU05BQS9YYlJpanB5VnNtRldFUT09/30_Juni_04.png',
-      'title': 'Aktivitas Fisik',
-      'description': 'Olahraga yang baik untuk mengontrol kadar gula darah.'
-    },
-    {
-      'image':
-          'https://mysiloam-api.siloamhospitals.com/public-asset/website-cms/website-cms-16855041440993113.webp',
-      'title': 'Pemeriksaan Rutin',
-      'description': 'Pentingnya cek kesehatan berkala bagi penderita diabetes.'
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _updateData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isPageViewBuilt = true;
+      });
+      _startAutoScroll();
+    });
+    _updateTimer = Timer.periodic(const Duration(minutes: 3), (timer) {
+      _updateData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+    _updateTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _updateData() {
+    setState(() {
+      displayedData = _getRandomData();
+      _currentPage = 0;
+      if (_isPageViewBuilt) {
+        _pageController.jumpToPage(0);
+      }
+    });
+  }
+
+  List<Map<String, String>> _getRandomData() {
+    final random = Random();
+    final shuffledData = List<Map<String, String>>.from(dataEdukasi)
+      ..shuffle(random);
+    return shuffledData.take(3).toList();
+  }
+
+  void _startAutoScroll() {
+    _scrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!_isPageViewBuilt || !_pageController.hasClients) return;
+
+      _currentPage = (_currentPage + 1) % displayedData.length;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -265,59 +307,88 @@ class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 215,
+          height: 280,
           width: double.infinity,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: edukasiItems.length,
-            // onPageChanged: (index) {
-            //   setState(() {
-            //     _currentIndex = index;
-            //   });
-            // },
-            itemBuilder: (context, index) {
-              final item = edukasiItems[index];
-              return Padding(
-                padding: const EdgeInsets.all(1),
-                child: TransparentImageCard(
-                  width: double.infinity,
-                  height: 250,
-                  imageProvider: NetworkImage(item['image']),
-                  title: Text(
-                    item['title'],
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  description: Text(
-                    item['description'],
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                ),
-              );
-            },
-          ),
+          child: _isPageViewBuilt
+              ? PageView.builder(
+                  controller: _pageController,
+                  itemCount: displayedData.length,
+                  itemBuilder: (context, index) {
+                    final item = displayedData[index];
+
+                    final String imageUrl =
+                        item['imageUrl'] ?? 'https://via.placeholder.com/150';
+                    final String title =
+                        item['judul'] ?? 'Judul Tidak Tersedia';
+                    final String subtitle = item['subJudul'] ?? 'Kategori';
+                    final String description =
+                        item['deskripsi'] ?? 'Deskripsi tidak tersedia.';
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DetailEdukasiScreen(edukasi: item),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: TransparentImageCard(
+                          width: double.infinity,
+                          imageProvider: NetworkImage(imageUrl),
+                          tags: [_tag(subtitle)],
+                          title: _title(title),
+                          description: _content(description),
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : const Center(
+                  child:
+                      CircularProgressIndicator()), // Tambahkan indikator loading sebelum PageView siap
         ),
-        const SizedBox(height: 5),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: List.generate(
-        //     edukasiItems.length,
-        //     (index) => Container(
-        //       margin: const EdgeInsets.symmetric(horizontal: 4),
-        //       width: _currentIndex == index ? 12 : 8,
-        //       height: _currentIndex == index ? 12 : 8,
-        //       decoration: BoxDecoration(
-        //         shape: BoxShape.circle,
-        //         color: _currentIndex == index
-        //             ? const Color(0xFF199A8E)
-        //             : const Color(0xFFE8F3F1),
-        //       ),
-        //     ),
-        //   ),
-        // ),
       ],
+    );
+  }
+
+  Widget _tag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFF199A8E),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+
+  Widget _title(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _content(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+      ),
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
@@ -338,46 +409,40 @@ class CardGlucoInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F3F1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(width: 10),
-          const Icon(
-            FontAwesomeIcons.heartbeat,
-            color: Color(0xFF199A8E),
-            size: 75,
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text(
-                "Gluco Info",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF199A8E),
-                ),
+    return Card(
+      elevation: 4, // Tambahkan shadow agar lebih elegan
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: const Color(0xFFE8F3F1),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: const BoxDecoration(
+                color: Color(0xFF199A8E),
+                shape: BoxShape.circle,
               ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+              child: const Icon(
+                // ignore: deprecated_member_use
+                FontAwesomeIcons.heartbeat,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+            const SizedBox(width: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Text(
                       "$glucoseLevel",
                       style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF101623),
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF199A8E),
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -386,43 +451,51 @@ class CardGlucoInfo extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF101623),
+                        color: Colors.black54,
                       ),
                     ),
-                  ]),
-              Text(
-                "BP: $bloodPressure mmHg",
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF101623),
-                  fontWeight: FontWeight.w500,
+                  ],
                 ),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  Text(
-                    "Height: ${height.toStringAsFixed(1)} cm",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Color(0xFF101623),
-                    ),
+                Text(
+                  "BP: $bloodPressure mmHg",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    "Weight: ${weight.toStringAsFixed(1)} kg",
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xFF101623)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    _infoText("Height", "${height.toStringAsFixed(1)} cm"),
+                    const SizedBox(width: 10),
+                    _infoText("Weight", "${weight.toStringAsFixed(1)} kg"),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _infoText(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          "$label: ",
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

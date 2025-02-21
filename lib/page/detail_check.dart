@@ -24,7 +24,7 @@ class DetailCheckScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -106,6 +106,7 @@ class DetailCheckScreen extends StatelessWidget {
                   children: [
                     _infoItem(FontAwesomeIcons.rulerVertical,
                         "${data["tinggi"]} cm", "Tinggi"),
+                    // ignore: deprecated_member_use
                     _infoItem(FontAwesomeIcons.weight, "${data["berat"]} kg",
                         "Berat"),
                     _infoItem(FontAwesomeIcons.chartPie, imt.toStringAsFixed(2),

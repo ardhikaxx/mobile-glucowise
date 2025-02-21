@@ -18,18 +18,17 @@ class UserScreen extends StatelessWidget {
       cancelBtnText: 'Batal',
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () {
-        Navigator.pop(context); // Tutup alert
+        Navigator.pop(context);
         _logout(context);
       },
     );
   }
 
   void _logout(BuildContext context) {
-    // Tambahkan logika logout di sini (misalnya hapus session/token)
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => true,
+      (route) => false,
     );
   }
 
@@ -38,18 +37,18 @@ class UserScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: const Text(
           'Profile',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 35,
-            fontWeight: FontWeight.w900,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
+        elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(9.0),
           child: Container(
@@ -60,16 +59,14 @@ class UserScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const NavBottom()),
-                );
-              },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
                 size: 20,
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NavBottom()),
               ),
             ),
           ),
@@ -78,153 +75,81 @@ class UserScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+            _buildProfileHeader(),
+            const SizedBox(height: 15),
+            _buildInfoCard(),
+            const SizedBox(height: 15),
+            _buildActionButtons(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0xFF199A8E), width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
-              child: const CircleAvatar(
-                backgroundColor: Colors.white,
-                radius: 50,
-                foregroundImage: NetworkImage(
-                  'https://yt3.googleusercontent.com/6oxTgXwfJQivpKXxGTtyaNs26ShPf-6i84COg3Z3m1yQ2XBT--J8P07u5z2TkRmrfheMFIC1kA=s160-c-k-c0x00ffffff-no-rj',
-                ),
-              ),
+            ],
+          ),
+          child: const CircleAvatar(
+            radius: 55,
+            backgroundImage: NetworkImage(
+              'https://yt3.googleusercontent.com/6oxTgXwfJQivpKXxGTtyaNs26ShPf-6i84COg3Z3m1yQ2XBT--J8P07u5z2TkRmrfheMFIC1kA=s160-c-k-c0x00ffffff-no-rj',
             ),
-            const SizedBox(height: 5),
-            const Text(
-              'Yanuar Ardhika',
-              style: TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF199A8E),
-              ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Yanuar Ardhika',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF199A8E),
+          ),
+        ),
+        const SizedBox(height: 5),
+        const Text(
+          'ardhikayanuar58@gmail.com',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF101623),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoCard() {
+    return Card(
+      color: const Color(0xFFE8F3F1),
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            _buildInfoRow(Icons.phone, 'Nomor HP', '+628599648537'),
+            const Divider(
+              color: Color(0xFF199A8E),
             ),
-            const SizedBox(height: 5),
-            const Text(
-              'ardhikayanuar58@gmail.com',
-              style: TextStyle(
-                fontSize: 16,
-                color: Color(0xFF101623),
-              ),
+            _buildInfoRow(Icons.location_on, 'Alamat', 'Bondowoso, Jawa Timur'),
+            const Divider(
+              color: Color(0xFF199A8E),
             ),
-            const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _buildInfoRow(Icons.phone, 'Nomor HP', '+628599648537'),
-                  const Divider(height: 0.5, color: Color(0xFF199A8E)),
-                  _buildInfoRow(
-                      Icons.location_on, 'Alamat', 'Bondowoso, Jawa Timur'),
-                  const Divider(height: 0.5, color: Color(0xFF199A8E)),
-                  _buildInfoRow(
-                      Icons.date_range, 'Bergabung Pada', '01 Jan 2024'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EditProfileScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: const Color(0xFF199A8E),
-                      foregroundColor: Colors.white, // Text color
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(FontAwesomeIcons.key),
-                        SizedBox(width: 10),
-                        Text(
-                          'Edit Password',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EditProfileScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: const Color(0xFF199A8E),
-                      foregroundColor: Colors.white, // Text color
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(FontAwesomeIcons.penToSquare),
-                        SizedBox(width: 10),
-                        Text(
-                          'Edit Profil',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => _showLogoutConfirmation(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: const BorderSide(
-                          color: Color(0xFF199A8E), width: 2.0),
-                    ),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(
-                          color: Color(0xFF199A8E),
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildInfoRow(Icons.date_range, 'Bergabung Pada', '01 Jan 2024'),
           ],
         ),
       ),
@@ -233,14 +158,10 @@ class UserScreen extends StatelessWidget {
 
   Widget _buildInfoRow(IconData icon, String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: (10)),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: const Color(0xFF199A8E),
-            size: 28,
-          ),
+          Icon(icon, color: const Color(0xFF199A8E), size: 28),
           const SizedBox(width: 15),
           Expanded(
             child: Column(
@@ -258,14 +179,89 @@ class UserScreen extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF101623)),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF101623),
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Column(
+      children: [
+        _buildButton(
+          icon: FontAwesomeIcons.penToSquare,
+          text: 'Edit Profil',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _buildButton(
+          icon: FontAwesomeIcons.key,
+          text: 'Edit Password',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+          ),
+        ),
+        const SizedBox(height: 10),
+        _buildLogoutButton(context),
+      ],
+    );
+  }
+
+  Widget _buildButton({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: const Color(0xFF199A8E),
+          foregroundColor: Colors.white,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon),
+            const SizedBox(width: 10),
+            Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () => _showLogoutConfirmation(context),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: const BorderSide(color: Color(0xFF199A8E), width: 2),
+        ),
+        child: const Text(
+          'Logout',
+          style:
+              TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

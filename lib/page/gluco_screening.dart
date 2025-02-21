@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/page/test_screening.dart';
 
 class GlucoScreeningScreen extends StatelessWidget {
   const GlucoScreeningScreen({super.key});
@@ -17,7 +18,7 @@ class GlucoScreeningScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 30,
+            fontSize: 35,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -49,7 +50,7 @@ class GlucoScreeningScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -70,7 +71,7 @@ class GlucoScreeningScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Screening ini membantumu mengidentifikasi risiko diabetes lebih awal, memungkinkan pencegahan yang lebih optimal.',
+                  'Screening ini membantumu mengenali risiko diabetes lebih awal, sehingga bisa segera mengambil langkah pencegahan yang tepat.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
@@ -82,23 +83,24 @@ class GlucoScreeningScreen extends StatelessWidget {
             const SizedBox(height: 10),
             _buildRiskCard(
               FontAwesomeIcons.circleCheck,
-              'Risiko Rendah (1-20)',
-              'Risiko rendah berarti kamu memiliki kemungkinan kecil untuk terkena diabetes. Tetap jaga pola makan dan olahraga rutin.',
+              'Risiko Rendah (0-7)',
+              'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
               Colors.green,
             ),
             _buildRiskCard(
+              // ignore: deprecated_member_use
               FontAwesomeIcons.exclamationTriangle,
-              'Risiko Sedang (21-30)',
-              'Risiko sedang menunjukkan adanya kemungkinan terkena diabetes. Disarankan untuk menjaga pola hidup sehat dan berkonsultasi dengan dokter.',
+              'Risiko Sedang (8-14)',
+              'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
               Colors.orange,
             ),
             _buildRiskCard(
               FontAwesomeIcons.triangleExclamation,
-              'Risiko Tinggi (31-40)',
-              'Risiko tinggi menunjukkan kemungkinan besar terkena diabetes. Segera lakukan pemeriksaan medis dan perubahan gaya hidup.',
+              'Risiko Tinggi (15-24)',
+              'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
               Colors.red,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -110,7 +112,12 @@ class GlucoScreeningScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  // Tambahkan navigasi ke halaman screening test
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TestScreeningScreen(),
+                    ),
+                  );
                 },
                 child: const Text(
                   'Mulai Screening',
@@ -130,43 +137,71 @@ class GlucoScreeningScreen extends StatelessWidget {
 
   Widget _buildRiskCard(
       IconData icon, String title, String description, Color color) {
-    return Card(
-      color: const Color(0xFFE8F3F1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.2), Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(2, 4),
+          ),
+        ],
       ),
-      shadowColor: Colors.black.withOpacity(0.5),
       margin: const EdgeInsets.only(bottom: 15),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 30),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    description,
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                ],
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Ikon dalam lingkaran
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 30),
               ),
-            ),
-          ],
+              const SizedBox(width: 15),
+
+              // Text di dalam Card
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

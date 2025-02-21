@@ -4,9 +4,9 @@ import 'package:floating_navbar/floating_navbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/page/dashboard.dart';
 import 'package:medical_app/page/profile.dart';
-import 'package:medical_app/page/gluconote.dart';
-import 'package:medical_app/page/glucoscreening.dart';
-import 'package:medical_app/page/glucocheck.dart';
+import 'package:medical_app/page/gluco_care.dart';
+import 'package:medical_app/page/gluco_screening.dart';
+import 'package:medical_app/page/gluco_check.dart';
 
 class NavBottom extends StatelessWidget {
   const NavBottom({super.key});
@@ -27,11 +27,6 @@ class NavBottom extends StatelessWidget {
           page: const DashboardScreen(),
         ),
         FloatingNavBarItem(
-          iconData: FontAwesomeIcons.bookMedical,
-          title: "GlucoNote",
-          page: const GlucoNoteScreen(),
-        ),
-        FloatingNavBarItem(
           // ignore: deprecated_member_use
           iconData: FontAwesomeIcons.heartbeat,
           title: "Screening",
@@ -41,6 +36,11 @@ class NavBottom extends StatelessWidget {
           iconData: FontAwesomeIcons.kitMedical,
           title: "GlucoCheck",
           page: GlucoCheckScreen(),
+        ),
+        FloatingNavBarItem(
+          iconData: FontAwesomeIcons.pills,
+          title: "GlucoNote",
+          page: const GlucoCareScreen(),
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.user,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/detail_check.dart';
-import 'package:medical_app/page/formcheck.dart';
+import 'package:medical_app/page/form_check.dart';
 
 class GlucoCheckScreen extends StatelessWidget {
   GlucoCheckScreen({super.key});
@@ -87,7 +87,7 @@ class GlucoCheckScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GlucoCheckForm()),
+                  MaterialPageRoute(builder: (context) => const GlucoCheckForm()),
                 );
               },
               icon: Container(
@@ -119,13 +119,14 @@ class GlucoCheckScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF199A8E),
               ),
+              textAlign: TextAlign.start,
             ),
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
               shadowColor: Colors.black.withOpacity(0.5),
-              elevation: 5,
+              elevation: 4,
               color: const Color(0xFFE8F3F1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -168,6 +169,7 @@ class GlucoCheckScreen extends StatelessWidget {
                       children: [
                         _infoItem(FontAwesomeIcons.rulerVertical,
                             "${dataTerbaru["tinggi"]} cm", "Tinggi"),
+                        // ignore: deprecated_member_use
                         _infoItem(FontAwesomeIcons.weight,
                             "${dataTerbaru["berat"]} kg", "Berat"),
                         _infoItem(FontAwesomeIcons.chartPie,
@@ -221,7 +223,8 @@ class GlucoCheckScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     color: const Color(0xFFE8F3F1),
-                    elevation: 3,
+                    shadowColor: Colors.black.withOpacity(0.5),
+                    elevation: 4,
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(

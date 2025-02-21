@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medical_app/auth/forgot.dart';
 import 'package:medical_app/auth/register.dart';
 import 'package:medical_app/components/navbottom.dart';
 
@@ -101,7 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const RegisterScreen()));
+                                    builder: (context) =>
+                                        const RegisterScreen()));
                           },
                           child: const Text("Register",
                               style: TextStyle(
@@ -216,7 +218,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
           TextButton(
-            onPressed: () => print("Forgot password"),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ForgotPasswordPage(),
+                ),
+              );
+            },
             child: const Text(
               "Forgot Password?",
               style: TextStyle(
@@ -239,10 +248,8 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () {
             if (_emailController.text.isNotEmpty &&
                 _passwordController.text.isNotEmpty) {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NavBottom()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const NavBottom()));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Please fill in all fields")));
