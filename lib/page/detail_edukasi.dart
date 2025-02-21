@@ -70,7 +70,7 @@ class DetailEdukasiScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              edukasi['subJudul']!,
+              edukasi['category']!,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -126,7 +126,7 @@ class DetailEdukasiScreen extends StatelessWidget {
                                   BorderRadius.circular(10),
                               child: Image.network(
                                 item['imageUrl']!,
-                                width: 100,
+                                width: 150,
                                 height: 80,
                                 fit: BoxFit.cover,
                               ),
@@ -147,7 +147,7 @@ class DetailEdukasiScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    item['subJudul']!,
+                                    item['category']!,
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.black54,
@@ -159,6 +159,7 @@ class DetailEdukasiScreen extends StatelessWidget {
                             const Icon(
                               Icons.chevron_right,
                               color: Colors.black54,
+                              size: 26,
                             ),
                           ],
                         ),
