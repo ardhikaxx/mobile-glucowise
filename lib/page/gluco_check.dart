@@ -32,6 +32,22 @@ class GlucoCheckScreen extends StatelessWidget {
       "umur": 22,
       "tensi": "140/90"
     },
+    {
+      "tanggal": "03 Feb 2025",
+      "tinggi": 180,
+      "berat": 75,
+      "gulaDarah": 120,
+      "umur": 22,
+      "tensi": "150/95"
+    },
+    {
+      "tanggal": "01 Feb 2025",
+      "tinggi": 185,
+      "berat": 85,
+      "gulaDarah": 135,
+      "umur": 22,
+      "tensi": "160/100"
+    },
   ];
 
   double hitungIMT(double berat, double tinggi) {
@@ -259,7 +275,10 @@ class GlucoCheckScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           ),
                           SizedBox(width: 4),
-                          Icon(Icons.chevron_right, color: Color(0xFF199A8E)),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF199A8E)
+                          ),
                         ],
                       ),
                       onTap: () {

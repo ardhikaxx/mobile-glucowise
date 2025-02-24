@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/components/navbottom.dart';
-import 'package:medical_app/page/detail_reminder.dart';
+import 'package:medical_app/page/edit_care.dart';
 import 'package:medical_app/page/riwayat_care.dart';
 import 'package:medical_app/page/form_care.dart';
 
@@ -296,7 +296,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
             MaterialPageRoute(
               builder: (context) => data["status"] == "Sudah"
                   ? RiwayatCareScreen(riwayatObat: riwayatObat)
-                  : DetailReminderScreen(data: data),
+                  : EditCareScreen(data: data),
             ),
           );
         },

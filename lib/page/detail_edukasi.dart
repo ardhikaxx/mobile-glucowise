@@ -117,13 +117,11 @@ class DetailEdukasiScreen extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       color: const Color(0xFFE8F3F1),
                       child: Padding(
-                        padding:
-                            const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Row(
                           children: [
                             ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                               child: Image.network(
                                 item['imageUrl']!,
                                 width: 150,
@@ -139,28 +137,24 @@ class DetailEdukasiScreen extends StatelessWidget {
                                   Text(
                                     item['judul']!,
                                     style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(
-                                          0xFF199A8E),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF199A8E),
                                     ),
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
                                     item['category']!,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.black54,
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(
-                              Icons.chevron_right,
-                              color: Colors.black54,
-                              size: 26,
-                            ),
+                            const Icon(Icons.chevron_right, color: Color(0xFF199A8E)),
                           ],
                         ),
                       ),

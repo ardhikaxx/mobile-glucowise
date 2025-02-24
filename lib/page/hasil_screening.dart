@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/page/gluco_check.dart';
 
 class HasilScreeningScreen extends StatelessWidget {
   final int totalScore;
@@ -154,32 +154,32 @@ class HasilScreeningScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const NavBottom()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF199A8E),
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => GlucoCheckScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF199A8E),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        shadowColor: Colors.black.withOpacity(0.5),
+                        elevation: 4,
                       ),
-                      shadowColor: Colors.black.withOpacity(0.5),
-                      elevation: 4,
-                    ),
-                    child: const Text(
-                      "Kembali ke Beranda",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    )
-                ),
+                      child: const Text(
+                        "Kembali ke Beranda",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    )),
               ],
             ),
           ),

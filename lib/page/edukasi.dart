@@ -21,7 +21,7 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
   void initState() {
     super.initState();
     categories = [
-      {"name": "Semua", "icon": FontAwesomeIcons.layerGroup},
+      {"name": "Semua", "icon": FontAwesomeIcons.bookBookmark},
       {"name": "Dasar Diabetes", "icon": FontAwesomeIcons.bookMedical},
       {"name": "Manajemen Diabetes", "icon": FontAwesomeIcons.kitMedical},
     ];

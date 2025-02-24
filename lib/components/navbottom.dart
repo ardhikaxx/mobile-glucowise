@@ -16,7 +16,7 @@ class NavBottom extends StatelessWidget {
     return FloatingNavBar(
       color: const Color(0xFFF9FAFB),
       selectedIconColor: const Color(0xFF199A8E),
-      unselectedIconColor: const Color(0xFF199A8E).withOpacity(0.5),
+      unselectedIconColor: const Color(0xFF199A8E).withOpacity(0.6),
       borderRadius: 30,
       horizontalPadding: 20,
       hapticFeedback: true,
@@ -39,7 +39,7 @@ class NavBottom extends StatelessWidget {
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.pills,
-          title: "GlucoNote",
+          title: "GlucoCare",
           page: const GlucoCareScreen(),
         ),
         FloatingNavBarItem(
