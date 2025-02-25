@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_card/image_card.dart';
 import 'package:medical_app/data/data_edukasi.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
-import 'package:medical_app/page/detail_edukasi.dart';
+import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class EdukasiScreen extends StatefulWidget {

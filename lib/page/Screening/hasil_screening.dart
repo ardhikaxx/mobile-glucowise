@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/page/gluco_check.dart';
+import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
 
 class HasilScreeningScreen extends StatelessWidget {
   final int totalScore;
@@ -101,8 +101,8 @@ class HasilScreeningScreen extends StatelessWidget {
                           ),
                           child: Image.asset(
                             riskIcon,
-                            width: 125,
-                            height: 125,
+                            width: 100,
+                            height: 100,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -175,7 +175,7 @@ class HasilScreeningScreen extends StatelessWidget {
                         elevation: 4,
                       ),
                       child: const Text(
-                        "Kembali ke Beranda",
+                        "Lanjut Pemeriksaan ke GlucoCheck",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:floating_navbar/floating_navbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/page/dashboard.dart';
-import 'package:medical_app/page/profile.dart';
-import 'package:medical_app/page/gluco_care.dart';
-import 'package:medical_app/page/gluco_screening.dart';
-import 'package:medical_app/page/gluco_check.dart';
+import 'package:medical_app/page/UserProfile/profile.dart';
+import 'package:medical_app/page/GlucoCare/gluco_care.dart';
+import 'package:medical_app/page/Screening/gluco_screening.dart';
+import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
 
 class NavBottom extends StatelessWidget {
   const NavBottom({super.key});

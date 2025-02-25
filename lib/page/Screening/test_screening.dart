@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/components/navbottom.dart';
-import 'package:medical_app/page/hasil_screening.dart';
+import 'package:medical_app/page/Screening/hasil_screening.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/data/data_screening.dart';
 import 'package:lottie/lottie.dart';

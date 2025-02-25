@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/components/navbottom.dart';
-import 'package:medical_app/page/detail_check.dart';
-import 'package:medical_app/page/form_check.dart';
+import 'package:medical_app/page/GlucoCheck/detail_check.dart';
+import 'package:medical_app/page/GlucoCheck/form_check.dart';
 
 class GlucoCheckScreen extends StatelessWidget {
   GlucoCheckScreen({super.key});
