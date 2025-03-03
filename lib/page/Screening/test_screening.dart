@@ -4,7 +4,6 @@ import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/Screening/hasil_screening.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/data/data_screening.dart';
-import 'package:lottie/lottie.dart';
 
 class TestScreeningScreen extends StatefulWidget {
   const TestScreeningScreen({super.key});
@@ -170,8 +169,8 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                         shape: BoxShape.circle,
                         color: Color(0xFFF9FAFB),
                       ),
-                      child: Lottie.asset(
-                        'assets/lottie/question.json',
+                      child: Image.asset(
+                        'assets/icon/question.png',
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
