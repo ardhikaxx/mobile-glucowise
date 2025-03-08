@@ -41,6 +41,8 @@ dependencies:
   intl: ^0.20.2
   youtube_player_flutter: ^9.1.1
   material_design_icons_flutter: ^7.0.7296
+  floating_action_bubble: ^1.1.4
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -67,7 +69,6 @@ flutter:
     - assets/logo.png
     - assets/Lock.png
     - assets/Key.png
-    - assets/lottie/question.json
     - assets/icon/alert.png
     - assets/icon/Heart.png
     - assets/icon/warning.png

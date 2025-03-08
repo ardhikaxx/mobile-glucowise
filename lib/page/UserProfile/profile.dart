@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/auth/login.dart';
 import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/page/UserProfile/edit_password.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -42,7 +43,7 @@ class UserScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 28,
+            fontSize: 35,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -209,7 +210,7 @@ class UserScreen extends StatelessWidget {
           text: 'Edit Password',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+            MaterialPageRoute(builder: (context) => const EditPasswordScreen()),
           ),
         ),
         const SizedBox(height: 10),

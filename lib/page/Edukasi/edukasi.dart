@@ -1,3 +1,4 @@
+import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_card/image_card.dart';
@@ -13,9 +14,12 @@ class EdukasiScreen extends StatefulWidget {
   State<EdukasiScreen> createState() => _EdukasiScreenState();
 }
 
-class _EdukasiScreenState extends State<EdukasiScreen> {
+class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateMixin {
   late List<Map<String, dynamic>> categories;
   String selectedCategory = 'Semua';
+
+  late Animation<double> _animation;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -25,6 +29,21 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
       {"name": "Dasar Diabetes", "icon": FontAwesomeIcons.bookMedical},
       {"name": "Manajemen Diabetes", "icon": FontAwesomeIcons.kitMedical},
     ];
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    );
+
+    final curvedAnimation =
+        CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
+    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,6 +84,44 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
+      floatingActionButton: FloatingActionBubble(
+        items: <Bubble>[
+          Bubble(
+            title: "Chat Bot",
+            iconColor: Colors.white,
+            bubbleColor: const Color(0xFF199A8E),
+            icon: FontAwesomeIcons.robot,
+            titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
+            onPress: () {
+              _animationController.reverse();
+            },
+          ),
+          Bubble(
+            title: "Game Edukasi",
+            iconColor: Colors.white,
+            bubbleColor: const Color(0xFF199A8E),
+            icon: FontAwesomeIcons.gamepad,
+            titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
+            onPress: () {
+              _animationController.reverse();
+            },
+          ),
+        ],
+
+        animation: _animation,
+
+        onPress: () => _animationController.isCompleted
+            ? _animationController.reverse()
+            : _animationController.forward(),
+
+        iconColor: Colors.white,
+        iconData: Icons.menu,
+        backGroundColor: const Color(0xFF199A8E),
+
+      ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -151,14 +208,11 @@ class _EdukasiScreenState extends State<EdukasiScreen> {
           if (videoID == null) return const SizedBox();
           return Padding(
             padding: const EdgeInsets.only(left: 20),
-            child: InkWell(
-              onTap: () {},
-              child: TransparentImageCard(
-                width: 320,
-                height: 200,
-                imageProvider: NetworkImage(YoutubePlayer.getThumbnail(
-                  videoId: videoID,
-                )),
+            child: TransparentImageCard(
+              width: 320,
+              height: 200,
+              imageProvider: NetworkImage(
+                YoutubePlayer.getThumbnail(videoId: videoID),
               ),
             ),
           );

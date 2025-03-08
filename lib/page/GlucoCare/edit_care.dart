@@ -18,20 +18,14 @@ class _EditCareScreenState extends State<EditCareScreen> {
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedTimeObat;
-  TimeOfDay? selectedTimeMakan;
 
   @override
   void initState() {
     super.initState();
     namaObatController = TextEditingController(text: widget.data["nama"]);
     dosisController = TextEditingController(text: widget.data["dosis"]);
-
-    // Parsing tanggal (jika dalam format String, ubah menjadi DateTime)
     selectedDate = _parseDate(widget.data["tanggal"]) ?? DateTime.now();
-
-    // Parsing waktu
     selectedTimeObat = _parseTime(widget.data["jam_obat"]);
-    selectedTimeMakan = _parseTime(widget.data["jam_makan"]);
   }
 
   DateTime? _parseDate(dynamic date) {
@@ -107,11 +101,6 @@ class _EditCareScreenState extends State<EditCareScreen> {
             _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
               setState(() {
                 selectedTimeObat = time;
-              });
-            }),
-            _buildTimePickerField("Jam Minum Obat Setelah Makan", selectedTimeMakan, (time) {
-              setState(() {
-                selectedTimeMakan = time;
               });
             }),
             const SizedBox(height: 20),
@@ -258,7 +247,6 @@ class _EditCareScreenState extends State<EditCareScreen> {
             "dosis": dosisController.text,
             "tanggal": DateFormat("yyyy-MM-dd").format(selectedDate),
             "jam_obat": selectedTimeObat?.format(context),
-            "jam_makan": selectedTimeMakan?.format(context),
           });
         },
         style: ElevatedButton.styleFrom(

@@ -14,11 +14,9 @@ class _FormCareScreenState extends State<FormCareScreen> {
   final TextEditingController namaObatController = TextEditingController();
   final TextEditingController dosisController = TextEditingController();
   final TextEditingController jamObatController = TextEditingController();
-  final TextEditingController jamMakanController = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedTimeObat;
-  TimeOfDay? selectedTimeMakan;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +69,6 @@ class _FormCareScreenState extends State<FormCareScreen> {
             _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
               setState(() {
                 selectedTimeObat = time;
-              });
-            }),
-            _buildTimePickerField("Jam Minum obat setelah makan", selectedTimeMakan, (time) {
-              setState(() {
-                selectedTimeMakan = time;
               });
             }),
             const SizedBox(height: 20),

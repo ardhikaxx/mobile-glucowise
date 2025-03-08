@@ -6,21 +6,16 @@ class DetailCheckScreen extends StatelessWidget {
 
   const DetailCheckScreen({super.key, required this.data});
 
-  double hitungIMT(double berat, double tinggi) {
-    double tinggiMeter = tinggi / 100;
-    return berat / (tinggiMeter * tinggiMeter);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final double imt =
-        hitungIMT(data["berat"].toDouble(), data["tinggi"].toDouble());
+    Map<String, dynamic> risiko = _getRiskStatus(data["gulaDarah"]);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 0,
+        automaticallyImplyLeading: false,
         title: const Text(
-          'Detail Pemeriksaan',
+          'Detail Gluco Check',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -32,117 +27,101 @@ class DetailCheckScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         leading: Padding(
           padding: const EdgeInsets.all(9.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF199A8E),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF199A8E),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
-                size: 18,
+                size: 20,
               ),
             ),
           ),
         ),
       ),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    FontAwesomeIcons.calendarDay,
-                    color: Color(0xFF199A8E),
-                    size: 28,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    data["tanggal"],
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF199A8E),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 5,
+                shadowColor: Colors.black.withOpacity(0.2),
                 color: const Color(0xFFE8F3F1),
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(2, 2),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tanggal Pemeriksaan
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(FontAwesomeIcons.calendarDay,
+                                  color: Color(0xFF199A8E)),
+                              const SizedBox(width: 8),
+                              Text(
+                                data["tanggal"],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Icon(FontAwesomeIcons.fileMedical,
+                              color: Color(0xFF199A8E)),
+                        ],
+                      ),
+                      const Divider(
+                        color: Color(0xFF199A8E),
+                        thickness: 0.8,
+                        height: 15,
+                      ),
+                      const SizedBox(height: 5),
+
+                      // GridView Data Pemeriksaan + Risiko Diabetes
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 2.5,
+                        children: [
+                          _infoItem(FontAwesomeIcons.ruler,
+                              "${data["tinggi"]} cm", "Tinggi Badan"),
+                          _infoItem(FontAwesomeIcons.weightScale,
+                              "${data["berat"]} kg", "Berat Badan"),
+                          _infoItem(FontAwesomeIcons.droplet,
+                              "${data["gulaDarah"]} mg/dL", "Gula Darah"),
+                          _infoItem(FontAwesomeIcons.heartPulse,
+                              data["tensi"], "Tensi"),
+                          _infoItem(FontAwesomeIcons.ruler,
+                              "${data["lingkarPinggang"]} cm", "Lingkar Pinggang"),
+                          _infoItem(FontAwesomeIcons.userClock,
+                              "${data["umur"]} tahun", "Umur"),
+                          _infoItem(FontAwesomeIcons.userGroup,
+                              data["faktorKeluargaDiabetes"], "Riwayat Keluarga"),
+                          _riskItem(risiko["icon"], risiko["status"], risiko["color"]),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 2.5,
-                  children: [
-                    _infoItem(FontAwesomeIcons.rulerVertical,
-                        "${data["tinggi"]} cm", "Tinggi"),
-                    // ignore: deprecated_member_use
-                    _infoItem(FontAwesomeIcons.weight, "${data["berat"]} kg",
-                        "Berat"),
-                    _infoItem(FontAwesomeIcons.chartPie, imt.toStringAsFixed(2),
-                        "IMT"),
-                    _infoItem(FontAwesomeIcons.droplet,
-                        "${data["gulaDarah"]} mg/dL", "Gula Darah"),
-                    _infoItem(
-                        FontAwesomeIcons.user, "${data["umur"]} tahun", "Umur"),
-                    _infoItem(
-                        FontAwesomeIcons.heartPulse, data["tensi"], "Tensi"),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  backgroundColor: const Color(0xFF199A8E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 3,
-                ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text(
-                  "Kembali",
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
                 ),
               ),
             ),
@@ -153,19 +132,10 @@ class DetailCheckScreen extends StatelessWidget {
   }
 
   Widget _infoItem(IconData icon, String value, String label) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+    return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(2, 2),
-          ),
-        ],
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
       child: Row(
@@ -180,7 +150,7 @@ class DetailCheckScreen extends StatelessWidget {
               Text(
                 value,
                 style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
               Text(
                 label,
@@ -191,5 +161,59 @@ class DetailCheckScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _riskItem(IconData icon, String status, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                status,
+                style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.bold, color: color),
+              ),
+              const Text(
+                "Risiko Diabetes",
+                style: TextStyle(fontSize: 12, color: Colors.black87),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Map<String, dynamic> _getRiskStatus(int gulaDarah) {
+    if (gulaDarah < 100) {
+      return {
+        "status": "Rendah",
+        "icon": FontAwesomeIcons.solidFaceSmile,
+        "color": Colors.green,
+      };
+    } else if (gulaDarah < 140) {
+      return {
+        "status": "Sedang",
+        "icon": FontAwesomeIcons.faceMeh,
+        "color": Colors.orange,
+      };
+    } else {
+      return {
+        "status": "Tinggi",
+        "icon": FontAwesomeIcons.solidFaceFrown,
+        "color": Colors.red,
+      };
+    }
   }
 }

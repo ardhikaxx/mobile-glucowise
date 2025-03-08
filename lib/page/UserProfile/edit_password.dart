@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quickalert/quickalert.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+class EditPasswordScreen extends StatefulWidget {
+  const EditPasswordScreen({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  _EditPasswordScreenState createState() => _EditPasswordScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController =
-      TextEditingController(text: "Yanuar Ardhika");
-  final TextEditingController _emailController =
-      TextEditingController(text: "ardhikayanuar58@gmail.com");
-  final TextEditingController _phoneController =
-      TextEditingController(text: "+628599648537");
-  final TextEditingController _addressController =
-      TextEditingController(text: "Bondowoso, Jawa Timur");
+class _EditPasswordScreenState extends State<EditPasswordScreen> {
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  bool _showOldPassword = false;
+  bool _showNewPassword = false;
+  bool _showConfirmPassword = false;
 
   void _showExitConfirmation() {
     QuickAlert.show(
@@ -43,7 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'Edit Profile',
+          'Edit Password',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -77,16 +76,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            _buildTextField("Nama", Icons.person, _nameController),
-            _buildTextField("Email", Icons.email, _emailController),
-            _buildTextField("Nomor HP", Icons.phone, _phoneController),
-            _buildTextField("Alamat", Icons.location_on, _addressController),
+            _buildPasswordField(
+              controller: _oldPasswordController,
+              labelText: "Password Lama",
+              obscureText: !_showOldPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showOldPassword = !_showOldPassword;
+                });
+              },
+              isVisible: _showOldPassword,
+            ),
+            _buildPasswordField(
+              controller: _newPasswordController,
+              labelText: "Password Baru",
+              obscureText: !_showNewPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showNewPassword = !_showNewPassword;
+                });
+              },
+              isVisible: _showNewPassword,
+            ),
+            _buildPasswordField(
+              controller: _confirmPasswordController,
+              labelText: "Konfirmasi Password",
+              obscureText: !_showConfirmPassword,
+              onToggleVisibility: () {
+                setState(() {
+                  _showConfirmPassword = !_showConfirmPassword;
+                });
+              },
+              isVisible: _showConfirmPassword,
+            ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Simpan data perubahan profil
+                  // Simpan password baru
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -107,17 +135,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(String label, IconData icon, TextEditingController controller) {
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String labelText,
+    required bool obscureText,
+    required VoidCallback onToggleVisibility,
+    required bool isVisible,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          labelText: label,
+          labelText: labelText,
           labelStyle: const TextStyle(color: Color(0xFF199A8E)),
-          prefixIcon: Icon(icon, color: const Color(0xFF199A8E)),
+          prefixIcon: const Icon(Icons.lock, color: Color(0xFF199A8E)),
+          suffixIcon: IconButton(
+            icon: Icon(
+              isVisible ? Icons.visibility : Icons.visibility_off,
+              color: const Color(0xFF199A8E),
+            ),
+            onPressed: onToggleVisibility,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),

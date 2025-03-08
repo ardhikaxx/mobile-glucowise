@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:medical_app/auth/login.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -9,7 +10,8 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -59,24 +61,46 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/logo.png',
-                  width: 200,
-                  height: 200,
+                Shimmer.fromColors(
+                  baseColor: const Color(0xFF199A8E),
+                  highlightColor: Colors.white,
+                  child: Image.asset(
+                    'assets/logo.png',
+                    width: 200,
+                    height: 200,
+                  ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'GlucoWise',
-                  style: TextStyle(
-                    fontFamily: 'DarumadropOne',
-                    color: Color(0xFF199A8E),
-                    fontSize: 45,
-                    fontWeight: FontWeight.w900,
+                Shimmer.fromColors(
+                  baseColor: const Color(0xFF199A8E),
+                  highlightColor: Colors.white,
+                  child: const Text(
+                    'GlucoWise',
+                    style: TextStyle(
+                      fontFamily: 'DarumadropOne',
+                      color: Color(0xFF199A8E),
+                      fontSize: 45,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E)),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(seconds: 4),
+                  builder: (context, value, child) {
+                    return SizedBox(
+                      width: 150,
+                      height: 5,
+                      child: LinearProgressIndicator(
+                        value: value,
+                        backgroundColor: Colors.grey.shade300,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF199A8E)),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

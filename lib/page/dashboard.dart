@@ -307,7 +307,7 @@ class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 280,
+          height: 220,
           width: double.infinity,
           child: _isPageViewBuilt
               ? PageView.builder(
@@ -349,7 +349,7 @@ class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
                 )
               : const Center(
                   child:
-                      CircularProgressIndicator()), // Tambahkan indikator loading sebelum PageView siap
+                      CircularProgressIndicator()),
         ),
       ],
     );
@@ -387,7 +387,7 @@ class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
         color: Colors.white,
         fontSize: 14,
       ),
-      maxLines: 3,
+      maxLines: 1,
       overflow: TextOverflow.ellipsis,
     );
   }
