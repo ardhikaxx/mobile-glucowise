@@ -4,8 +4,9 @@ import 'package:medical_app/page/splash.dart';
 import 'package:medical_app/services/global.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Global.init();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -3,6 +3,7 @@ import 'package:medical_app/auth/forgot.dart';
 import 'package:medical_app/auth/register.dart';
 import 'package:medical_app/services/auth_services.dart'; // Import auth_services.dart
 import 'package:quickalert/quickalert.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,9 +16,38 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _showPassword = false;
   bool _rememberMe = false;
+  late SharedPreferences _preferences;
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _rememberMe = _preferences.getBool('rememberMe') ?? false;
+      if (_rememberMe) {
+        _emailController.text = _preferences.getString('email') ?? '';
+        _passwordController.text = _preferences.getString('password') ?? '';
+      }
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    await _preferences.setBool('rememberMe', _rememberMe);
+    if (_rememberMe) {
+      await _preferences.setString('email', _emailController.text);
+      await _preferences.setString('password', _passwordController.text);
+    } else {
+      await _preferences.remove('email');
+      await _preferences.remove('password');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,6 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onChanged: (value) {
                   setState(() {
                     _rememberMe = value!;
+                    _savePreferences();
                   });
                 },
                 activeColor: const Color(0xFF199A8E),
@@ -246,8 +277,8 @@ class _LoginScreenState extends State<LoginScreen> {
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () async {
-            String email = _emailController.text.trim();
-            String password = _passwordController.text.trim();
+            String email = _emailController.text;
+            String password = _passwordController.text;
 
             if (email.isEmpty && password.isEmpty) {
               _showQuickAlert(context, "Email dan password tidak diisi",
@@ -262,9 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   context, "Password tidak diisi", QuickAlertType.error);
               return;
             }
-
-            AuthServices.login(context, email, password);
-            // ignore: use_build_context_synchronously
+            
             await AuthServices.login(context, email, password);
           },
           style: ElevatedButton.styleFrom(
