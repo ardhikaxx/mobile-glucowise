@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/page/splash.dart';
+import 'package:medical_app/services/global.dart';
 
-void main() {
+void main() async {
+  await Global.init();
   runApp(const MyApp());
 }
 
@@ -10,10 +13,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'diabetic management', 
+    return GetMaterialApp(
+      title: 'Diabetic Management',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }

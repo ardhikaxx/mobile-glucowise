@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/auth/login.dart';
 import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_password.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
 import 'package:quickalert/quickalert.dart';
 
 class UserScreen extends StatelessWidget {
-  const UserScreen({super.key});
+  const UserScreen({super.key, required UserData userData});
 
   void _showLogoutConfirmation(BuildContext context) {
     QuickAlert.show(
@@ -65,10 +66,7 @@ class UserScreen extends StatelessWidget {
                 color: Colors.white,
                 size: 20,
               ),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NavBottom()),
-              ),
+              onPressed: () {}
             ),
           ),
         ),

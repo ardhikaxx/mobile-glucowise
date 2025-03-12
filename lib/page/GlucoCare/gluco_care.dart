@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/GlucoCare/edit_care.dart';
 import 'package:medical_app/page/GlucoCare/riwayat_care.dart';
 import 'package:medical_app/page/GlucoCare/form_care.dart';
@@ -92,8 +91,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           padding: const EdgeInsets.all(9.0),
           child: _buildIconButton(
             icon: FontAwesomeIcons.chevronLeft,
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const NavBottom())),
+            onTap: () {}
           ),
         ),
         actions: [

@@ -11,6 +11,9 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _showPassword = false;
+  bool _showConfirmPassword = false;
+  final TextEditingController _nikController = TextEditingController();
+  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -26,15 +29,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
                 "assets/logo.png",
                 width: 180,
                 height: 180,
               ),
-              const SizedBox(height: 10),
               const Text(
                 "Create Account",
                 style: TextStyle(
@@ -51,14 +52,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
+              _buildInputField(
+                controller: _nikController,
+                labelText: "NIK",
+                prefixIcon: Icons.badge, // Icon untuk NIK
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 15),
+              _buildInputField(
+                controller: _namaController,
+                labelText: "Nama Lengkap",
+                prefixIcon: Icons.person, // Icon untuk Nama Lengkap
+                keyboardType: TextInputType.text,
+              ),
+              const SizedBox(height: 15),
               _buildInputField(
                 controller: _emailController,
                 labelText: "Email",
                 prefixIcon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               _buildInputField(
                 controller: _passwordController,
                 labelText: "Password",
@@ -76,20 +91,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               _buildInputField(
-                controller: _passwordController,
-                labelText: "Password",
+                controller: _confirmPasswordController,
+                labelText: "Ulangi Password",
                 prefixIcon: Icons.lock,
-                obscureText: !_showPassword,
+                obscureText: !_showConfirmPassword,
                 suffixIcon: IconButton(
                   icon: Icon(
                     color: const Color(0xFF199A8E),
-                    _showPassword ? Icons.visibility : Icons.visibility_off,
+                    _showConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                   ),
                   onPressed: () {
                     setState(() {
-                      _showPassword = !_showPassword;
+                      _showConfirmPassword = !_showConfirmPassword;
                     });
                   },
                 ),

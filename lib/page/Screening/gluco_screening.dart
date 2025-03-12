@@ -35,10 +35,10 @@ class GlucoScreeningScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const NavBottom()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => const NavBottom()),
+                // );
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

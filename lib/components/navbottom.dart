@@ -7,9 +7,12 @@ import 'package:medical_app/page/UserProfile/profile.dart';
 import 'package:medical_app/page/GlucoCare/gluco_care.dart';
 import 'package:medical_app/page/Screening/gluco_screening.dart';
 import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
+import 'package:medical_app/model/user.dart';
 
 class NavBottom extends StatelessWidget {
-  const NavBottom({super.key});
+  final UserData userData;
+
+  const NavBottom({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -24,28 +27,27 @@ class NavBottom extends StatelessWidget {
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.house,
           title: "Dashboard",
-          page: const DashboardScreen(),
+          page: DashboardScreen(userData: userData),
         ),
         FloatingNavBarItem(
-          // ignore: deprecated_member_use
           iconData: FontAwesomeIcons.heartbeat,
           title: "Screening",
-          page: const GlucoScreeningScreen(),
+          page: GlucoScreeningScreen(),  // Kirim userData ke GlucoScreening
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.kitMedical,
           title: "GlucoCheck",
-          page: GlucoCheckScreen(),
+          page: GlucoCheckScreen(),  // Kirim userData ke GlucoCheck
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.pills,
           title: "GlucoCare",
-          page: const GlucoCareScreen(),
+          page: GlucoCareScreen(),  // Kirim userData ke GlucoCare
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.user,
           title: "User",
-          page: const UserScreen(),
+          page: UserScreen(userData: userData),  // Kirim userData ke UserScreen
         ),
       ],
     );

@@ -1,0 +1,2 @@
+D:/Kuliah/projek-flutter/medical_app/android/app/.cxx/Debug/2k3k1f53/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Kuliah/projek-flutter/medical_app/android/app/.cxx/Debug/2k3k1f53/armeabi-v7a/CMakeFiles/rebuild_cache.dir

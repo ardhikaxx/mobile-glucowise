@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/auth/forgot.dart';
 import 'package:medical_app/auth/register.dart';
-import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/services/auth_services.dart'; // Import auth_services.dart
+import 'package:quickalert/quickalert.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,7 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset("assets/logo.png", width: 180, height: 180),
-                    const SizedBox(height: 10),
                     const Text(
                       "Welcome Back!",
                       style: TextStyle(
@@ -245,15 +245,27 @@ class _LoginScreenState extends State<LoginScreen> {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {
-            if (_emailController.text.isNotEmpty &&
-                _passwordController.text.isNotEmpty) {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const NavBottom()));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please fill in all fields")));
+          onPressed: () async {
+            String email = _emailController.text.trim();
+            String password = _passwordController.text.trim();
+
+            if (email.isEmpty && password.isEmpty) {
+              _showQuickAlert(context, "Email dan password tidak diisi",
+                  QuickAlertType.error);
+              return;
+            } else if (email.isEmpty) {
+              _showQuickAlert(
+                  context, "Email tidak diisi", QuickAlertType.error);
+              return;
+            } else if (password.isEmpty) {
+              _showQuickAlert(
+                  context, "Password tidak diisi", QuickAlertType.error);
+              return;
             }
+
+            AuthServices.login(context, email, password);
+            // ignore: use_build_context_synchronously
+            await AuthServices.login(context, email, password);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF199A8E),
@@ -266,6 +278,17 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(fontSize: 18, color: Colors.white)),
         ),
       ),
+    );
+  }
+
+  void _showQuickAlert(
+      BuildContext context, String message, QuickAlertType alertType) {
+    QuickAlert.show(
+      context: context,
+      type: alertType,
+      title: 'Pesan',
+      text: message,
+      confirmBtnText: 'OK',
     );
   }
 }

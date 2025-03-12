@@ -8,11 +8,14 @@ import 'package:medical_app/page/GlucoCare/gluco_care.dart';
 import 'package:medical_app/page/Screening/gluco_screening.dart';
 import 'package:medical_app/page/UserProfile/profile.dart';
 import 'package:medical_app/data/data_edukasi.dart';
+import 'package:medical_app/model/user.dart';
 import 'dart:async';
 import 'dart:math';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  final UserData userData;
+
+  const DashboardScreen({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +36,19 @@ class DashboardScreen extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: Colors.white,
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            UserIntro(),
-            SizedBox(height: 15),
-            SearchInput(),
-            SizedBox(height: 15),
-            CategoryIcons(),
-            SizedBox(height: 15),
-            Text(
+            UserIntro(userData: userData), // Teruskan userData ke UserIntro
+            const SizedBox(height: 15),
+            const SearchInput(),
+            const SizedBox(height: 15),
+            const CategoryIcons(),
+            const SizedBox(height: 15),
+            const Text(
               "Gluco Info",
               style: TextStyle(
                 fontSize: 22,
@@ -54,15 +57,15 @@ class DashboardScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.start,
             ),
-            SizedBox(height: 10),
-            CardGlucoInfo(
+            const SizedBox(height: 10),
+            const CardGlucoInfo(
               glucoseLevel: 75,
               bloodPressure: '120/80',
               height: 170,
               weight: 65,
             ),
-            SizedBox(height: 15),
-            Text(
+            const SizedBox(height: 15),
+            const Text(
               "Edukasi",
               style: TextStyle(
                 fontSize: 22,
@@ -71,8 +74,8 @@ class DashboardScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.start,
             ),
-            SizedBox(height: 10),
-            CardEdukasiSwiper(),
+            const SizedBox(height: 10),
+            const CardEdukasiSwiper(),
           ],
         ),
       ),
@@ -99,8 +102,8 @@ class CategoryIcons extends StatelessWidget {
   }
 }
 
+// Tambahkan daftar kategori agar tidak error
 List<Map<String, dynamic>> categories = [
-  // ignore: deprecated_member_use
   {'icon': FontAwesomeIcons.heartbeat, 'text': 'Screening'},
   {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
   {'icon': FontAwesomeIcons.pills, 'text': 'GlucoCare'},
@@ -139,7 +142,13 @@ class _CategoryIconState extends State<CategoryIcon> {
         targetPage = const EdukasiScreen();
         break;
       default:
-        targetPage = const DashboardScreen();
+        targetPage = DashboardScreen(
+            userData: UserData(
+                nik: '',
+                email: '',
+                namaLengkap: '',
+                createdAt: '',
+                updatedAt: ''));
     }
 
     Navigator.push(
@@ -347,9 +356,7 @@ class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
                     );
                   },
                 )
-              : const Center(
-                  child:
-                      CircularProgressIndicator()),
+              : const Center(child: CircularProgressIndicator()),
         ),
       ],
     );
@@ -410,7 +417,7 @@ class CardGlucoInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4, // Tambahkan shadow agar lebih elegan
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: const Color(0xFFE8F3F1),
       child: Padding(
@@ -501,32 +508,35 @@ class CardGlucoInfo extends StatelessWidget {
 }
 
 class UserIntro extends StatelessWidget {
-  const UserIntro({super.key});
+  final UserData userData;
+
+  const UserIntro({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
+        Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Hi,',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             Text(
-              'Yanuar Ardhika',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
+              userData.namaLengkap,
+              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
+            ),
+            Text(
+              "NIK: ${userData.nik}",
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const UserScreen()),
-            );
+            // Navigasi ke halaman profil
           },
           child: const CircleAvatar(
             radius: 25,

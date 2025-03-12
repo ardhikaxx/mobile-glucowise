@@ -66,10 +66,10 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       cancelBtnText: "Tidak",
       confirmBtnColor: Colors.red,
       onConfirmBtnTap: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const NavBottom()),
-        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => const NavBottom()),
+        // );
       },
     );
   }
