@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:medical_app/services/auth_services.dart';
+import 'package:quickalert/quickalert.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key});
+  final String nik;
+
+  const ChangePasswordPage({super.key, required this.nik});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -108,7 +112,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     color: const Color(0xFF199A8E),
-                    _showRepeatPassword ? Icons.visibility : Icons.visibility_off,
+                    _showRepeatPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                   ),
                   onPressed: () {
                     setState(() {
@@ -204,27 +210,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            if (newPasswordController.text.isNotEmpty &&
-                repeatPasswordController.text.isNotEmpty) {
-              if (newPasswordController.text == repeatPasswordController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Password berhasil diubah!"),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Password tidak cocok!"),
-                  ),
-                );
-              }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Harap isi semua field!"),
-                ),
+            String newPassword = newPasswordController.text;
+            String confirmPassword = repeatPasswordController.text;
+
+            if (newPassword.isEmpty || confirmPassword.isEmpty) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                text: "Harap isi semua field!",
               );
+            } else if (newPassword != confirmPassword) {
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.error,
+                text: "Password tidak cocok!",
+              );
+            } else {
+              AuthServices.changePassword(
+                  context, widget.nik, newPassword, confirmPassword);
             }
           },
           style: ElevatedButton.styleFrom(

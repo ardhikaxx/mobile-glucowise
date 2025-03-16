@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/auth/forgot.dart';
 import 'package:medical_app/auth/register.dart';
-import 'package:medical_app/services/auth_services.dart'; // Import auth_services.dart
+import 'package:medical_app/services/auth_services.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

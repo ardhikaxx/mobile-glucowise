@@ -1,14 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/auth/login.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_password.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
+import 'package:medical_app/services/auth_services.dart';
 import 'package:quickalert/quickalert.dart';
 
-class UserScreen extends StatelessWidget {
-  const UserScreen({super.key, required UserData userData});
+class UserScreen extends StatefulWidget {
+  final UserData userData;
+  const UserScreen({super.key, required this.userData});
+
+  @override
+  _UserScreenState createState() => _UserScreenState();
+}
+
+class _UserScreenState extends State<UserScreen> {
+  late Future<UserData?> userData;
+  bool _hasCheckedData = false;
+
+  @override
+  void initState() {
+    super.initState();
+    userData = AuthServices().getProfile().then((data) {
+      if (!_hasCheckedData && data != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (isUserDataIncomplete(data)) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.info,
+              title: 'Data Tidak Lengkap',
+              text: 'Data anda tidak lengkap, mohon lengkapi data dengan klik tombol edit.',
+              confirmBtnText: 'OK',
+              confirmBtnColor: const Color(0xFF199A8E),
+            );
+          }
+          _hasCheckedData = true;
+        });
+      }
+      return data;
+    });
+  }
+
+  bool isUserDataIncomplete(UserData user) {
+    return user.namaLengkap.isEmpty ||
+        user.nik.isEmpty ||
+        user.email.isEmpty ||
+        user.nomorTelepon == null || user.nomorTelepon!.isEmpty ||
+        user.alamatLengkap == null || user.alamatLengkap!.isEmpty;
+  }
 
   void _showLogoutConfirmation(BuildContext context) {
     QuickAlert.show(
@@ -27,11 +68,7 @@ class UserScreen extends StatelessWidget {
   }
 
   void _logout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    AuthServices().logout(context);
   }
 
   @override
@@ -66,28 +103,46 @@ class UserScreen extends StatelessWidget {
                 color: Colors.white,
                 size: 20,
               ),
-              onPressed: () {}
+              onPressed: () {
+                Get.offAll(() => NavBottom(userData: widget.userData));
+              },
             ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 15),
-            _buildInfoCard(),
-            const SizedBox(height: 15),
-            _buildActionButtons(context),
-          ],
-        ),
+      body: FutureBuilder<UserData?>(
+        future: userData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError || snapshot.data == null) {
+            return const Center(child: Text("Gagal memuat profil"));
+          }
+
+          UserData user = snapshot.data!;
+          return _buildProfile(user);
+        },
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfile(UserData user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildProfileHeader(user),
+          const SizedBox(height: 15),
+          _buildInfoCard(user),
+          const SizedBox(height: 15),
+          _buildActionButtons(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(UserData user) {
     return Column(
       children: [
         Container(
@@ -104,24 +159,27 @@ class UserScreen extends StatelessWidget {
           ),
           child: const CircleAvatar(
             radius: 55,
-            backgroundImage: NetworkImage(
-              'https://yt3.googleusercontent.com/6oxTgXwfJQivpKXxGTtyaNs26ShPf-6i84COg3Z3m1yQ2XBT--J8P07u5z2TkRmrfheMFIC1kA=s160-c-k-c0x00ffffff-no-rj',
+            backgroundColor: Color(0xFFE8F3F1),
+            child: Icon(
+              FontAwesomeIcons.userAstronaut,
+              color: Color(0xFF199A8E),
+              size: 50,
             ),
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
-          'Yanuar Ardhika',
-          style: TextStyle(
+        Text(
+          user.namaLengkap.isEmpty ? "Tidak ada data" : user.namaLengkap,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Color(0xFF199A8E),
           ),
         ),
         const SizedBox(height: 5),
-        const Text(
-          'ardhikayanuar58@gmail.com',
-          style: TextStyle(
+        Text(
+          user.nik.isEmpty ? "Tidak ada data" : user.nik,
+          style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF101623),
           ),
@@ -130,7 +188,7 @@ class UserScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(UserData user) {
     return Card(
       color: const Color(0xFFE8F3F1),
       elevation: 4,
@@ -140,15 +198,14 @@ class UserScreen extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _buildInfoRow(Icons.phone, 'Nomor HP', '+628599648537'),
-            const Divider(
-              color: Color(0xFF199A8E),
-            ),
-            _buildInfoRow(Icons.location_on, 'Alamat', 'Bondowoso, Jawa Timur'),
-            const Divider(
-              color: Color(0xFF199A8E),
-            ),
-            _buildInfoRow(Icons.date_range, 'Bergabung Pada', '01 Jan 2024'),
+            _buildInfoRow(Icons.email_rounded, 'Email',
+                user.email.isEmpty ? "Tidak ada data" : user.email),
+            const Divider(color: Color(0xFF199A8E)),
+            _buildInfoRow(Icons.phone, 'Nomor HP',
+                user.nomorTelepon ?? "Tidak ada data"),
+            const Divider(color: Color(0xFF199A8E)),
+            _buildInfoRow(Icons.location_on, 'Alamat',
+                user.alamatLengkap ?? "Tidak ada data"),
           ],
         ),
       ),
@@ -197,10 +254,25 @@ class UserScreen extends StatelessWidget {
         _buildButton(
           icon: FontAwesomeIcons.penToSquare,
           text: 'Edit Profil',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-          ),
+          onTap: () async {
+            UserData? currentUserData = await AuthServices().getProfile();
+            if (currentUserData != null) {
+              bool? isUpdated = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EditProfileScreen(userData: currentUserData),
+                ),
+              );
+
+              if (isUpdated == true) {
+                setState(() {
+                  userData = AuthServices().getProfile();
+                  _hasCheckedData = false;
+                });
+              }
+            }
+          },
         ),
         const SizedBox(height: 10),
         _buildButton(
@@ -228,8 +300,7 @@ class UserScreen extends StatelessWidget {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: const Color(0xFF199A8E),
           foregroundColor: Colors.white,
         ),
@@ -252,14 +323,12 @@ class UserScreen extends StatelessWidget {
         onPressed: () => _showLogoutConfirmation(context),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           side: const BorderSide(color: Color(0xFF199A8E), width: 2),
         ),
         child: const Text(
           'Logout',
-          style:
-              TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
         ),
       ),
     );

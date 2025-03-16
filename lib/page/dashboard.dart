@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:image_card/image_card.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
@@ -525,23 +526,30 @@ class UserIntro extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             Text(
-              userData.namaLengkap,
+              userData.namaLengkap ?? 'tidak ada data',
               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
             ),
             Text(
-              "NIK: ${userData.nik}",
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              userData.nik ?? 'tidak ada data',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
         GestureDetector(
           onTap: () {
-            // Navigasi ke halaman profil
+            Get.to(() => UserScreen(userData: userData));
           },
           child: const CircleAvatar(
+            backgroundColor: Color(0xFFE8F3F1),
             radius: 25,
-            backgroundImage: NetworkImage(
-              'https://yt3.googleusercontent.com/6oxTgXwfJQivpKXxGTtyaNs26ShPf-6i84COg3Z3m1yQ2XBT--J8P07u5z2TkRmrfheMFIC1kA=s160-c-k-c0x00ffffff-no-rj',
+            child: Icon(
+              FontAwesomeIcons.userAlt,
+              color: Color(0xFF199A8E),
+              size: 20,
             ),
           ),
         ),

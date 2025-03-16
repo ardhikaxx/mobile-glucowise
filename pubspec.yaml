@@ -47,6 +47,7 @@ dependencies:
   get: ^4.7.2
   json_annotation: ^4.9.0
   shared_preferences: ^2.5.2
+  awesome_dialog: ^3.2.1
 
 dev_dependencies:
   flutter_test:

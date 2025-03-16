@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/auth/login.dart';
+import 'package:medical_app/services/auth_services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,6 +19,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  void registerButtonPressed(BuildContext context) async {
+    await AuthServices.register(
+      context,
+      nik: _nikController.text,
+      namaLengkap: _namaController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,20 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          if (_emailController.text.isNotEmpty &&
-              _passwordController.text.isNotEmpty &&
-              _passwordController.text == _confirmPasswordController.text) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text("Please fill in all fields and confirm password")),
-            );
-          }
+          registerButtonPressed(context);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),

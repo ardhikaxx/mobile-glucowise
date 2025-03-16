@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/auth/change_password.dart';
+import 'package:medical_app/services/auth_services.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -173,12 +174,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: ElevatedButton(
           onPressed: () {
             if (inputController.text.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChangePasswordPage(),
-                ),
-              );
+              AuthServices.checkEmail(context, inputController.text);
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

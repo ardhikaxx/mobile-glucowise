@@ -1,24 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:medical_app/model/user.dart';
+import 'package:medical_app/services/auth_services.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final UserData userData;
+  const EditProfileScreen({super.key, required this.userData});
 
   @override
-  // ignore: library_private_types_in_public_api
   _EditProfileScreenState createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController =
-      TextEditingController(text: "Yanuar Ardhika");
-  final TextEditingController _emailController =
-      TextEditingController(text: "ardhikayanuar58@gmail.com");
-  final TextEditingController _phoneController =
-      TextEditingController(text: "+628599648537");
-  final TextEditingController _addressController =
-      TextEditingController(text: "Bondowoso, Jawa Timur");
+  final TextEditingController _namaLengkapController = TextEditingController();
+  final TextEditingController _tempatLahirController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _alamatController = TextEditingController();
+  final TextEditingController _namaIbuKandungController =
+      TextEditingController();
+  final TextEditingController _tanggalLahirController = TextEditingController();
+  String? _selectedGender;
+
+  @override
+  void initState() {
+    super.initState();
+    _namaLengkapController.text = widget.userData.namaLengkap;
+    _tempatLahirController.text = widget.userData.tempatLahir ?? "";
+    _phoneController.text = widget.userData.nomorTelepon ?? "";
+    _alamatController.text = widget.userData.alamatLengkap ?? "";
+    _namaIbuKandungController.text = widget.userData.namaIbuKandung ?? "";
+    _tanggalLahirController.text = widget.userData.tanggalLahir ?? "";
+    _selectedGender = widget.userData.jenisKelamin;
+  }
 
   void _showExitConfirmation() {
     QuickAlert.show(
@@ -34,6 +49,71 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Navigator.pop(context);
       },
     );
+  }
+
+  void updateProfile() async {
+    Map<String, dynamic> profileData = {
+      'nama_lengkap': _namaLengkapController.text,
+      'tempat_lahir': _tempatLahirController.text,
+      'tanggal_lahir': _tanggalLahirController.text,
+      'jenis_kelamin': _selectedGender,
+      'alamat_lengkap': _alamatController.text,
+      'nomor_telepon': _phoneController.text,
+      'nama_ibu_kandung': _namaIbuKandungController.text,
+    };
+
+    bool success = await AuthServices.editProfile(context, profileData);
+
+    if (success) {
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context, true);
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: 'Berhasil',
+        text: 'Profil berhasil diperbarui.',
+        confirmBtnText: 'OK',
+        confirmBtnColor: const Color(0xFF199A8E),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Gagal',
+        text: 'Gagal memperbarui profil.',
+        confirmBtnText: 'OK',
+        confirmBtnColor: const Color(0xFF199A8E),
+      );
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF199A8E),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _tanggalLahirController.text =
+            DateFormat('yyyy-MM-dd').format(pickedDate);
+      });
+    }
   }
 
   @override
@@ -73,20 +153,105 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            _buildTextField("Nama", Icons.person, _nameController),
-            _buildTextField("Email", Icons.email, _emailController),
-            _buildTextField("Nomor HP", Icons.phone, _phoneController),
-            _buildTextField("Alamat", Icons.location_on, _addressController),
+            _buildTextField(
+                "Nama Lengkap", Icons.person, _namaLengkapController),
+            _buildTextField(
+                "Tempat Lahir", Icons.location_on, _tempatLahirController),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextField(
+                controller: _tanggalLahirController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  labelText: "Tanggal Lahir",
+                  labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+                  prefixIcon: const Icon(Icons.calendar_today,
+                      color: Color(0xFF199A8E)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                        // ignore: deprecated_member_use
+                        color: const Color(0xFFE5E7EB).withOpacity(0.5),
+                        width: 1.5),
+                  ),
+                  suffixIcon: IconButton(
+                    icon:
+                        const Icon(Icons.date_range, color: Color(0xFF199A8E)),
+                    onPressed: () {
+                      _selectDate(context);
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: DropdownButtonFormField<String>(
+                value: _selectedGender,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  labelText: "Jenis Kelamin",
+                  labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+                  prefixIcon: const Icon(Icons.person_outline,
+                      color: Color(0xFF199A8E)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                        // ignore: deprecated_member_use
+                        color: const Color(0xFFE5E7EB).withOpacity(0.5),
+                        width: 1.5),
+                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                      value: "Laki-laki", child: Text("Laki-laki")),
+                  DropdownMenuItem(
+                      value: "Perempuan", child: Text("Perempuan")),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGender = value;
+                  });
+                },
+              ),
+            ),
+            _buildTextField("Alamat Lengkap", Icons.home, _alamatController),
+            _buildTextField("Nomor Telepon", Icons.phone, _phoneController),
+            _buildTextField(
+                "Nama Ibu Kandung", Icons.person, _namaIbuKandungController),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Simpan data perubahan profil
+                  updateProfile();
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -97,7 +262,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 child: const Text(
                   'Simpan Perubahan',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
             ),
@@ -107,7 +273,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(String label, IconData icon, TextEditingController controller) {
+  Widget _buildTextField(
+      String label, IconData icon, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -129,6 +296,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
+                // ignore: deprecated_member_use
                 color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
           ),
         ),
