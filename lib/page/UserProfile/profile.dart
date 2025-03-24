@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
-import 'package:medical_app/page/UserProfile/edit_password.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
 import 'package:medical_app/services/auth_services.dart';
 import 'package:quickalert/quickalert.dart';
@@ -23,7 +23,11 @@ class _UserScreenState extends State<UserScreen> {
   @override
   void initState() {
     super.initState();
-    userData = AuthServices().getProfile().then((data) {
+    userData = Future.wait([
+      Future.delayed(const Duration(seconds: 2)),
+      AuthServices().getProfile(),
+    ]).then((results) {
+      UserData? data = results[1] as UserData?;
       if (!_hasCheckedData && data != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (isUserDataIncomplete(data)) {
@@ -31,7 +35,8 @@ class _UserScreenState extends State<UserScreen> {
               context: context,
               type: QuickAlertType.info,
               title: 'Data Tidak Lengkap',
-              text: 'Data anda tidak lengkap, mohon lengkapi data dengan klik tombol edit.',
+              text:
+                  'Data anda tidak lengkap, mohon lengkapi data dengan klik tombol edit.',
               confirmBtnText: 'OK',
               confirmBtnColor: const Color(0xFF199A8E),
             );
@@ -47,14 +52,16 @@ class _UserScreenState extends State<UserScreen> {
     return user.namaLengkap.isEmpty ||
         user.nik.isEmpty ||
         user.email.isEmpty ||
-        user.nomorTelepon == null || user.nomorTelepon!.isEmpty ||
-        user.alamatLengkap == null || user.alamatLengkap!.isEmpty;
+        user.nomorTelepon == null ||
+        user.nomorTelepon!.isEmpty ||
+        user.alamatLengkap == null ||
+        user.alamatLengkap!.isEmpty;
   }
 
   void _showLogoutConfirmation(BuildContext context) {
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.confirm,
+      type: QuickAlertType.info,
       title: 'Konfirmasi Logout',
       text: 'Apakah Anda yakin ingin keluar?',
       confirmBtnText: 'Ya, Logout',
@@ -114,7 +121,12 @@ class _UserScreenState extends State<UserScreen> {
         future: userData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: LoadingAnimationWidget.inkDrop(
+                color: const Color(0xFF199A8E),
+                size: 50,
+              ),
+            );
           } else if (snapshot.hasError || snapshot.data == null) {
             return const Center(child: Text("Gagal memuat profil"));
           }
@@ -142,7 +154,7 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildProfileHeader(UserData user) {
+  Widget _buildProfileHeader(UserData userData) {
     return Column(
       children: [
         Container(
@@ -161,7 +173,7 @@ class _UserScreenState extends State<UserScreen> {
             radius: 55,
             backgroundColor: Color(0xFFE8F3F1),
             child: Icon(
-              FontAwesomeIcons.userAstronaut,
+              FontAwesomeIcons.userAlt,
               color: Color(0xFF199A8E),
               size: 50,
             ),
@@ -169,7 +181,9 @@ class _UserScreenState extends State<UserScreen> {
         ),
         const SizedBox(height: 10),
         Text(
-          user.namaLengkap.isEmpty ? "Tidak ada data" : user.namaLengkap,
+          userData.namaLengkap.isEmpty
+              ? "Tidak ada data"
+              : userData.namaLengkap,
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -178,7 +192,7 @@ class _UserScreenState extends State<UserScreen> {
         ),
         const SizedBox(height: 5),
         Text(
-          user.nik.isEmpty ? "Tidak ada data" : user.nik,
+          userData.nik.isEmpty ? "Tidak ada data" : userData.nik,
           style: const TextStyle(
             fontSize: 16,
             color: Color(0xFF101623),
@@ -201,8 +215,8 @@ class _UserScreenState extends State<UserScreen> {
             _buildInfoRow(Icons.email_rounded, 'Email',
                 user.email.isEmpty ? "Tidak ada data" : user.email),
             const Divider(color: Color(0xFF199A8E)),
-            _buildInfoRow(Icons.phone, 'Nomor HP',
-                user.nomorTelepon ?? "Tidak ada data"),
+            _buildInfoRow(
+                Icons.phone, 'Nomor HP', user.nomorTelepon ?? "Tidak ada data"),
             const Divider(color: Color(0xFF199A8E)),
             _buildInfoRow(Icons.location_on, 'Alamat',
                 user.alamatLengkap ?? "Tidak ada data"),
@@ -275,15 +289,6 @@ class _UserScreenState extends State<UserScreen> {
           },
         ),
         const SizedBox(height: 10),
-        _buildButton(
-          icon: FontAwesomeIcons.key,
-          text: 'Edit Password',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const EditPasswordScreen()),
-          ),
-        ),
-        const SizedBox(height: 10),
         _buildLogoutButton(context),
       ],
     );
@@ -300,7 +305,8 @@ class _UserScreenState extends State<UserScreen> {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: const Color(0xFF199A8E),
           foregroundColor: Colors.white,
         ),
@@ -323,12 +329,14 @@ class _UserScreenState extends State<UserScreen> {
         onPressed: () => _showLogoutConfirmation(context),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           side: const BorderSide(color: Color(0xFF199A8E), width: 2),
         ),
         child: const Text(
           'Logout',
-          style: TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
+          style:
+              TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
         ),
       ),
     );

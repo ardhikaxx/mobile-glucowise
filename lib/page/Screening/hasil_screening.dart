@@ -157,11 +157,11 @@ class HasilScreeningScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => GlucoCheckScreen()),
-                        );
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => GlucoCheckScreen()),
+                        // );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,

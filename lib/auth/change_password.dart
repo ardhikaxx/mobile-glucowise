@@ -226,7 +226,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 text: "Password tidak cocok!",
               );
             } else {
-              AuthServices.changePassword(
+              AuthServices.updatePassword(
                   context, widget.nik, newPassword, confirmPassword);
             }
           },

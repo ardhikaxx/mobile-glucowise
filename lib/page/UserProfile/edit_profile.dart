@@ -38,7 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _showExitConfirmation() {
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.confirm,
+      type: QuickAlertType.info,
       title: 'Konfirmasi',
       text: 'Apakah Anda yakin ingin kembali?',
       confirmBtnText: 'Ya',

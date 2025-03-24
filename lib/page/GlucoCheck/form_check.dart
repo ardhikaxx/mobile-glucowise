@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:medical_app/services/check_services.dart';
 
 class GlucoCheckForm extends StatefulWidget {
   const GlucoCheckForm({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _GlucoCheckFormState createState() => _GlucoCheckFormState();
 }
 
@@ -19,6 +19,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
   final _lingkarPinggangController = TextEditingController();
   final _tensiController = TextEditingController();
   String? _selectedAnswer;
+  bool isLoading = false;
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
@@ -41,7 +42,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
     if (pickedDate != null) {
       setState(() {
         _tanggalController.text =
-            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -50,6 +51,45 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
     setState(() {
       _selectedAnswer = answer;
     });
+  }
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate() && _selectedAnswer != null) {
+      setState(() {
+        isLoading = true;
+      });
+
+      try {
+        await CheckServices.addCheck(
+          context,
+          tanggalPemeriksaan: _tanggalController.text,
+          riwayatKeluargaDiabetes: _selectedAnswer!,
+          umur: int.parse(_umurController.text),
+          tinggiBadan: double.parse(_tinggiController.text),
+          beratBadan: double.parse(_beratController.text),
+          gulaDarah: double.parse(_gulaDarahController.text),
+          lingkarPinggang: double.parse(_lingkarPinggangController.text),
+          tensiDarah: double.parse(_tensiController.text),
+        );
+
+        // Kembali ke halaman sebelumnya setelah berhasil
+        Navigator.pop(context);
+        Navigator.pop(context);
+      } catch (e) {
+        print("Error submitting form: $e");
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Harap lengkapi semua data."),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -121,6 +161,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.calendarDays,
                     hint: 'Contoh: 35',
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi umur';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
@@ -129,6 +175,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.ruler,
                     hint: 'Contoh: 170',
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi tinggi badan';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
@@ -137,6 +189,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.weightHanging,
                     hint: 'Contoh: 65',
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi berat badan';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
@@ -145,6 +203,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.droplet,
                     hint: 'Contoh: 100',
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi hasil tes gula darah';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
@@ -153,6 +217,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.ruler,
                     hint: 'Contoh: 100',
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi lingkar pinggang';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 15),
                   _buildInputField(
@@ -161,6 +231,12 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                     prefixIcon: FontAwesomeIcons.heartCircleCheck,
                     hint: 'Contoh: 120/80',
                     keyboardType: TextInputType.text,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Harap isi hasil tensi darah';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 20),
                   _buildProcessButton(),
@@ -175,15 +251,19 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
 
   Widget _buildDateInputField() {
     return GestureDetector(
-      onTap: () => _selectDate(
-        context,
-      ),
+      onTap: () => _selectDate(context),
       child: AbsorbPointer(
         child: _buildInputField(
           controller: _tanggalController,
           labelText: 'Tanggal Pemeriksaan',
           prefixIcon: FontAwesomeIcons.calendar,
           hint: 'Pilih Tanggal',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Harap pilih tanggal';
+            }
+            return null;
+          },
         ),
       ),
     );
@@ -197,6 +277,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
     bool obscureText = false,
     Widget? suffixIcon,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return Container(
       width: double.infinity,
@@ -239,12 +320,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                 color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
           ),
         ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Harap isi field ini';
-          }
-          return null;
-        },
+        validator: validator,
       ),
     );
   }
@@ -270,7 +346,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _buildAnswerCard("Iya"),
+              _buildAnswerCard("Ya"),
               const SizedBox(width: 20),
               _buildAnswerCard("Tidak"),
             ],
@@ -322,10 +398,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       width: double.infinity,
       child: ElevatedButton(
-        key: const Key('prosesButton'),
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {}
-        },
+        onPressed: isLoading ? null : _submitForm,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -333,8 +406,10 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 5,
         ),
-        child: const Text("Proses",
-            style: TextStyle(fontSize: 18, color: Colors.white)),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text("Proses",
+                style: TextStyle(fontSize: 18, color: Colors.white)),
       ),
     );
   }

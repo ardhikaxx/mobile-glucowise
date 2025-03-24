@@ -131,13 +131,27 @@ class _CategoryIconState extends State<CategoryIcon> {
 
     switch (widget.text) {
       case 'GlucoCare':
-        targetPage = const GlucoCareScreen();
+        targetPage = GlucoCareScreen(
+          userData: UserData(
+              nik: '',
+              email: '',
+              namaLengkap: '',
+              createdAt: '',
+              updatedAt: ''),
+        );
         break;
       case 'Screening':
         targetPage = const GlucoScreeningScreen();
         break;
       case 'GlucoCheck':
-        targetPage = GlucoCheckScreen();
+        targetPage = GlucoCheckScreen(
+          userData: UserData(
+              nik: '',
+              email: '',
+              namaLengkap: '',
+              createdAt: '',
+              updatedAt: ''),
+        );
         break;
       case 'Edukasi':
         targetPage = const EdukasiScreen();

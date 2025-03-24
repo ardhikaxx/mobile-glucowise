@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/auth/change_password.dart';
 import 'package:medical_app/services/auth_services.dart';
 
 class ForgotPasswordPage extends StatefulWidget {

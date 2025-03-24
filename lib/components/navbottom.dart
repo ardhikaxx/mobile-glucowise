@@ -37,12 +37,12 @@ class NavBottom extends StatelessWidget {
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.kitMedical,
           title: "GlucoCheck",
-          page: GlucoCheckScreen(),  // Kirim userData ke GlucoCheck
+          page: GlucoCheckScreen(userData: userData),  // Kirim userData ke GlucoCheck
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.pills,
           title: "GlucoCare",
-          page: GlucoCareScreen(),  // Kirim userData ke GlucoCare
+          page: GlucoCareScreen(userData: userData),  // Kirim userData ke GlucoCare
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.user,

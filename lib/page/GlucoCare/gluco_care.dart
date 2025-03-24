@@ -1,77 +1,138 @@
+import 'dart:async'; // Untuk Timer
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:quickalert/quickalert.dart'; // Untuk notifikasi
+import 'package:audioplayers/audioplayers.dart'; // Untuk memutar audio
+import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCare/edit_care.dart';
 import 'package:medical_app/page/GlucoCare/riwayat_care.dart';
 import 'package:medical_app/page/GlucoCare/form_care.dart';
+import 'package:medical_app/services/care_services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class GlucoCareScreen extends StatefulWidget {
-  const GlucoCareScreen({super.key});
+  final UserData userData;
+  const GlucoCareScreen({super.key, required this.userData});
 
   @override
-  // ignore: library_private_types_in_public_api
   _GlucoCareScreenState createState() => _GlucoCareScreenState();
 }
 
 class _GlucoCareScreenState extends State<GlucoCareScreen> {
-  DateTime selectedDate = DateTime.now();
+  List<Map<String, dynamic>> jadwalObat = [];
+  List<Map<String, dynamic>> riwayatObat = [];
+  bool isLoading = true;
+  Timer? _alarmTimer; // Timer untuk mengecek alarm
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Untuk memutar alarm.mp3
+  bool _isAlarmPlaying = false; // Status apakah alarm sedang berbunyi
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _startAlarmChecker(); // Mulai pengecekan alarm
+  }
+
+  @override
+  void dispose() {
+    _alarmTimer?.cancel(); // Hentikan timer saat widget dihapus
+    _audioPlayer.dispose(); // Hentikan dan bebaskan resources audio player
+    super.dispose();
+  }
+
+  void _startAlarmChecker() {
+    // Cek alarm setiap detik
+    _alarmTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _checkAlarms();
+    });
+  }
+
+  void _checkAlarms() async {
+    final now = DateTime.now();
+    final currentDate = DateFormat('yyyy-MM-dd').format(now);
+    final currentTime = DateFormat('HH:mm:ss').format(now);
+
+    for (var alarm in jadwalObat) {
+      final alarmDate = alarm["tanggal"];
+      final alarmTime = alarm["jam_minum"];
+
+      if (alarmDate == currentDate &&
+          alarmTime == currentTime &&
+          !_isAlarmPlaying) {
+        await _playAlarmSound(); // Memutar suara alarm
+        _showAlarmNotification(context, alarm);
+        break; // Hentikan pengecekan setelah menemukan alarm yang sesuai
+      }
+    }
+  }
+
+  Future<void> _playAlarmSound() async {
+    await _audioPlayer.play(AssetSource('alarm.mp3'),
+        mode: PlayerMode.lowLatency);
+    _audioPlayer.setReleaseMode(ReleaseMode.loop); // Set alarm untuk looping
+    setState(() {
+      _isAlarmPlaying = true; // Set status alarm sedang berbunyi
+    });
+  }
+
+  Future<void> _stopAlarmSound() async {
+    await _audioPlayer.stop(); // Menghentikan suara alarm
+    setState(() {
+      _isAlarmPlaying = false; // Set status alarm berhenti
+    });
+  }
+
+  void _showAlarmNotification(
+      BuildContext context, Map<String, dynamic> alarm) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.warning,
+      title: 'Waktunya Minum Obat!',
+      text: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
+      confirmBtnText: 'Stop',
+      onConfirmBtnTap: () async {
+        await _stopAlarmSound(); // Menghentikan suara alarm
+        Navigator.pop(context); // Tutup notifikasi
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
+          ),
+        );
+      },
+    );
+  }
+
+  void _loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<dynamic> activeData = await CareServices.getActiveCare(context);
+      List<dynamic> riwayatData = await CareServices.getRiwayatCare(context);
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      setState(() {
+        jadwalObat = List<Map<String, dynamic>>.from(activeData);
+        riwayatObat = List<Map<String, dynamic>>.from(riwayatData);
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error loading data: $e");
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> jadwalObat = [
-      {
-        "nama": "Metformin",
-        "jam": "08:00",
-        "tanggal": "2025-02-20",
-        "status": "Belum"
-      },
-      {
-        "nama": "Insulin",
-        "jam": "12:00",
-        "tanggal": "2025-02-20",
-        "status": "Belum"
-      },
-      {
-        "nama": "Glimepiride",
-        "jam": "18:00",
-        "tanggal": "2025-02-20",
-        "status": "Belum"
-      },
-      {
-        "nama": "Acarbose",
-        "jam": "22:00",
-        "tanggal": "2025-02-20",
-        "status": "Belum"
-      },
-    ];
-
-    List<Map<String, dynamic>> riwayatObat = [
-      {
-        "nama": "Metformin",
-        "jam": "08:00",
-        "tanggal": "2025-02-19",
-        "status": "Sudah"
-      },
-      {
-        "nama": "Insulin",
-        "jam": "12:00",
-        "tanggal": "2025-02-19",
-        "status": "Sudah"
-      },
-      {
-        "nama": "Glimepiride",
-        "jam": "18:00",
-        "tanggal": "2025-02-19",
-        "status": "Sudah"
-      },
-      {
-        "nama": "Acarbose",
-        "jam": "22:00",
-        "tanggal": "2025-02-19",
-        "status": "Sudah"
-      },
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -91,7 +152,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           padding: const EdgeInsets.all(9.0),
           child: _buildIconButton(
             icon: FontAwesomeIcons.chevronLeft,
-            onTap: () {}
+            onTap: () => Navigator.pop(context),
           ),
         ),
         actions: [
@@ -99,29 +160,41 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: _buildIconButton(
               icon: FontAwesomeIcons.plus,
-              onTap: () => Navigator.push(
+              onTap: () {
+                Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const FormCareScreen())),
+                      builder: (context) => const FormCareScreen()),
+                ).then((_) => _loadData());
+              },
             ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDateSelector(),
-            const SizedBox(height: 12),
-            _buildSectionTitle("Jadwal Minum Obat"),
-            _buildScrollableCardList(context, jadwalObat, riwayatObat),
-            const SizedBox(height: 12),
-            _buildSectionTitle("Riwayat Minum Obat"),
-            _buildScrollableCardList(context, riwayatObat, riwayatObat),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? Center(
+              child: LoadingAnimationWidget.inkDrop(
+                color: Color(0xFF199A8E),
+                size: 50,
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDateSelector(),
+                  const SizedBox(height: 12),
+                  _buildSectionTitle("Jadwal Minum Obat"),
+                  _buildScrollableCardList(context, jadwalObat,
+                      status: "Aktif"),
+                  const SizedBox(height: 12),
+                  _buildSectionTitle("Riwayat Minum Obat"),
+                  _buildScrollableCardList(context, riwayatObat,
+                      isHistory: true, status: "Sudah"),
+                ],
+              ),
+            ),
     );
   }
 
@@ -206,18 +279,23 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
 
-  Widget _buildScrollableCardList(BuildContext context,
-      List<Map<String, dynamic>> data, List<Map<String, dynamic>> riwayatObat) {
+  Widget _buildScrollableCardList(
+    BuildContext context,
+    List<Map<String, dynamic>> data, {
+    bool isHistory = false,
+    String status = "Aktif",
+  }) {
     double cardHeight = 70.0;
     bool isScrollable = data.length > 3;
+
+    if (data.isEmpty) {
+      return const Center(child: Text("Tidak ada data."));
+    }
 
     return SizedBox(
       height: isScrollable ? cardHeight * 3.5 : null,
@@ -226,23 +304,25 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
               physics: const BouncingScrollPhysics(),
               itemCount: data.length,
               itemBuilder: (context, index) =>
-                  _buildCard(context, data[index], riwayatObat),
+                  _buildCard(context, data[index], isHistory, status),
             )
           : Column(
               children: data
-                  .map((item) => _buildCard(context, item, riwayatObat))
+                  .map((item) => _buildCard(context, item, isHistory, status))
                   .toList(),
             ),
     );
   }
 
-  Widget _buildCard(BuildContext context, Map<String, dynamic> data,
-      List<Map<String, dynamic>> riwayatObat) {
-    Color statusColor = data["status"] == "Sudah" ? Colors.green : Colors.red;
-    IconData statusIcon = data["status"] == "Sudah"
-        // ignore: deprecated_member_use
+  Widget _buildCard(
+    BuildContext context,
+    Map<String, dynamic> data,
+    bool isHistory,
+    String status,
+  ) {
+    Color statusColor = status == "Sudah" ? Colors.green : Colors.red;
+    IconData statusIcon = status == "Sudah"
         ? FontAwesomeIcons.checkCircle
-        // ignore: deprecated_member_use
         : FontAwesomeIcons.exclamationCircle;
 
     return Container(
@@ -261,20 +341,22 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       child: ListTile(
         leading: Icon(statusIcon, color: statusColor, size: 28),
         title: Text(
-          data["nama"],
+          data["nama_obat"] ?? '',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        subtitle: Row(children: [
-          Text(
-            '${data["tanggal"]}',
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            "Jam: ${data["jam"]}",
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-        ]),
+        subtitle: Row(
+          children: [
+            Text(
+              data["tanggal"] ?? '',
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              "Jam: ${data["jam_minum"] ?? ''}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ],
+        ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
@@ -283,20 +365,28 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
             border: Border.all(color: statusColor),
           ),
           child: Text(
-            data["status"],
+            status,
             style: TextStyle(
                 fontSize: 13, fontWeight: FontWeight.bold, color: statusColor),
           ),
         ),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => data["status"] == "Sudah"
-                  ? RiwayatCareScreen(riwayatObat: riwayatObat)
-                  : EditCareScreen(data: data),
-            ),
-          );
+          if (isHistory) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    RiwayatCareScreen(riwayatObat: riwayatObat),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditCareScreen(alarm: data),
+              ),
+            ).then((_) => _loadData());
+          }
         },
       ),
     );

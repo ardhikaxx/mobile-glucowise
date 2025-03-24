@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/auth/change_password.dart';
 import 'package:medical_app/auth/login.dart';
 import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/utils/session_manager.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/services/connect.dart';
@@ -30,8 +31,7 @@ class AuthServices {
         if (jsonData.containsKey('message') && jsonData.containsKey('user')) {
           UserResponse userResponse = UserResponse.fromJson(jsonData);
 
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('nik', userResponse.nik);
+          await SessionManager.setNik(userResponse.nik);
 
           _showMessageDialog(context, userResponse.message, userResponse.user);
         } else {
@@ -124,7 +124,7 @@ class AuthServices {
     }
   }
 
-  static Future<void> changePassword(BuildContext context, String nik,
+  static Future<void> updatePassword(BuildContext context, String nik,
       String newPassword, String confirmPassword) async {
     try {
       final String apiUrl = "$apiConnect/api/auth/update-password";
@@ -166,7 +166,6 @@ class AuthServices {
     } catch (e) {
       print('Error: $e');
       QuickAlert.show(
-        // ignore: use_build_context_synchronously
         context: context,
         type: QuickAlertType.error,
         title: 'Gagal',
@@ -178,15 +177,14 @@ class AuthServices {
 
   Future<UserData?> getProfile() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String? nik = prefs.getString('nik');
+      String? nik = await SessionManager.getNik();
 
       if (nik == null) {
         print("NIK tidak ditemukan. Silakan login ulang.");
         return null;
       }
 
-      final String apiUrl = "$apiConnect/api/auth/profile";
+      final String apiUrl = "$apiConnect/api/profile";
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -196,7 +194,12 @@ class AuthServices {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        return UserData.fromJson(jsonData['data']);
+        if (jsonData.containsKey('data')) {
+          return UserData.fromJson(jsonData['data']);
+        } else {
+          print("Data profil tidak ditemukan.");
+          return null;
+        }
       } else {
         print("Gagal mengambil profil: ${response.body}");
         return null;
@@ -215,7 +218,7 @@ class AuthServices {
 
       if (nik == null) {
         _showErrorDialog(context, "NIK tidak ditemukan. Silakan login ulang.");
-        return false; // Return false jika NIK tidak ditemukan
+        return false;
       }
 
       final String apiUrl = "$apiConnect/api/auth/edit-profile";
@@ -243,12 +246,12 @@ class AuthServices {
       } else {
         _showErrorDialog(
             context, jsonData['message'] ?? 'Gagal memperbarui profil.');
-        return false; // Return false jika gagal
+        return false;
       }
     } catch (e) {
       print("Terjadi error: $e");
       _showErrorDialog(context, "Terjadi kesalahan, coba lagi nanti.");
-      return false; // Return false jika terjadi error
+      return false;
     }
   }
 }
@@ -260,6 +263,7 @@ void _showSuccessDialog(BuildContext context, String message) {
     title: 'Berhasil',
     text: message,
     confirmBtnText: 'OK',
+    confirmBtnColor: const Color(0xFF199A8E),
   );
 }
 
@@ -270,6 +274,7 @@ void _showErrorDialog(BuildContext context, String message) {
     title: 'Gagal',
     text: message,
     confirmBtnText: 'OK',
+    confirmBtnColor: const Color(0xFF199A8E),
   );
 }
 
@@ -280,11 +285,13 @@ void _showMessageDialog(
     type: QuickAlertType.success,
     title: 'Login Berhasil',
     text: '$message\nSelamat Datang, ${userData.namaLengkap}!',
-    confirmBtnText: 'OK',
-    onConfirmBtnTap: () {
-      Get.off(() => NavBottom(userData: userData));
-    },
+    autoCloseDuration: const Duration(seconds: 3),
+    showConfirmBtn: false,
   );
+
+  Future.delayed(const Duration(seconds: 3), () {
+    Get.off(() => NavBottom(userData: userData));
+  });
 }
 
 void _showLoginErrorDialog(BuildContext context) {
@@ -294,5 +301,6 @@ void _showLoginErrorDialog(BuildContext context) {
     title: 'Login Gagal',
     text: 'Email atau password salah. Silakan coba lagi.',
     confirmBtnText: 'OK',
+    confirmBtnColor: const Color(0xFF199A8E),
   );
 }

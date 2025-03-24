@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:medical_app/services/care_services.dart';
 
 class FormCareScreen extends StatefulWidget {
   const FormCareScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _FormCareScreenState createState() => _FormCareScreenState();
 }
 
 class _FormCareScreenState extends State<FormCareScreen> {
   final TextEditingController namaObatController = TextEditingController();
   final TextEditingController dosisController = TextEditingController();
-  final TextEditingController jamObatController = TextEditingController();
-
-  DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedTimeObat;
+  DateTime selectedDate = DateTime.now();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +63,10 @@ class _FormCareScreenState extends State<FormCareScreen> {
           children: [
             _buildDateSelector(),
             const SizedBox(height: 16),
-            _buildTextField(namaObatController, "Nama Obat", FontAwesomeIcons.pills),
-            _buildTextField(dosisController, "Dosis (mg/ml)", FontAwesomeIcons.prescriptionBottle),
+            _buildTextField(
+                namaObatController, "Nama Obat", FontAwesomeIcons.pills),
+            _buildTextField(dosisController, "Dosis (mg/ml)",
+                FontAwesomeIcons.prescriptionBottle),
             _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
               setState(() {
                 selectedTimeObat = time;
@@ -81,7 +82,8 @@ class _FormCareScreenState extends State<FormCareScreen> {
 
   Widget _buildDateSelector() {
     DateTime today = DateTime.now();
-    List<DateTime> futureDates = List.generate(7, (index) => today.add(Duration(days: index)));
+    List<DateTime> futureDates =
+        List.generate(7, (index) => today.add(Duration(days: index)));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +100,9 @@ class _FormCareScreenState extends State<FormCareScreen> {
             itemCount: futureDates.length,
             itemBuilder: (context, index) {
               DateTime date = futureDates[index];
-              bool isSelected = date.day == selectedDate.day;
+              bool isSelected = date.day == selectedDate.day &&
+                  date.month == selectedDate.month &&
+                  date.year == selectedDate.year;
 
               return GestureDetector(
                 onTap: () {
@@ -110,9 +114,13 @@ class _FormCareScreenState extends State<FormCareScreen> {
                   width: 60,
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF199A8E) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF199A8E)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: isSelected ? const Color(0xFF199A8E) : Colors.grey),
+                    border: Border.all(
+                        color:
+                            isSelected ? const Color(0xFF199A8E) : Colors.grey),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -144,13 +152,13 @@ class _FormCareScreenState extends State<FormCareScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
         style: const TextStyle(fontSize: 16, color: Colors.black),
         controller: controller,
-        
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
@@ -174,7 +182,8 @@ class _FormCareScreenState extends State<FormCareScreen> {
     );
   }
 
-  Widget _buildTimePickerField(String label, TimeOfDay? selectedTime, Function(TimeOfDay) onTimePicked) {
+  Widget _buildTimePickerField(
+      String label, TimeOfDay? selectedTime, Function(TimeOfDay) onTimePicked) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
@@ -183,8 +192,9 @@ class _FormCareScreenState extends State<FormCareScreen> {
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
           labelText: label,
-          prefixIcon: const Icon(FontAwesomeIcons.clock, color: Color(0xFF199A8E)),
-            border: OutlineInputBorder(
+          prefixIcon:
+              const Icon(FontAwesomeIcons.clock, color: Color(0xFF199A8E)),
+          border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
@@ -206,9 +216,8 @@ class _FormCareScreenState extends State<FormCareScreen> {
                 builder: (BuildContext context, Widget? child) {
                   return Theme(
                     data: ThemeData.light().copyWith(
-                      colorScheme: const ColorScheme.light(
-                        primary: Color(0xFF199A8E),
-                      ),
+                      colorScheme:
+                          const ColorScheme.light(primary: Color(0xFF199A8E)),
                     ),
                     child: child!,
                   );
@@ -226,11 +235,12 @@ class _FormCareScreenState extends State<FormCareScreen> {
       ),
     );
   }
+
   Widget _buildSaveButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: isLoading ? null : _saveCare,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -238,9 +248,50 @@ class _FormCareScreenState extends State<FormCareScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 5,
         ),
-        child: const Text("Tambahkan",
-            style: TextStyle(fontSize: 18, color: Colors.white)),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text("Tambahkan",
+                style: TextStyle(fontSize: 18, color: Colors.white)),
       ),
     );
+  }
+
+  void _saveCare() async {
+    String namaObat = namaObatController.text.trim();
+    String dosis = dosisController.text.trim();
+
+    if (namaObat.isEmpty || dosis.isEmpty || selectedTimeObat == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Harap lengkapi semua data.")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    String tanggalFormatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+    String jamMinumFormatted =
+        "${selectedTimeObat!.hour.toString().padLeft(2, '0')}:${selectedTimeObat!.minute.toString().padLeft(2, '0')}:00";
+
+    try {
+      await CareServices.addCare(
+        context,
+        tanggal: tanggalFormatted,
+        namaObat: namaObat,
+        dosis: dosis,
+        jamMinum: jamMinumFormatted,
+      );
+    } catch (e) {
+      print("Error saat menyimpan data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

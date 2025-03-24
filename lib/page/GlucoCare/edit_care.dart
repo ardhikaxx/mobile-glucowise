@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:medical_app/services/care_services.dart';
 
 class EditCareScreen extends StatefulWidget {
-  final Map<String, dynamic> data;
+  final Map<String, dynamic> alarm;
 
-  const EditCareScreen({super.key, required this.data});
+  const EditCareScreen({super.key, required this.alarm});
 
   @override
-  // ignore: library_private_types_in_public_api
   _EditCareScreenState createState() => _EditCareScreenState();
 }
 
@@ -18,14 +18,15 @@ class _EditCareScreenState extends State<EditCareScreen> {
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedTimeObat;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    namaObatController = TextEditingController(text: widget.data["nama"]);
-    dosisController = TextEditingController(text: widget.data["dosis"]);
-    selectedDate = _parseDate(widget.data["tanggal"]) ?? DateTime.now();
-    selectedTimeObat = _parseTime(widget.data["jam_obat"]);
+    namaObatController = TextEditingController(text: widget.alarm["nama_obat"]);
+    dosisController = TextEditingController(text: widget.alarm["dosis"]);
+    selectedDate = _parseDate(widget.alarm["tanggal"]) ?? DateTime.now();
+    selectedTimeObat = _parseTime(widget.alarm["jam_minum"]);
   }
 
   DateTime? _parseDate(dynamic date) {
@@ -45,7 +46,8 @@ class _EditCareScreenState extends State<EditCareScreen> {
     if (timeString == null) return null;
     final timeParts = timeString.split(":");
     if (timeParts.length == 2) {
-      return TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
+      return TimeOfDay(
+          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
     }
     return null;
   }
@@ -96,8 +98,10 @@ class _EditCareScreenState extends State<EditCareScreen> {
           children: [
             _buildDateSelector(),
             const SizedBox(height: 16),
-            _buildTextField(namaObatController, "Nama Obat", FontAwesomeIcons.pills),
-            _buildTextField(dosisController, "Dosis (mg/ml)", FontAwesomeIcons.prescriptionBottle),
+            _buildTextField(
+                namaObatController, "Nama Obat", FontAwesomeIcons.pills),
+            _buildTextField(dosisController, "Dosis (mg/ml)",
+                FontAwesomeIcons.prescriptionBottle),
             _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
               setState(() {
                 selectedTimeObat = time;
@@ -113,12 +117,14 @@ class _EditCareScreenState extends State<EditCareScreen> {
 
   Widget _buildDateSelector() {
     DateTime today = DateTime.now();
-    List<DateTime> futureDates = List.generate(7, (index) => today.add(Duration(days: index)));
+    List<DateTime> futureDates =
+        List.generate(7, (index) => today.add(Duration(days: index)));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Pilih Tanggal", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("Pilih Tanggal",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SizedBox(
           height: 80,
@@ -139,9 +145,13 @@ class _EditCareScreenState extends State<EditCareScreen> {
                   width: 60,
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF199A8E) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF199A8E)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: isSelected ? const Color(0xFF199A8E) : Colors.grey),
+                    border: Border.all(
+                        color:
+                            isSelected ? const Color(0xFF199A8E) : Colors.grey),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +183,8 @@ class _EditCareScreenState extends State<EditCareScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
@@ -193,7 +204,8 @@ class _EditCareScreenState extends State<EditCareScreen> {
     );
   }
 
-  Widget _buildTimePickerField(String label, TimeOfDay? selectedTime, Function(TimeOfDay) onTimePicked) {
+  Widget _buildTimePickerField(
+      String label, TimeOfDay? selectedTime, Function(TimeOfDay) onTimePicked) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
@@ -202,7 +214,8 @@ class _EditCareScreenState extends State<EditCareScreen> {
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
           labelText: label,
-          prefixIcon: const Icon(FontAwesomeIcons.clock, color: Color(0xFF199A8E)),
+          prefixIcon:
+              const Icon(FontAwesomeIcons.clock, color: Color(0xFF199A8E)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
@@ -241,14 +254,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context, {
-            "nama": namaObatController.text,
-            "dosis": dosisController.text,
-            "tanggal": DateFormat("yyyy-MM-dd").format(selectedDate),
-            "jam_obat": selectedTimeObat?.format(context),
-          });
-        },
+        onPressed: isLoading ? null : _saveCare,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -256,9 +262,51 @@ class _EditCareScreenState extends State<EditCareScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           elevation: 5,
         ),
-        child: const Text("Simpan Perubahan",
-            style: TextStyle(fontSize: 18, color: Colors.white)),
+        child: isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text("Simpan Perubahan",
+                style: TextStyle(fontSize: 18, color: Colors.white)),
       ),
     );
+  }
+
+  void _saveCare() async {
+    String namaObat = namaObatController.text.trim();
+    String dosis = dosisController.text.trim();
+
+    if (namaObat.isEmpty || dosis.isEmpty || selectedTimeObat == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Harap lengkapi semua data.")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    String tanggalFormatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+    String jamMinumFormatted =
+        "${selectedTimeObat!.hour.toString().padLeft(2, '0')}:${selectedTimeObat!.minute.toString().padLeft(2, '0')}:00";
+
+    try {
+      await CareServices.editCare(
+        context,
+        widget.alarm["id_care"],
+        tanggal: tanggalFormatted,
+        namaObat: namaObat,
+        dosis: dosis,
+        jamMinum: jamMinumFormatted,
+      );
+    } catch (e) {
+      print("Error saat menyimpan data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/components/navbottom.dart';
 
 class RiwayatCareScreen extends StatelessWidget {
   final List<Map<String, dynamic>> riwayatObat;
@@ -15,7 +14,7 @@ class RiwayatCareScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: const Text(
-          'Riwayat Care',
+          'Riwayat Minum Obat',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -36,10 +35,7 @@ class RiwayatCareScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => const NavBottom()),
-                // );
+                Navigator.pop(context); // Kembali ke halaman sebelumnya
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
@@ -70,12 +66,9 @@ class RiwayatCareScreen extends StatelessWidget {
   }
 
   Widget _buildRiwayatCard(Map<String, dynamic> data) {
-    Color statusColor = data["status"] == "Sudah" ? Colors.green : Colors.red;
-    IconData statusIcon = data["status"] == "Sudah"
-        // ignore: deprecated_member_use
-        ? FontAwesomeIcons.checkCircle
-        // ignore: deprecated_member_use
-        : FontAwesomeIcons.exclamationCircle;
+    Color statusColor = Colors.green; // Warna untuk status "Sudah"
+    IconData statusIcon =
+        FontAwesomeIcons.checkCircle; // Icon untuk status "Sudah"
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -93,20 +86,30 @@ class RiwayatCareScreen extends StatelessWidget {
       child: ListTile(
         leading: Icon(statusIcon, color: statusColor, size: 28),
         title: Text(
-          data["nama"],
+          data["nama_obat"] ?? '',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        subtitle: Row(children: [
-          Text(
-            "Tanggal: ${data["tanggal"]}",
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            "Jam: ${data["jam"]}",
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-        ]),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+              "Tanggal: ${data["tanggal"] ?? ''}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              "Jam: ${data["jam_minum"] ?? ''}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              "Dosis: ${data["dosis"] ?? ''}",
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ],
+        ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
@@ -114,10 +117,13 @@ class RiwayatCareScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: statusColor),
           ),
-          child: Text(
-            data["status"],
+          child: const Text(
+            "Sudah",
             style: TextStyle(
-                fontSize: 13, fontWeight: FontWeight.bold, color: statusColor),
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
           ),
         ),
       ),
