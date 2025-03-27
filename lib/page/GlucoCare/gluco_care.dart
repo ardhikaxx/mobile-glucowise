@@ -26,25 +26,32 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   Timer? _alarmTimer; // Timer untuk mengecek alarm
   final AudioPlayer _audioPlayer = AudioPlayer(); // Untuk memutar alarm.mp3
   bool _isAlarmPlaying = false; // Status apakah alarm sedang berbunyi
+  bool _isDisposed =
+      false; // Flag untuk menandai apakah widget sudah di-dispose
 
   @override
   void initState() {
     super.initState();
+    _isDisposed = false;
     _loadData();
     _startAlarmChecker(); // Mulai pengecekan alarm
   }
 
   @override
   void dispose() {
-    _alarmTimer?.cancel(); // Hentikan timer saat widget dihapus
-    _audioPlayer.dispose(); // Hentikan dan bebaskan resources audio player
+    _isDisposed = true;
+    _alarmTimer?.cancel();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
   void _startAlarmChecker() {
     // Cek alarm setiap detik
     _alarmTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _checkAlarms();
+      if (!_isDisposed) {
+        // Hanya jalankan jika widget masih mounted
+        _checkAlarms();
+      }
     });
   }
 
@@ -59,9 +66,14 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
 
       if (alarmDate == currentDate &&
           alarmTime == currentTime &&
-          !_isAlarmPlaying) {
-        await _playAlarmSound(); // Memutar suara alarm
-        _showAlarmNotification(context, alarm);
+          !_isAlarmPlaying &&
+          !_isDisposed) {
+        // Pastikan widget masih mounted
+        await _playAlarmSound();
+        if (!_isDisposed) {
+          // Pastikan widget masih mounted sebelum menampilkan notifikasi
+          _showAlarmNotification(context, alarm);
+        }
         break; // Hentikan pengecekan setelah menemukan alarm yang sesuai
       }
     }
@@ -71,16 +83,20 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     await _audioPlayer.play(AssetSource('alarm.mp3'),
         mode: PlayerMode.lowLatency);
     _audioPlayer.setReleaseMode(ReleaseMode.loop); // Set alarm untuk looping
-    setState(() {
-      _isAlarmPlaying = true; // Set status alarm sedang berbunyi
-    });
+    if (!_isDisposed) {
+      setState(() {
+        _isAlarmPlaying = true; // Set status alarm sedang berbunyi
+      });
+    }
   }
 
   Future<void> _stopAlarmSound() async {
     await _audioPlayer.stop(); // Menghentikan suara alarm
-    setState(() {
-      _isAlarmPlaying = false; // Set status alarm berhenti
-    });
+    if (!_isDisposed) {
+      setState(() {
+        _isAlarmPlaying = false;
+      });
+    }
   }
 
   void _showAlarmNotification(
@@ -92,19 +108,23 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       text: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
       confirmBtnText: 'Stop',
       onConfirmBtnTap: () async {
-        await _stopAlarmSound(); // Menghentikan suara alarm
-        Navigator.pop(context); // Tutup notifikasi
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
-          ),
-        );
+        await _stopAlarmSound();
+        if (!_isDisposed) {
+          Navigator.pop(context); // Tutup notifikasi
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
+            ),
+          );
+        }
       },
     );
   }
 
   void _loadData() async {
+    if (_isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
@@ -115,19 +135,23 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
 
       await Future.delayed(const Duration(seconds: 1));
 
-      setState(() {
-        jadwalObat = List<Map<String, dynamic>>.from(activeData);
-        riwayatObat = List<Map<String, dynamic>>.from(riwayatData);
-        isLoading = false;
-      });
+      if (!_isDisposed) {
+        setState(() {
+          jadwalObat = List<Map<String, dynamic>>.from(activeData);
+          riwayatObat = List<Map<String, dynamic>>.from(riwayatData);
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print("Error loading data: $e");
 
       await Future.delayed(const Duration(seconds: 1));
 
-      setState(() {
-        isLoading = false;
-      });
+      if (!_isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

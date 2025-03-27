@@ -5,6 +5,7 @@ import 'package:image_card/image_card.dart';
 import 'package:medical_app/data/data_edukasi.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
+import 'package:medical_app/page/Edukasi/video_edukasi.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class EdukasiScreen extends StatefulWidget {
@@ -14,7 +15,8 @@ class EdukasiScreen extends StatefulWidget {
   State<EdukasiScreen> createState() => _EdukasiScreenState();
 }
 
-class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateMixin {
+class _EdukasiScreenState extends State<EdukasiScreen>
+    with TickerProviderStateMixin {
   late List<Map<String, dynamic>> categories;
   String selectedCategory = 'Semua';
 
@@ -85,7 +87,6 @@ class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateM
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
       floatingActionButton: FloatingActionBubble(
         items: <Bubble>[
           Bubble(
@@ -109,19 +110,14 @@ class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateM
             },
           ),
         ],
-
         animation: _animation,
-
         onPress: () => _animationController.isCompleted
             ? _animationController.reverse()
             : _animationController.forward(),
-
         iconColor: Colors.white,
         iconData: Icons.menu,
         backGroundColor: const Color(0xFF199A8E),
-
       ),
-
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,7 +127,7 @@ class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateM
           const SizedBox(height: 5),
           _buildSectionTitle("Video Edukasi"),
           _buildVideoList(),
-          _buildSectionTitle("Diabetes Edukasi"),
+          _buildSectionTitle("Artikel Edukasi"),
           _buildEdukasiList(),
         ],
       ),
@@ -206,13 +202,82 @@ class _EdukasiScreenState extends State<EdukasiScreen> with TickerProviderStateM
           String? videoID =
               YoutubePlayer.convertUrlToId(dataVideoEdukasi[index]['url']!);
           if (videoID == null) return const SizedBox();
+
           return Padding(
             padding: const EdgeInsets.only(left: 20),
-            child: TransparentImageCard(
-              width: 320,
-              height: 200,
-              imageProvider: NetworkImage(
-                YoutubePlayer.getThumbnail(videoId: videoID),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoEdukasiScreen(
+                      videoUrl: dataVideoEdukasi[index]['url']!,
+                    ),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius:
+                    BorderRadius.circular(12),
+                child: Container(
+                  width: 320,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        YoutubePlayer.getThumbnail(videoId: videoID),
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.7),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.play,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Tonton Sekarang',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );

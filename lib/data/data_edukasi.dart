@@ -2,7 +2,7 @@ List<Map<String, String>> dataEdukasi = [
   {
     "judul": "Apa Itu Diabetes?",
     "deskripsi": "Diabetes adalah penyakit kronis yang memengaruhi cara tubuh memproses gula darah (glukosa).",
-    "imageUrl": "https://p2ptm.kemkes.go.id/uploads/TmQwU05BQS9YYlJpanB5VnNtRldFUT09/13_Juli_2020_01.png",
+    "imageUrl": "https://img-cdn.medkomtek.com/gI3-RXYeVSRgdvop2RYA_KWWIho=/0x0/smart/filters:quality(100):format(webp)/article/0FJ_hujLjhAi-JVfStt3w/original/xtqwarxi81g1f9z4eti38wq5ba28z0gc.png",
     "category": "Dasar Diabetes"
   },
   {

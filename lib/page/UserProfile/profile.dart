@@ -19,18 +19,23 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   late Future<UserData?> userData;
   bool _hasCheckedData = false;
+  bool _isMounted = false; // Tambahkan flag untuk mengecek mounted state
 
   @override
   void initState() {
     super.initState();
-    userData = Future.wait([
-      Future.delayed(const Duration(seconds: 2)),
-      AuthServices().getProfile(),
-    ]).then((results) {
-      UserData? data = results[1] as UserData?;
-      if (!_hasCheckedData && data != null) {
+    _isMounted = true;
+    userData = _loadProfileData();
+  }
+
+  Future<UserData?> _loadProfileData() async {
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      final data = await AuthServices().getProfile();
+
+      if (_isMounted && !_hasCheckedData && data != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (isUserDataIncomplete(data)) {
+          if (_isMounted && isUserDataIncomplete(data)) {
             QuickAlert.show(
               context: context,
               type: QuickAlertType.info,
@@ -41,11 +46,24 @@ class _UserScreenState extends State<UserScreen> {
               confirmBtnColor: const Color(0xFF199A8E),
             );
           }
-          _hasCheckedData = true;
+          if (_isMounted) {
+            setState(() {
+              _hasCheckedData = true;
+            });
+          }
         });
       }
       return data;
-    });
+    } catch (e) {
+      print("Error loading profile data: $e");
+      return null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   bool isUserDataIncomplete(UserData user) {
@@ -270,7 +288,7 @@ class _UserScreenState extends State<UserScreen> {
           text: 'Edit Profil',
           onTap: () async {
             UserData? currentUserData = await AuthServices().getProfile();
-            if (currentUserData != null) {
+            if (currentUserData != null && _isMounted) {
               bool? isUpdated = await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -279,9 +297,9 @@ class _UserScreenState extends State<UserScreen> {
                 ),
               );
 
-              if (isUpdated == true) {
+              if (isUpdated == true && _isMounted) {
                 setState(() {
-                  userData = AuthServices().getProfile();
+                  userData = _loadProfileData();
                   _hasCheckedData = false;
                 });
               }

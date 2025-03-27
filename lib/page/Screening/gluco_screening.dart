@@ -35,6 +35,7 @@ class GlucoScreeningScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
+                Navigator.pop(context);
                 // Navigator.push(
                 //   context,
                 //   MaterialPageRoute(builder: (context) => const NavBottom()),

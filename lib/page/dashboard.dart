@@ -1,22 +1,69 @@
+import 'dart:math';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_card/image_card.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:medical_app/data/data_edukasi.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
 import 'package:medical_app/page/GlucoCare/gluco_care.dart';
 import 'package:medical_app/page/Screening/gluco_screening.dart';
 import 'package:medical_app/page/UserProfile/profile.dart';
-import 'package:medical_app/data/data_edukasi.dart';
 import 'package:medical_app/model/user.dart';
-import 'dart:async';
-import 'dart:math';
+import 'package:medical_app/services/check_services.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   final UserData userData;
 
   const DashboardScreen({super.key, required this.userData});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  List<dynamic> checkData = [];
+  bool isLoading = true;
+  Map<String, dynamic>? latestHealthData;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final data = await CheckServices.getRiwayatKesehatan(context);
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (data.isNotEmpty) {
+        setState(() {
+          checkData = data;
+          latestHealthData = data[0];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading data: $e");
+      await Future.delayed(const Duration(seconds: 1));
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,41 +90,59 @@ class DashboardScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            UserIntro(userData: userData), // Teruskan userData ke UserIntro
-            const SizedBox(height: 15),
+            UserIntro(userData: widget.userData),
+            const SizedBox(height: 12),
             const SearchInput(),
-            const SizedBox(height: 15),
+            const SizedBox(height: 12),
             const CategoryIcons(),
-            const SizedBox(height: 15),
-            const Text(
-              "Gluco Info",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF199A8E),
-              ),
-              textAlign: TextAlign.start,
-            ),
-            const SizedBox(height: 10),
-            const CardGlucoInfo(
-              glucoseLevel: 75,
-              bloodPressure: '120/80',
-              height: 170,
-              weight: 65,
-            ),
-            const SizedBox(height: 15),
-            const Text(
-              "Edukasi",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF199A8E),
-              ),
-              textAlign: TextAlign.start,
-            ),
-            const SizedBox(height: 10),
-            const CardEdukasiSwiper(),
+            const SizedBox(height: 12),
+            isLoading
+                ? CardGlucoInfo(
+                    glucoseLevel: 0,
+                    bloodPressure: '0',
+                    height: 0,
+                    weight: 0,
+                    isLoading: true,
+                  )
+                : latestHealthData != null
+                    ? CardGlucoInfo(
+                        glucoseLevel:
+                            latestHealthData!['gula_darah']?.toInt() ?? 0,
+                        bloodPressure:
+                            latestHealthData!['tensi_darah']?.toString() ?? '0',
+                        height:
+                            latestHealthData!['tinggi_badan']?.toDouble() ?? 0,
+                        weight:
+                            latestHealthData!['berat_badan']?.toDouble() ?? 0,
+                      )
+                    : const CardNoData(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class CardNoData extends StatelessWidget {
+  const CardNoData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: const Color(0xFFE8F3F1),
+      child: const Padding(
+        padding: EdgeInsets.all(15),
+        child: Center(
+          child: Text(
+            "Belum ada data kesehatan terbaru",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF199A8E),
+            ),
+          ),
         ),
       ),
     );
@@ -158,12 +223,13 @@ class _CategoryIconState extends State<CategoryIcon> {
         break;
       default:
         targetPage = DashboardScreen(
-            userData: UserData(
-                nik: '',
-                email: '',
-                namaLengkap: '',
-                createdAt: '',
-                updatedAt: ''));
+          userData: UserData(
+              nik: '',
+              email: '',
+              namaLengkap: '',
+              createdAt: '',
+              updatedAt: ''),
+        );
     }
 
     Navigator.push(
@@ -255,171 +321,13 @@ class SearchInput extends StatelessWidget {
   }
 }
 
-class CardEdukasiSwiper extends StatefulWidget {
-  const CardEdukasiSwiper({super.key});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _CardEdukasiSwiperState createState() => _CardEdukasiSwiperState();
-}
-
-class _CardEdukasiSwiperState extends State<CardEdukasiSwiper> {
-  final PageController _pageController = PageController();
-  List<Map<String, String>> displayedData = [];
-  Timer? _scrollTimer;
-  Timer? _updateTimer;
-  int _currentPage = 0;
-  bool _isPageViewBuilt = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _updateData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _isPageViewBuilt = true;
-      });
-      _startAutoScroll();
-    });
-    _updateTimer = Timer.periodic(const Duration(minutes: 3), (timer) {
-      _updateData();
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollTimer?.cancel();
-    _updateTimer?.cancel();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _updateData() {
-    setState(() {
-      displayedData = _getRandomData();
-      _currentPage = 0;
-      if (_isPageViewBuilt) {
-        _pageController.jumpToPage(0);
-      }
-    });
-  }
-
-  List<Map<String, String>> _getRandomData() {
-    final random = Random();
-    final shuffledData = List<Map<String, String>>.from(dataEdukasi)
-      ..shuffle(random);
-    return shuffledData.take(3).toList();
-  }
-
-  void _startAutoScroll() {
-    _scrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!_isPageViewBuilt || !_pageController.hasClients) return;
-
-      _currentPage = (_currentPage + 1) % displayedData.length;
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: 220,
-          width: double.infinity,
-          child: _isPageViewBuilt
-              ? PageView.builder(
-                  controller: _pageController,
-                  itemCount: displayedData.length,
-                  itemBuilder: (context, index) {
-                    final item = displayedData[index];
-
-                    final String imageUrl =
-                        item['imageUrl'] ?? 'https://via.placeholder.com/150';
-                    final String title =
-                        item['judul'] ?? 'Judul Tidak Tersedia';
-                    final String subtitle = item['subJudul'] ?? 'Kategori';
-                    final String description =
-                        item['deskripsi'] ?? 'Deskripsi tidak tersedia.';
-
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                DetailEdukasiScreen(edukasi: item),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 1),
-                        child: TransparentImageCard(
-                          width: double.infinity,
-                          imageProvider: NetworkImage(imageUrl),
-                          tags: [_tag(subtitle)],
-                          title: _title(title),
-                          description: _content(description),
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : const Center(child: CircularProgressIndicator()),
-        ),
-      ],
-    );
-  }
-
-  Widget _tag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFF199A8E),
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
-      ),
-    );
-  }
-
-  Widget _title(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  Widget _content(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
-}
-
 class CardGlucoInfo extends StatelessWidget {
   final int glucoseLevel;
   final String bloodPressure;
   final double height;
   final double weight;
+  final String? lastCheckDate;
+  final bool isLoading;
 
   const CardGlucoInfo({
     super.key,
@@ -427,99 +335,403 @@ class CardGlucoInfo extends StatelessWidget {
     required this.bloodPressure,
     required this.height,
     required this.weight,
+    this.lastCheckDate,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final glucoseStatus = _getGlucoseStatus(glucoseLevel);
+    final bmi = _calculateBMI(height, weight);
+    final bmiStatus = _getBMIStatus(bmi);
+
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: const Color(0xFFE8F3F1),
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Row(
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: const BoxDecoration(
-                color: Color(0xFF199A8E),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                // ignore: deprecated_member_use
-                FontAwesomeIcons.heartbeat,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "$glucoseLevel",
-                      style: const TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF199A8E),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      "mg/dL",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  "BP: $bloodPressure mmHg",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFFE8F3F1).withOpacity(0.9),
+              const Color(0xFFD4E8E4),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: isLoading
+              ? Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Color(0xFF199A8E),
+                    size: 50,
                   ),
-                ),
-                const SizedBox(height: 5),
-                Row(
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _infoText("Height", "${height.toStringAsFixed(1)} cm"),
-                    const SizedBox(width: 10),
-                    _infoText("Weight", "${weight.toStringAsFixed(1)} kg"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(children: [
+                          _buildHeaderIcon(),
+                          const SizedBox(width: 10),
+                          const Text(
+                            'Gluco Info',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF199A8E),
+                            ),
+                          ),
+                        ]),
+                        if (lastCheckDate != null)
+                          _buildLastCheckedDate(lastCheckDate!),
+                        const Spacer(),
+                        const Icon(
+                          Icons.medication_rounded,
+                          color: Color(0xFF199A8E),
+                          size: 32,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildGlucoseSection(glucoseStatus, glucoseLevel),
+                    const SizedBox(height: 16),
+                    _buildVitalStatsSection(
+                        bloodPressure, height, weight, bmi, bmiStatus),
+                    const SizedBox(height: 8),
+                    _buildStatusIndicator(glucoseStatus, bmiStatus),
                   ],
                 ),
-              ],
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _infoText(String label, String value) {
+  Widget _buildHeaderIcon() {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: const Color(0xFF199A8E),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Icon(
+        FontAwesomeIcons.droplet,
+        color: Colors.white,
+        size: 22,
+      ),
+    );
+  }
+
+  Widget _buildLastCheckedDate(String date) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        "Updated: $date",
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF199A8E),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlucoseSection(GlucoseStatus status, int glucoseLevel) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tingkat Glukosa Darah',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                glucoseLevel.toString(),
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: status.color,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                'mg/dL',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black54,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: status.color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  status.label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: status.color,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: status.level,
+            backgroundColor: Colors.grey[200],
+            color: status.color,
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVitalStatsSection(
+    String bloodPressure,
+    double height,
+    double weight,
+    double bmi,
+    BMIStatus bmiStatus,
+  ) {
     return Row(
       children: [
-        Text(
-          "$label: ",
-          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        Expanded(
+          child: _buildVitalStatItem(
+            icon: FontAwesomeIcons.heartPulse,
+            title: 'Tekanan Darah',
+            value: '$bloodPressure mmHg',
+            color: const Color(0xFF199A8E),
+          ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildVitalStatItem(
+            icon: FontAwesomeIcons.rulerVertical,
+            title: 'Tinggi Badan',
+            value: '${height.toStringAsFixed(1)} cm',
+            color: const Color(0xFF199A8E),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildVitalStatItem(
+            icon: FontAwesomeIcons.weightScale,
+            title: 'Berat Badan',
+            value: '${weight.toStringAsFixed(1)} kg',
+            color: const Color(0xFF199A8E),
           ),
         ),
       ],
     );
   }
+
+  Widget _buildVitalStatItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: color,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusIndicator(
+      GlucoseStatus glucoseStatus, BMIStatus bmiStatus) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatusBar(
+                  'Glukosa', glucoseStatus.color, glucoseStatus.level),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildStatusBar('IMT', bmiStatus.color, bmiStatus.level),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Glukosa: ${glucoseStatus.label}',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: glucoseStatus.color,
+              ),
+            ),
+            Text(
+              'IMT: ${bmiStatus.label}',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: bmiStatus.color,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusBar(String label, Color color, double level) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          height: 6,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(3),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: level * 100,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper methods for health status
+  GlucoseStatus _getGlucoseStatus(int level) {
+    if (level < 70) return GlucoseStatus('Rendah', Colors.blue, 0.3);
+    if (level < 100) return GlucoseStatus('Normal', Colors.green, 0.5);
+    if (level < 126) return GlucoseStatus('Tinggi', Colors.orange, 0.7);
+    return GlucoseStatus('Terlalu Tinggi', Colors.red, 1.0);
+  }
+
+  double _calculateBMI(double height, double weight) {
+    if (height <= 0) return 0;
+    return weight / ((height / 100) * (height / 100));
+  }
+
+  BMIStatus _getBMIStatus(double bmi) {
+    if (bmi < 18.5) return BMIStatus('Berat badan kurang', Colors.blue, 0.3);
+    if (bmi < 25) return BMIStatus('Normal', Colors.green, 0.5);
+    if (bmi < 30) return BMIStatus('Kelebihan berat badan', Colors.orange, 0.7);
+    return BMIStatus('Obesitas', Colors.red, 1.0);
+  }
+}
+
+class GlucoseStatus {
+  final String label;
+  final Color color;
+  final double level;
+
+  GlucoseStatus(this.label, this.color, this.level);
+}
+
+class BMIStatus {
+  final String label;
+  final Color color;
+  final double level;
+
+  BMIStatus(this.label, this.color, this.level);
 }
 
 class UserIntro extends StatelessWidget {
@@ -540,11 +752,11 @@ class UserIntro extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             Text(
-              userData.namaLengkap ?? 'tidak ada data',
+              userData.namaLengkap,
               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
             ),
             Text(
-              userData.nik ?? 'tidak ada data',
+              userData.nik,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

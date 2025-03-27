@@ -17,33 +17,47 @@ class GlucoCheckScreen extends StatefulWidget {
 class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   List<dynamic> checkData = [];
   bool isLoading = true;
+  bool _isMounted = false; 
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
+  }
+
   void _loadData() async {
-    setState(() {
-      isLoading = true;
-    });
+    if (_isMounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     try {
       final data = await CheckServices.getRiwayatKesehatan(context);
       await Future.delayed(const Duration(seconds: 1));
 
-      setState(() {
-        checkData = data;
-        isLoading = false;
-      });
+      if (_isMounted) {
+        setState(() {
+          checkData = data;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print("Error loading data: $e");
       await Future.delayed(const Duration(seconds: 1));
 
-      setState(() {
-        isLoading = false;
-      });
+      if (_isMounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -91,13 +105,15 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
               onPressed: () async {
-                await Navigator.push(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const GlucoCheckForm()),
                 );
 
-                _loadData();
+                if (result == true && _isMounted) {
+                  _loadData();
+                }
               },
               icon: Container(
                 decoration: BoxDecoration(
