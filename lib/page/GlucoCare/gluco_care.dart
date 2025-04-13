@@ -1,9 +1,9 @@
-import 'dart:async'; // Untuk Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:quickalert/quickalert.dart'; // Untuk notifikasi
-import 'package:audioplayers/audioplayers.dart'; // Untuk memutar audio
+import 'package:quickalert/quickalert.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCare/edit_care.dart';
 import 'package:medical_app/page/GlucoCare/riwayat_care.dart';

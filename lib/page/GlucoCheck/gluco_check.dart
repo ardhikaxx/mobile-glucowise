@@ -17,7 +17,7 @@ class GlucoCheckScreen extends StatefulWidget {
 class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   List<dynamic> checkData = [];
   bool isLoading = true;
-  bool _isMounted = false; 
+  bool _isMounted = false;
 
   @override
   void initState() {
@@ -267,15 +267,23 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                                                 : (status["kategori_risiko"] ==
                                                         "Sedang"
                                                     ? FontAwesomeIcons.faceMeh
-                                                    : FontAwesomeIcons
-                                                        .solidFaceSmile),
+                                                    : (status[
+                                                                "kategori_risiko"] ==
+                                                            "Rendah"
+                                                        ? FontAwesomeIcons
+                                                            .solidFaceSmile
+                                                        : FontAwesomeIcons
+                                                            .clock)),
                                             color: status["kategori_risiko"] ==
                                                     "Tinggi"
                                                 ? Colors.red
                                                 : (status["kategori_risiko"] ==
                                                         "Sedang"
                                                     ? Colors.orange
-                                                    : Colors.green),
+                                                    : (status["kategori_risiko"] ==
+                                                            "Rendah"
+                                                        ? Colors.green
+                                                        : Colors.grey)),
                                             size: 24,
                                           ),
                                           const SizedBox(width: 10),
@@ -303,7 +311,10 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                                                       : (status["kategori_risiko"] ==
                                                               "Sedang"
                                                           ? Colors.orange
-                                                          : Colors.green),
+                                                          : (status["kategori_risiko"] ==
+                                                                  "Rendah"
+                                                              ? Colors.green
+                                                              : Colors.grey)),
                                                 ),
                                               ),
                                             ],
@@ -356,20 +367,8 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                       itemCount: checkData.length,
                       itemBuilder: (context, index) {
                         final data = checkData[index];
-                        IconData icon;
-                        Color iconColor;
 
-                        if (data["gula_darah"] < 100) {
-                          icon = FontAwesomeIcons.solidFaceSmile;
-                          iconColor = Colors.green;
-                        } else if (data["gula_darah"] < 140) {
-                          icon = FontAwesomeIcons.faceMeh;
-                          iconColor = Colors.orange;
-                        } else {
-                          icon = FontAwesomeIcons.solidFaceFrown;
-                          iconColor = Colors.red;
-                        }
-
+                        // In the ListView.builder itemBuilder:
                         return Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -378,50 +377,57 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                           shadowColor: Colors.black.withOpacity(0.5),
                           elevation: 4,
                           margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
-                            title: Text(
-                              data["tanggal_pemeriksaan"],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Icon(icon, color: iconColor, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
+                          child: FutureBuilder<Map<String, dynamic>?>(
+                            future: CheckServices.getStatusRisiko(
+                                context, data["id_data"]),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const ListTile(
+                                  title: Text("Loading..."),
+                                  trailing: CircularProgressIndicator(
+                                    color: Color(0xFF199A8E),
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const ListTile(
+                                  title: Text("Error loading data"),
+                                );
+                              } else if (!snapshot.hasData) {
+                                return const ListTile(
+                                  title: Text("No data available"),
+                                );
+                              }
+
+                              final status = snapshot.data!;
+                              final statusColor = status["kategori_risiko"] ==
+                                      "Tinggi"
+                                  ? Colors.red
+                                  : (status["kategori_risiko"] == "Sedang"
+                                      ? Colors.orange
+                                      : (status["kategori_risiko"] == "Rendah"
+                                          ? Colors.green
+                                          : Colors.black45));
+
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 8),
+                                title: Text(
+                                  data["tanggal_pemeriksaan"],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                subtitle: Text(
                                   "${data["gula_darah"]} mg/dL",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: iconColor,
+                                    color: statusColor,
                                   ),
                                 ),
-                                const SizedBox(width: 10),
-                              ],
-                            ),
-                            trailing: FutureBuilder<Map<String, dynamic>?>(
-                              future: CheckServices.getStatusRisiko(
-                                  context, data["id_data"]),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const CircularProgressIndicator(
-                                    color: Color(0xFF199A8E),
-                                  );
-                                } else if (snapshot.hasError) {
-                                  return const Text("Error");
-                                } else if (!snapshot.hasData) {
-                                  return const Text("Tidak ada data");
-                                }
-
-                                final status = snapshot.data!;
-                                return Container(
+                                trailing: Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
@@ -433,18 +439,12 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color:
-                                          status["kategori_risiko"] == "Tinggi"
-                                              ? Colors.red
-                                              : (status["kategori_risiko"] ==
-                                                      "Sedang"
-                                                  ? Colors.orange
-                                                  : Colors.green),
+                                      color: statusColor,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },

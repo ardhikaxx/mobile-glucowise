@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/auth/login.dart';
 import 'package:medical_app/services/auth_services.dart';
+import 'package:quickalert/quickalert.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,6 +22,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
 
   void registerButtonPressed(BuildContext context) async {
+    if (_nikController.text.isEmpty ||
+        _namaController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Oops...',
+        text: 'Harap isi semua field!',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Oops...',
+        text: 'Password dan konfirmasi password tidak sama!',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
+      );
+      return;
+    }
+
     await AuthServices.register(
       context,
       nik: _nikController.text,
@@ -67,14 +96,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _buildInputField(
                 controller: _nikController,
                 labelText: "NIK",
-                prefixIcon: Icons.badge, // Icon untuk NIK
+                prefixIcon: Icons.badge,
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 15),
               _buildInputField(
                 controller: _namaController,
                 labelText: "Nama Lengkap",
-                prefixIcon: Icons.person, // Icon untuk Nama Lengkap
+                prefixIcon: Icons.person,
                 keyboardType: TextInputType.text,
               ),
               const SizedBox(height: 15),

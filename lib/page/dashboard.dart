@@ -1,18 +1,15 @@
-import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:image_card/image_card.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:medical_app/data/data_edukasi.dart';
-import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
 import 'package:medical_app/page/GlucoCare/gluco_care.dart';
 import 'package:medical_app/page/Screening/gluco_screening.dart';
 import 'package:medical_app/page/UserProfile/profile.dart';
 import 'package:medical_app/model/user.dart';
+import 'package:medical_app/page/chat_bot/chat_ai.dart';
 import 'package:medical_app/services/check_services.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -28,29 +25,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<dynamic> checkData = [];
   bool isLoading = true;
   Map<String, dynamic>? latestHealthData;
+  Map<String, dynamic>? statusData;
+  bool _mounted = false;
 
   @override
   void initState() {
     super.initState();
+    _mounted = true;
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
+  }
+
   void _loadData() async {
+    if (!_mounted) return;
+
     setState(() {
       isLoading = true;
     });
 
     try {
       final data = await CheckServices.getRiwayatKesehatan(context);
+
+      // Cek mounted sebelum melanjutkan
+      if (!_mounted) return;
+
       await Future.delayed(const Duration(seconds: 1));
 
       if (data.isNotEmpty) {
-        setState(() {
-          checkData = data;
-          latestHealthData = data[0];
-          isLoading = false;
-        });
-      } else {
+        final latestData = data[0];
+        final status =
+            await CheckServices.getStatusRisiko(context, latestData["id_data"]);
+
+        // Cek mounted sebelum setState
+        if (_mounted) {
+          setState(() {
+            checkData = data;
+            latestHealthData = latestData;
+            statusData = status;
+            isLoading = false;
+          });
+        }
+      } else if (_mounted) {
         setState(() {
           isLoading = false;
         });
@@ -59,9 +79,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print("Error loading data: $e");
       await Future.delayed(const Duration(seconds: 1));
 
-      setState(() {
-        isLoading = false;
-      });
+      // Cek mounted sebelum setState
+      if (_mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -91,9 +114,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             UserIntro(userData: widget.userData),
-            const SizedBox(height: 12),
+            const SizedBox(height: 15),
             const SearchInput(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 15),
             const CategoryIcons(),
             const SizedBox(height: 12),
             isLoading
@@ -114,6 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             latestHealthData!['tinggi_badan']?.toDouble() ?? 0,
                         weight:
                             latestHealthData!['berat_badan']?.toDouble() ?? 0,
+                        status:
+                            statusData?['kategori_risiko'] ?? 'Dalam proses',
                       )
                     : const CardNoData(),
           ],
@@ -157,7 +182,8 @@ class CategoryIcons extends StatelessWidget {
     return Wrap(
       spacing: 25,
       runSpacing: 5,
-      alignment: WrapAlignment.spaceEvenly,
+      crossAxisAlignment: WrapCrossAlignment.start,
+      alignment: WrapAlignment.start,
       children: categories.map((category) {
         return CategoryIcon(
           icon: category['icon'] as IconData,
@@ -174,6 +200,7 @@ List<Map<String, dynamic>> categories = [
   {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
   {'icon': FontAwesomeIcons.pills, 'text': 'GlucoCare'},
   {'icon': FontAwesomeIcons.bookBookmark, 'text': 'Edukasi'},
+  {'icon': FontAwesomeIcons.bookMedical, 'text': 'Glucozia AI'},
 ];
 
 class CategoryIcon extends StatefulWidget {
@@ -220,6 +247,9 @@ class _CategoryIconState extends State<CategoryIcon> {
         break;
       case 'Edukasi':
         targetPage = const EdukasiScreen();
+        break;
+      case 'Glucozia AI':
+        targetPage = const ChatBotPage();
         break;
       default:
         targetPage = DashboardScreen(
@@ -328,6 +358,7 @@ class CardGlucoInfo extends StatelessWidget {
   final double weight;
   final String? lastCheckDate;
   final bool isLoading;
+  final String status;
 
   const CardGlucoInfo({
     super.key,
@@ -337,11 +368,20 @@ class CardGlucoInfo extends StatelessWidget {
     required this.weight,
     this.lastCheckDate,
     this.isLoading = false,
+    this.status = 'Dalam proses',
   });
 
   @override
   Widget build(BuildContext context) {
-    final glucoseStatus = _getGlucoseStatus(glucoseLevel);
+    // Get color based on status
+    final statusColor = status == "Tinggi"
+        ? Colors.red
+        : status == "Sedang"
+            ? Colors.orange
+            : status == "Rendah"
+                ? Colors.green
+                : Colors.grey;
+
     final bmi = _calculateBMI(height, weight);
     final bmiStatus = _getBMIStatus(bmi);
 
@@ -393,20 +433,26 @@ class CardGlucoInfo extends StatelessWidget {
                         if (lastCheckDate != null)
                           _buildLastCheckedDate(lastCheckDate!),
                         const Spacer(),
-                        const Icon(
-                          Icons.medication_rounded,
-                          color: Color(0xFF199A8E),
+                        Icon(
+                          status == "Tinggi"
+                              ? FontAwesomeIcons.solidFaceFrown
+                              : status == "Sedang"
+                                  ? FontAwesomeIcons.faceMeh
+                                  : status == "Rendah"
+                                      ? FontAwesomeIcons.solidFaceSmile
+                                      : FontAwesomeIcons.clock,
+                          color: statusColor,
                           size: 32,
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _buildGlucoseSection(glucoseStatus, glucoseLevel),
+                    _buildGlucoseSection(statusColor, glucoseLevel),
                     const SizedBox(height: 16),
                     _buildVitalStatsSection(
                         bloodPressure, height, weight, bmi, bmiStatus),
                     const SizedBox(height: 8),
-                    _buildStatusIndicator(glucoseStatus, bmiStatus),
+                    _buildStatusIndicator(statusColor, bmiStatus),
                   ],
                 ),
         ),
@@ -455,7 +501,7 @@ class CardGlucoInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildGlucoseSection(GlucoseStatus status, int glucoseLevel) {
+  Widget _buildGlucoseSection(Color statusColor, int glucoseLevel) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -488,7 +534,7 @@ class CardGlucoInfo extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: status.color,
+                  color: statusColor,
                 ),
               ),
               const SizedBox(width: 6),
@@ -505,15 +551,15 @@ class CardGlucoInfo extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: status.color.withOpacity(0.15),
+                  color: statusColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  status.label,
+                  status,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: status.color,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -521,15 +567,22 @@ class CardGlucoInfo extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
-            value: status.level,
+            value: _getGlucoseLevelValue(glucoseLevel),
             backgroundColor: Colors.grey[200],
-            color: status.color,
+            color: statusColor,
             minHeight: 6,
             borderRadius: BorderRadius.circular(3),
           ),
         ],
       ),
     );
+  }
+
+  double _getGlucoseLevelValue(int level) {
+    if (level < 70) return 0.3;
+    if (level < 100) return 0.5;
+    if (level < 126) return 0.7;
+    return 1.0;
   }
 
   Widget _buildVitalStatsSection(
@@ -620,15 +673,14 @@ class CardGlucoInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIndicator(
-      GlucoseStatus glucoseStatus, BMIStatus bmiStatus) {
+  Widget _buildStatusIndicator(Color statusColor, BMIStatus bmiStatus) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
-              child: _buildStatusBar(
-                  'Glukosa', glucoseStatus.color, glucoseStatus.level),
+              child: _buildStatusBar('Status Risiko', statusColor,
+                  _getGlucoseLevelValue(glucoseLevel)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -641,11 +693,11 @@ class CardGlucoInfo extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Glukosa: ${glucoseStatus.label}',
+              'Status: $status',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: glucoseStatus.color,
+                color: statusColor,
               ),
             ),
             Text(
@@ -695,14 +747,6 @@ class CardGlucoInfo extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  // Helper methods for health status
-  GlucoseStatus _getGlucoseStatus(int level) {
-    if (level < 70) return GlucoseStatus('Rendah', Colors.blue, 0.3);
-    if (level < 100) return GlucoseStatus('Normal', Colors.green, 0.5);
-    if (level < 126) return GlucoseStatus('Tinggi', Colors.orange, 0.7);
-    return GlucoseStatus('Terlalu Tinggi', Colors.red, 1.0);
   }
 
   double _calculateBMI(double height, double weight) {

@@ -1,11 +1,12 @@
-import 'package:floating_action_bubble/floating_action_bubble.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_card/image_card.dart';
-import 'package:medical_app/data/data_edukasi.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
+import 'package:medical_app/model/edukasi.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:medical_app/page/Edukasi/video_edukasi.dart';
+import 'package:medical_app/services/edukasi_services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class EdukasiScreen extends StatefulWidget {
@@ -19,6 +20,8 @@ class _EdukasiScreenState extends State<EdukasiScreen>
     with TickerProviderStateMixin {
   late List<Map<String, dynamic>> categories;
   String selectedCategory = 'Semua';
+  List<Edukasi> edukasiList = [];
+  bool isLoading = true;
 
   late Animation<double> _animation;
   late AnimationController _animationController;
@@ -40,6 +43,23 @@ class _EdukasiScreenState extends State<EdukasiScreen>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+
+    _loadEdukasiData();
+  }
+
+  Future<void> _loadEdukasiData() async {
+    try {
+      final data = await EdukasiServices.getEdukasi(context);
+      setState(() {
+        edukasiList = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Error handling sudah dilakukan di EdukasiServices
+    }
   }
 
   @override
@@ -85,38 +105,6 @@ class _EdukasiScreenState extends State<EdukasiScreen>
             ),
           ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionBubble(
-        items: <Bubble>[
-          Bubble(
-            title: "Chat Bot",
-            iconColor: Colors.white,
-            bubbleColor: const Color(0xFF199A8E),
-            icon: FontAwesomeIcons.robot,
-            titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
-            onPress: () {
-              _animationController.reverse();
-            },
-          ),
-          Bubble(
-            title: "Game Edukasi",
-            iconColor: Colors.white,
-            bubbleColor: const Color(0xFF199A8E),
-            icon: FontAwesomeIcons.gamepad,
-            titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
-            onPress: () {
-              _animationController.reverse();
-            },
-          ),
-        ],
-        animation: _animation,
-        onPress: () => _animationController.isCompleted
-            ? _animationController.reverse()
-            : _animationController.forward(),
-        iconColor: Colors.white,
-        iconData: Icons.menu,
-        backGroundColor: const Color(0xFF199A8E),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +182,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
 
   Widget _buildVideoList() {
     return SizedBox(
-      height: 220,
+      height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dataVideoEdukasi.length,
@@ -217,11 +205,10 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                 );
               },
               child: ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
                   width: 320,
-                  height: 200,
+                  height: 100,
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
@@ -237,38 +224,36 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                       Image.network(
                         YoutubePlayer.getThumbnail(videoId: videoID),
                         width: double.infinity,
-                        height: double.infinity,
+                        height: 180,
                         fit: BoxFit.cover,
                       ),
                       Positioned(
-                        bottom: 0,
-                        left: 0,
+                        top: 0,
                         right: 0,
                         child: Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.7),
-                                Colors.transparent,
-                              ],
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(8),
+                              topRight: Radius.circular(12),
                             ),
                           ),
-                          child: const Row(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 FontAwesomeIcons.play,
                                 color: Colors.white,
-                                size: 16,
+                                size: 12,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 4),
                               Text(
-                                'Tonton Sekarang',
+                                'Tonton',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
                                 ),
                               ),
                             ],
@@ -287,37 +272,131 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   }
 
   Widget _buildEdukasiList() {
+    final filteredList = selectedCategory == 'Semua'
+        ? edukasiList
+        : edukasiList.where((e) => e.kategori == selectedCategory).toList();
+
+    if (filteredList.isEmpty) {
+      return Expanded(
+        child: Center(
+          child: Text(
+            'Tidak ada artikel edukasi',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return Expanded(
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: dataEdukasi.length,
-        itemBuilder: (context, index) {
-          final item = dataEdukasi[index];
-          if (selectedCategory != 'Semua' &&
-              item['category'] != selectedCategory) {
-            return const SizedBox();
-          }
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailEdukasiScreen(edukasi: item),
+      child: RefreshIndicator(
+        onRefresh: _loadEdukasiData,
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: filteredList.length,
+          itemBuilder: (context, index) {
+            final item = filteredList[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailEdukasiScreen(edukasi: item),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                );
-              },
-              child: TransparentImageCard(
-                width: double.infinity,
-                imageProvider: NetworkImage(item['imageUrl']!),
-                tags: [_tag(item['category']!)],
-                title: _title(item['judul']!),
-                description: _content(item['deskripsi']!),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          height: 225, // Tinggi tetap untuk gambar
+                          width: double.infinity,
+                          child: CachedNetworkImage(
+                            imageUrl: item.gambarUrl,
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                  child: CircularProgressIndicator()),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image),
+                            ),
+                          ),
+                        ),
+                        // Overlay konten
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.black.withOpacity(0.9),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    _tag(item.kategori),
+                                    const SizedBox(width: 8),
+                                    _dateTag(item.tanggalPublikasi),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  item.judul,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  item.deskripsi,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -331,31 +410,42 @@ class _EdukasiScreenState extends State<EdukasiScreen>
       ),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  Widget _title(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
+  Widget _dateTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
         color: Colors.white,
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: Colors.white, width: 1),
       ),
-    );
-  }
-
-  Widget _content(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.calendar_today,
+            size: 12,
+            color: Color(0xFF199A8E),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF199A8E),
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }

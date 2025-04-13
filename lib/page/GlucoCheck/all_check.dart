@@ -3,36 +3,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/services/check_services.dart';
 
 class AllCheckScreen extends StatefulWidget {
-  const AllCheckScreen({super.key, required List checkData});
+  final List checkData;
+  const AllCheckScreen({super.key, required this.checkData});
 
   @override
   _AllCheckScreenState createState() => _AllCheckScreenState();
 }
 
 class _AllCheckScreenState extends State<AllCheckScreen> {
-  List<dynamic> checkData = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  void _loadData() async {
-    try {
-      final data = await CheckServices.getRiwayatKesehatan(context);
-      setState(() {
-        checkData = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Error loading data: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +53,9 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : checkData.isEmpty
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF199A8E)))
+          : widget.checkData.isEmpty
               ? const Center(
                   child: Text(
                     "Tidak ada data riwayat kesehatan.",
@@ -84,29 +64,9 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
                 )
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 10),
-                  itemCount: checkData.length,
+                  itemCount: widget.checkData.length,
                   itemBuilder: (context, index) {
-                    final data = checkData[index];
-                    final riwayat = data["riwayat_kesehatan"];
-
-                    String statusRisiko = riwayat["kategori_risiko"];
-                    IconData iconStatus;
-                    Color colorStatus;
-
-                    switch (statusRisiko) {
-                      case "Tinggi":
-                        iconStatus = FontAwesomeIcons.solidFaceFrown;
-                        colorStatus = Colors.red;
-                        break;
-                      case "Sedang":
-                        iconStatus = FontAwesomeIcons.faceMeh;
-                        colorStatus = Colors.orange;
-                        break;
-                      default:
-                        iconStatus = FontAwesomeIcons.solidFaceSmile;
-                        colorStatus = Colors.green;
-                        break;
-                    }
+                    final data = widget.checkData[index];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(
@@ -161,22 +121,120 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
                                 mainAxisSpacing: 10,
                                 childAspectRatio: 2.5,
                                 children: [
-                                  _infoItem(FontAwesomeIcons.ruler,
-                                      "${data["tinggi_badan"]} cm", "Tinggi Badan"),
-                                  _infoItem(FontAwesomeIcons.weightScale,
-                                      "${data["berat_badan"]} kg", "Berat Badan"),
-                                  _infoItem(FontAwesomeIcons.droplet,
-                                      "${data["gula_darah"]} mg/dL", "Gula Darah"),
+                                  _infoItem(
+                                      FontAwesomeIcons.ruler,
+                                      "${data["tinggi_badan"]} cm",
+                                      "Tinggi Badan"),
+                                  _infoItem(
+                                      FontAwesomeIcons.weightScale,
+                                      "${data["berat_badan"]} kg",
+                                      "Berat Badan"),
+                                  _infoItem(
+                                      FontAwesomeIcons.droplet,
+                                      "${data["gula_darah"]} mg/dL",
+                                      "Gula Darah"),
                                   _infoItem(FontAwesomeIcons.heartPulse,
                                       data["tensi_darah"].toString(), "Tensi"),
-                                  _infoItem(FontAwesomeIcons.ruler,
-                                      "${data["lingkar_pinggang"]} cm", "Lingkar Pinggang"),
+                                  _infoItem(
+                                      FontAwesomeIcons.ruler,
+                                      "${data["lingkar_pinggang"]} cm",
+                                      "Lingkar Pinggang"),
                                   _infoItem(FontAwesomeIcons.userClock,
                                       "${data["umur"]} tahun", "Umur"),
-                                  _infoItem(FontAwesomeIcons.userGroup,
-                                      data["riwayat_keluarga_diabetes"], "Riwayat Keluarga"),
-                                  _statusRisikoItem(
-                                      iconStatus, statusRisiko, colorStatus),
+                                  _infoItem(
+                                      FontAwesomeIcons.userGroup,
+                                      data["riwayat_keluarga_diabetes"],
+                                      "Riwayat Keluarga"),
+                                  FutureBuilder<Map<String, dynamic>?>(
+                                    future: CheckServices.getStatusRisiko(
+                                        context, data["id_data"]),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator(
+                                          color: Color(0xFF199A8E),
+                                          strokeWidth: 2,
+                                        ));
+                                      } else if (snapshot.hasError) {
+                                        return const Center(
+                                            child: Text("Error"));
+                                      } else if (!snapshot.hasData) {
+                                        return const Center(
+                                            child: Text("No data"));
+                                      }
+
+                                      final status = snapshot.data!;
+                                      final statusColor = status[
+                                                  "kategori_risiko"] ==
+                                              "Tinggi"
+                                          ? Colors.red
+                                          : (status["kategori_risiko"] ==
+                                                  "Sedang"
+                                              ? Colors.orange
+                                              : (status["kategori_risiko"] ==
+                                                      "Rendah"
+                                                  ? Colors.green
+                                                  : Colors.grey));
+
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF9FAFB),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12, horizontal: 12),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              status[
+                                                          "kategori_risiko"] ==
+                                                      "Tinggi"
+                                                  ? FontAwesomeIcons
+                                                      .solidFaceFrown
+                                                  : (status["kategori_risiko"] ==
+                                                          "Sedang"
+                                                      ? FontAwesomeIcons.faceMeh
+                                                      : (status["kategori_risiko"] ==
+                                                              "Rendah"
+                                                          ? FontAwesomeIcons
+                                                              .solidFaceSmile
+                                                          : FontAwesomeIcons
+                                                              .clock)),
+                                              color: statusColor,
+                                              size: 22,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Text(
+                                                  "Status Risiko",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black87),
+                                                ),
+                                                Text(
+                                                  status["kategori_risiko"],
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: statusColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ],
                               ),
                             ],
@@ -213,41 +271,6 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
               Text(
                 label,
                 style: const TextStyle(fontSize: 12, color: Colors.black87),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statusRisikoItem(IconData icon, String status, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Status Risiko",
-                style: TextStyle(fontSize: 12, color: Colors.black87),
-              ),
-              Text(
-                status,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
               ),
             ],
           ),
