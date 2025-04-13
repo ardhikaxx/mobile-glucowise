@@ -51,7 +51,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final data = await CheckServices.getRiwayatKesehatan(context);
 
-      // Cek mounted sebelum melanjutkan
       if (!_mounted) return;
 
       await Future.delayed(const Duration(seconds: 1));
@@ -61,7 +60,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final status =
             await CheckServices.getStatusRisiko(context, latestData["id_data"]);
 
-        // Cek mounted sebelum setState
         if (_mounted) {
           setState(() {
             checkData = data;
@@ -79,7 +77,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print("Error loading data: $e");
       await Future.delayed(const Duration(seconds: 1));
 
-      // Cek mounted sebelum setState
       if (_mounted) {
         setState(() {
           isLoading = false;
@@ -115,10 +112,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             UserIntro(userData: widget.userData),
             const SizedBox(height: 15),
-            const SearchInput(),
-            const SizedBox(height: 15),
+            _buildGlucoziaAICard(context),
+            const SizedBox(height: 20),
             const CategoryIcons(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 5),
             isLoading
                 ? CardGlucoInfo(
                     glucoseLevel: 0,
@@ -142,6 +139,123 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       )
                     : const CardNoData(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlucoziaAICard(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => const ChatBotPage(),
+            transitionsBuilder: (_, animation, __, child) {
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.95, end: 1.0).animate(
+                  CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+                ),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+          ),
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF138075),
+                Color(0xFF199A8E),
+                Color(0xFF23B8A9),
+              ],
+              stops: [0.0, 0.5, 1.0],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.white, Color(0xFFE0F7FA)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Color(0xFF138075),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Colors.white, Color(0xFFE0F7FA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: const Text(
+                        'Glucozia AI',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'DarumadropOne',
+                          letterSpacing: 0.5,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Tanya seputar tentang diabetes',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -194,13 +308,12 @@ class CategoryIcons extends StatelessWidget {
   }
 }
 
-// Tambahkan daftar kategori agar tidak error
+// Updated categories list - removed Glucozia AI
 List<Map<String, dynamic>> categories = [
   {'icon': FontAwesomeIcons.heartbeat, 'text': 'Screening'},
   {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
   {'icon': FontAwesomeIcons.pills, 'text': 'GlucoCare'},
   {'icon': FontAwesomeIcons.bookBookmark, 'text': 'Edukasi'},
-  {'icon': FontAwesomeIcons.bookMedical, 'text': 'Glucozia AI'},
 ];
 
 class CategoryIcon extends StatefulWidget {
@@ -247,9 +360,6 @@ class _CategoryIconState extends State<CategoryIcon> {
         break;
       case 'Edukasi':
         targetPage = const EdukasiScreen();
-        break;
-      case 'Glucozia AI':
-        targetPage = const ChatBotPage();
         break;
       default:
         targetPage = DashboardScreen(
@@ -303,49 +413,6 @@ class _CategoryIconState extends State<CategoryIcon> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SearchInput extends StatelessWidget {
-  const SearchInput({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 3),
-            child: Icon(
-              Icons.search,
-              color: Color(0xFF199A8E),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Search',
-                hintStyle: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -785,45 +852,82 @@ class UserIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Hi,',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            Text(
-              userData.namaLengkap,
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
-            ),
-            Text(
-              userData.nik,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Halo, ',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    userData.namaLengkap.split(' ')[0],
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF199A8E),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Icon(
+                    Icons.verified_user,
+                    size: 18,
+                    color: Colors.grey[500],
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    userData.nik,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          GestureDetector(
+            onTap: () {
+              Get.to(
+                () => UserScreen(userData: userData),
+                transition: Transition.fadeIn,
+                duration: const Duration(milliseconds: 300),
+              );
+            },
+            child: Container(
+              height: 50,
+              width: 50,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF199A8E).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                FontAwesomeIcons.userEdit,
+                color: Color(0xFF199A8E),
+                size: 24,
               ),
             ),
-          ],
-        ),
-        GestureDetector(
-          onTap: () {
-            Get.to(() => UserScreen(userData: userData));
-          },
-          child: const CircleAvatar(
-            backgroundColor: Color(0xFFE8F3F1),
-            radius: 25,
-            child: Icon(
-              FontAwesomeIcons.userAlt,
-              color: Color(0xFF199A8E),
-              size: 20,
-            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

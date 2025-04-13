@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_card/image_card.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
 import 'package:medical_app/model/edukasi.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
@@ -23,7 +22,6 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   List<Edukasi> edukasiList = [];
   bool isLoading = true;
 
-  late Animation<double> _animation;
   late AnimationController _animationController;
 
   @override
@@ -40,10 +38,6 @@ class _EdukasiScreenState extends State<EdukasiScreen>
       duration: const Duration(milliseconds: 260),
     );
 
-    final curvedAnimation =
-        CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
-    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
-
     _loadEdukasiData();
   }
 
@@ -58,7 +52,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
       setState(() {
         isLoading = false;
       });
-      // Error handling sudah dilakukan di EdukasiServices
+      print("Error loading data: $e");
     }
   }
 
