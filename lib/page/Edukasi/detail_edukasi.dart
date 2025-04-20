@@ -3,6 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/model/edukasi.dart';
 import 'package:medical_app/services/edukasi_services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
+import 'package:readmore/readmore.dart';
 
 class DetailEdukasiScreen extends StatefulWidget {
   final Edukasi edukasi;
@@ -29,6 +32,7 @@ class _DetailEdukasiScreenState extends State<DetailEdukasiScreen> {
       setState(() {
         otherEdukasi = allEdukasi
             .where((e) => e.idEdukasi != widget.edukasi.idEdukasi)
+            .take(3) // Limit to 3 related articles
             .toList();
         isLoadingOtherEdukasi = false;
       });
@@ -39,231 +43,327 @@ class _DetailEdukasiScreenState extends State<DetailEdukasiScreen> {
     }
   }
 
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('dd MMMM yyyy', 'id_ID').format(date);
+    } catch (e) {
+      return dateString;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          widget.edukasi.judul,
-          style: const TextStyle(
-            fontFamily: 'DarumadropOne',
-            color: Color(0xFF199A8E),
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        leading: Padding(
-          padding: const EdgeInsets.all(9.0),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF199A8E),
-              borderRadius: BorderRadius.circular(8),
+      body: CustomScrollView(
+        slivers: [
+          // App Bar with Image
+          SliverAppBar(
+            expandedHeight: size.height * 0.35,
+            pinned: true,
+            floating: false,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: widget.edukasi.gambarUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image, size: 50),
+                    ),
+                  ),
+                  // Gradient overlay
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.7),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                FontAwesomeIcons.chevronLeft,
-                color: Colors.white,
-                size: 20,
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    FontAwesomeIcons.chevronLeft,
+                    color: Color(0xFF199A8E),
+                    size: 23,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F3F1),
-                    borderRadius: BorderRadius.circular(5),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category and Date
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF199A8E).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          widget.edukasi.kategori,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: const Color(0xFF199A8E),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _formatDate(widget.edukasi.tanggalPublikasi),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    widget.edukasi.kategori,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.edukasi.judul,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
                       color: Color(0xFF199A8E),
                     ),
                   ),
-                ),
-                const Spacer(),
-                const SizedBox(width: 10),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F3F1),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Text(
-                    widget.edukasi.tanggalPublikasi,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                  const SizedBox(height: 14),
+                  ReadMoreText(
+                    widget.edukasi.deskripsi,
+                    trimLines: 5,
+                    trimMode: TrimMode.Line,
+                    trimCollapsedText: 'Baca Selengkapnya',
+                    trimExpandedText: 'Sembunyikan',
+                    moreStyle: const TextStyle(
                       color: Color(0xFF199A8E),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    lessStyle: const TextStyle(
+                      color: Color(0xFF199A8E),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      height: 1.6,
+                      color: Colors.black87,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 250,
-              width: double.infinity,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: widget.edukasi.gambarUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[200],
-                    child: const Center(child: CircularProgressIndicator()),
+                  const SizedBox(height: 32),
+
+                  // Divider
+                  Divider(
+                    color: Colors.grey[300],
+                    thickness: 1,
+                    height: 1,
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, size: 50),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Edukasi Terkait',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              widget.edukasi.judul,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF199A8E),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              widget.edukasi.deskripsi,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-              textAlign: TextAlign.justify,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Edukasi Lainnya",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF199A8E),
-              ),
-            ),
-            const SizedBox(height: 10),
-            isLoadingOtherEdukasi
-                ? const Center(child: CircularProgressIndicator())
-                : otherEdukasi.isEmpty
-                    ? const Text(
-                        "Tidak ada edukasi lainnya",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    : ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: otherEdukasi.length,
-                        itemBuilder: (context, index) {
-                          final item = otherEdukasi[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailEdukasiScreen(edukasi: item),
-                                ),
-                              );
-                            },
-                            child: Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
+          ),
+
+          // Related Articles List
+          isLoadingOtherEdukasi
+              ? SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: List.generate(
+                        3,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              shadowColor: Colors.black.withOpacity(0.5),
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              color: const Color(0xFFE8F3F1),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : otherEdukasi.isEmpty
+                  ? SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          'Belum ada edukasi terkait',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    )
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final item = otherEdukasi[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DetailEdukasiScreen(edukasi: item),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Perbaikan gambar untuk edukasi lainnya
-                                    SizedBox(
-                                      width: 100,
-                                      height: 70,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: CachedNetworkImage(
-                                          imageUrl: item.gambarUrl,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) =>
-                                              Container(
-                                            color: Colors.grey[200],
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(12),
+                                        bottomLeft: Radius.circular(12),
+                                      ),
+                                      child: CachedNetworkImage(
+                                        imageUrl: item.gambarUrl,
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            color: Colors.white,
                                           ),
-                                          errorWidget: (context, url, error) =>
-                                              Container(
-                                            color: Colors.grey[200],
-                                            child: const Icon(Icons.broken_image,
-                                                size: 30),
-                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            Container(
+                                          color: Colors.grey[200],
+                                          child: const Icon(Icons.broken_image,
+                                              size: 30),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.judul,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w800,
-                                              color: Color(0xFF199A8E),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item.kategori,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color: const Color(0xFF199A8E),
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            item.kategori,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[800],
-                                              fontWeight: FontWeight.w600,
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              item.judul,
+                                              style: theme.textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              _formatDate(
+                                                  item.tanggalPublikasi),
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                    const Icon(Icons.chevron_right,
-                                        color: Color(0xFF199A8E)),
+                                    
+                                    Center(
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: Colors.grey[600],
+                                        size: 16,
+                                      ),
+                                    )
                                   ],
                                 ),
                               ),
                             ),
                           );
                         },
+                        childCount: otherEdukasi.length,
                       ),
-            const SizedBox(height: 20),
-          ],
-        ),
+                    ),
+
+          // Bottom padding
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 40),
+          ),
+        ],
       ),
     );
   }

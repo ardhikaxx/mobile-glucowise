@@ -85,7 +85,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Harap lengkapi semua data."),
+          content: Text("Data Tidak Boleh Kosong. Harap lengkapi semua data."),
           backgroundColor: Colors.red,
         ),
       );

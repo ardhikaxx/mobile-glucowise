@@ -177,7 +177,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Harap isi email"),
+                  content: Text("Email Tidak Boleh Kosong"),
                 ),
               );
             }

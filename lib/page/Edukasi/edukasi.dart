@@ -321,7 +321,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                           width: double.infinity,
                           child: CachedNetworkImage(
                             imageUrl: item.gambarUrl,
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
                               color: Colors.grey[200],
                               child: const Center(

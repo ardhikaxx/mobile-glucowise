@@ -281,16 +281,16 @@ class _LoginScreenState extends State<LoginScreen> {
             String password = _passwordController.text;
 
             if (email.isEmpty && password.isEmpty) {
-              _showQuickAlert(context, "Email dan password tidak diisi",
+              _showQuickAlert(context, "Email dan password tidak boleh kosong",
                   QuickAlertType.error);
               return;
             } else if (email.isEmpty) {
               _showQuickAlert(
-                  context, "Email tidak diisi", QuickAlertType.error);
+                  context, "Email tidak boleh kosong", QuickAlertType.error);
               return;
             } else if (password.isEmpty) {
               _showQuickAlert(
-                  context, "Password tidak diisi", QuickAlertType.error);
+                  context, "Password tidak boleh kosong", QuickAlertType.error);
               return;
             }
             

@@ -223,7 +223,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               QuickAlert.show(
                 context: context,
                 type: QuickAlertType.error,
-                text: "Password tidak cocok!",
+                text: "Konfirmasi password tidak sesuai!",
               );
             } else {
               AuthServices.updatePassword(
