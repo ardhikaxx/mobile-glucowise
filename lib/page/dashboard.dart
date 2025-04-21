@@ -294,10 +294,11 @@ class CategoryIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 25,
+      spacing: 30,
       runSpacing: 5,
-      crossAxisAlignment: WrapCrossAlignment.start,
-      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      direction: Axis.horizontal,
+      alignment: WrapAlignment.center,
       children: categories.map((category) {
         return CategoryIcon(
           icon: category['icon'] as IconData,
