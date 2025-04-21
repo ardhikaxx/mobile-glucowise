@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
 
 class HasilScreeningScreen extends StatelessWidget {
   final int totalScore;

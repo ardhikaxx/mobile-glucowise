@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
 
 class GlucoScreeningScreen extends StatelessWidget {
