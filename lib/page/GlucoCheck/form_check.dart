@@ -240,6 +240,7 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
                   ),
                   const SizedBox(height: 20),
                   _buildProcessButton(),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

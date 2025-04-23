@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
 import 'package:medical_app/model/edukasi.dart';
+import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Edukasi/detail_edukasi.dart';
 import 'package:medical_app/page/Edukasi/video_edukasi.dart';
 import 'package:medical_app/services/edukasi_services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:medical_app/components/navbottom.dart';
+import 'package:get/get.dart';
 
 class EdukasiScreen extends StatefulWidget {
-  const EdukasiScreen({super.key});
+  final UserData userData;
+  const EdukasiScreen({super.key, required this.userData});
 
   @override
   State<EdukasiScreen> createState() => _EdukasiScreenState();
@@ -90,7 +94,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Get.offAll(() => NavBottom(userData: widget.userData)),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,

@@ -294,7 +294,7 @@ class CategoryIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 30,
+      spacing: 25,
       runSpacing: 5,
       crossAxisAlignment: WrapCrossAlignment.center,
       direction: Axis.horizontal,
@@ -360,7 +360,14 @@ class _CategoryIconState extends State<CategoryIcon> {
         );
         break;
       case 'Edukasi':
-        targetPage = const EdukasiScreen();
+        targetPage = EdukasiScreen(
+          userData: UserData(
+              nik: '',
+              email: '',
+              namaLengkap: '',
+              createdAt: '',
+              updatedAt: ''),
+        );
         break;
       default:
         targetPage = DashboardScreen(

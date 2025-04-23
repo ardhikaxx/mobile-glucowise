@@ -19,7 +19,7 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   late Future<UserData?> userData;
   bool _hasCheckedData = false;
-  bool _isMounted = false; // Tambahkan flag untuk mengecek mounted state
+  bool _isMounted = false;
 
   @override
   void initState() {

@@ -10,12 +10,15 @@ import 'package:medical_app/page/GlucoCare/riwayat_care.dart';
 import 'package:medical_app/page/GlucoCare/form_care.dart';
 import 'package:medical_app/services/care_services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:medical_app/components/navbottom.dart';
+import 'package:get/get.dart';
 
 class GlucoCareScreen extends StatefulWidget {
   final UserData userData;
   const GlucoCareScreen({super.key, required this.userData});
 
   @override
+  // ignore: library_private_types_in_public_api
   _GlucoCareScreenState createState() => _GlucoCareScreenState();
 }
 
@@ -23,18 +26,17 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   List<Map<String, dynamic>> jadwalObat = [];
   List<Map<String, dynamic>> riwayatObat = [];
   bool isLoading = true;
-  Timer? _alarmTimer; // Timer untuk mengecek alarm
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Untuk memutar alarm.mp3
-  bool _isAlarmPlaying = false; // Status apakah alarm sedang berbunyi
-  bool _isDisposed =
-      false; // Flag untuk menandai apakah widget sudah di-dispose
+  Timer? _alarmTimer;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isAlarmPlaying = false;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
     _isDisposed = false;
     _loadData();
-    _startAlarmChecker(); // Mulai pengecekan alarm
+    _startAlarmChecker();
   }
 
   @override
@@ -46,10 +48,8 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   }
 
   void _startAlarmChecker() {
-    // Cek alarm setiap detik
     _alarmTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!_isDisposed) {
-        // Hanya jalankan jika widget masih mounted
         _checkAlarms();
       }
     });
@@ -68,13 +68,11 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           alarmTime == currentTime &&
           !_isAlarmPlaying &&
           !_isDisposed) {
-        // Pastikan widget masih mounted
         await _playAlarmSound();
         if (!_isDisposed) {
-          // Pastikan widget masih mounted sebelum menampilkan notifikasi
           _showAlarmNotification(context, alarm);
         }
-        break; // Hentikan pengecekan setelah menemukan alarm yang sesuai
+        break;
       }
     }
   }
@@ -82,16 +80,16 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   Future<void> _playAlarmSound() async {
     await _audioPlayer.play(AssetSource('alarm.mp3'),
         mode: PlayerMode.lowLatency);
-    _audioPlayer.setReleaseMode(ReleaseMode.loop); // Set alarm untuk looping
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
     if (!_isDisposed) {
       setState(() {
-        _isAlarmPlaying = true; // Set status alarm sedang berbunyi
+        _isAlarmPlaying = true;
       });
     }
   }
 
   Future<void> _stopAlarmSound() async {
-    await _audioPlayer.stop(); // Menghentikan suara alarm
+    await _audioPlayer.stop();
     if (!_isDisposed) {
       setState(() {
         _isAlarmPlaying = false;
@@ -110,7 +108,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       onConfirmBtnTap: () async {
         await _stopAlarmSound();
         if (!_isDisposed) {
-          Navigator.pop(context); // Tutup notifikasi
+          Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -176,7 +174,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           padding: const EdgeInsets.all(9.0),
           child: _buildIconButton(
             icon: FontAwesomeIcons.chevronLeft,
-            onTap: () => Navigator.pop(context),
+            onTap: () => Get.offAll(() => NavBottom(userData: widget.userData)),
           ),
         ),
         actions: [

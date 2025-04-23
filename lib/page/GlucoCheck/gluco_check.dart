@@ -5,12 +5,15 @@ import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCheck/all_check.dart';
 import 'package:medical_app/page/GlucoCheck/form_check.dart';
 import 'package:medical_app/services/check_services.dart';
+import 'package:medical_app/components/navbottom.dart';
+import 'package:get/get.dart';
 
 class GlucoCheckScreen extends StatefulWidget {
   final UserData userData;
   const GlucoCheckScreen({super.key, required this.userData});
 
   @override
+  // ignore: library_private_types_in_public_api
   _GlucoCheckScreenState createState() => _GlucoCheckScreenState();
 }
 
@@ -90,7 +93,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.offAll(() => NavBottom(userData: widget.userData));
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
@@ -105,15 +108,64 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
               onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const GlucoCheckForm()),
+                await showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    title: const Text(
+                      "Persyaratan Tes Gula Darah Puasa (GDP)",
+                      style: TextStyle(
+                        color: Color(0xFF199A8E),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Pastikan Anda telah memenuhi persyaratan berikut:",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        _buildRequirementItem(
+                            "Tidak makan atau minum (selain air putih) selama 8 jam sebelum tes"),
+                        _buildRequirementItem(
+                            "Biasanya dilakukan pagi hari, sebelum sarapan"),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "Tujuan: Menilai kadar gula darah tanpa pengaruh makanan.",
+                          style: TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          "Batal",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF199A8E),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _navigateToForm(context);
+                        },
+                        child: const Text(
+                          "Saya Mengerti",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
-
-                if (result == true && _isMounted) {
-                  _loadData();
-                }
               },
               icon: Container(
                 decoration: BoxDecoration(
@@ -368,7 +420,6 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                       itemBuilder: (context, index) {
                         final data = checkData[index];
 
-                        // In the ListView.builder itemBuilder:
                         return Card(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -450,6 +501,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                       },
                     ),
                   ),
+                  SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
               ),
             ),
@@ -487,5 +539,41 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildRequirementItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 5, right: 8),
+            child: Icon(
+              Icons.circle,
+              size: 10,
+              color: Color(0xFF199A8E),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToForm(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const GlucoCheckForm()),
+    );
+
+    if (result == true && _isMounted) {
+      _loadData();
+    }
   }
 }
