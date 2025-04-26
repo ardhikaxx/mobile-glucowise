@@ -9,10 +9,12 @@ class DetailHasilScreeningScreen extends StatefulWidget {
   const DetailHasilScreeningScreen({super.key, required this.screeningId});
 
   @override
-  _DetailHasilScreeningScreenState createState() => _DetailHasilScreeningScreenState();
+  _DetailHasilScreeningScreenState createState() =>
+      _DetailHasilScreeningScreenState();
 }
 
-class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen> {
+class _DetailHasilScreeningScreenState
+    extends State<DetailHasilScreeningScreen> {
   ScreeningDetail? screeningDetail;
   bool isLoading = true;
 
@@ -23,7 +25,8 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
   }
 
   Future<void> _loadScreeningDetail() async {
-    final detail = await ScreeningServices.getScreeningDetail(widget.screeningId);
+    final detail =
+        await ScreeningServices.getScreeningDetail(widget.screeningId);
     if (detail != null && detail['success'] == true) {
       setState(() {
         screeningDetail = ScreeningDetail.fromJson(detail['data']);
@@ -73,7 +76,7 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
@@ -89,22 +92,19 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF199A8E),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Icon(
+          padding: const EdgeInsets.all(9.0),
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF199A8E),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
                 size: 20,
@@ -145,7 +145,8 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
                         ),
                         child: const Text(
                           'Coba Lagi',
@@ -167,7 +168,7 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withOpacity(0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -178,24 +179,18 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                             // Header with gradient
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16, horizontal: 20),
                               decoration: BoxDecoration(
-                                color: _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.8),
+                                color: Color(0xFF199A8E),
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(20),
                                   topRight: Radius.circular(20),
                                 ),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.9),
-                                    _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.7),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'SCREENING #${screeningDetail!.idScreening}',
@@ -232,8 +227,12 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                           shape: BoxShape.circle,
                                           gradient: LinearGradient(
                                             colors: [
-                                              _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.15),
-                                              _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.05),
+                                              _getRiskColor(screeningDetail!
+                                                      .skorRisiko)
+                                                  .withOpacity(0.15),
+                                              _getRiskColor(screeningDetail!
+                                                      .skorRisiko)
+                                                  .withOpacity(0.05),
                                             ],
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
@@ -246,21 +245,25 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: _getRiskColor(screeningDetail!.skorRisiko),
+                                            color: _getRiskColor(
+                                                screeningDetail!.skorRisiko),
                                             width: 4,
                                           ),
                                           color: Colors.white,
                                         ),
                                         child: Center(
                                           child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 '${screeningDetail!.skorRisiko}',
                                                 style: TextStyle(
                                                   fontSize: 42,
                                                   fontWeight: FontWeight.bold,
-                                                  color: _getRiskColor(screeningDetail!.skorRisiko),
+                                                  color: _getRiskColor(
+                                                      screeningDetail!
+                                                          .skorRisiko),
                                                 ),
                                               ),
                                               const SizedBox(height: 4),
@@ -268,7 +271,10 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                                 'Skor',
                                                 style: TextStyle(
                                                   fontSize: 14,
-                                                  color: _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.8),
+                                                  color: _getRiskColor(
+                                                          screeningDetail!
+                                                              .skorRisiko)
+                                                      .withOpacity(0.8),
                                                 ),
                                               ),
                                             ],
@@ -280,24 +286,30 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                   const SizedBox(height: 20),
                                   // Risk Level
                                   Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 24),
                                     decoration: BoxDecoration(
-                                      color: _getRiskColor(screeningDetail!.skorRisiko).withOpacity(0.1),
+                                      color: _getRiskColor(
+                                              screeningDetail!.skorRisiko)
+                                          .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                     child: Text(
-                                      _getRiskLevel(screeningDetail!.skorRisiko),
+                                      _getRiskLevel(
+                                          screeningDetail!.skorRisiko),
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        color: _getRiskColor(screeningDetail!.skorRisiko),
+                                        color: _getRiskColor(
+                                            screeningDetail!.skorRisiko),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 20),
                                   // Description
                                   Text(
-                                    _getRiskDescription(screeningDetail!.skorRisiko),
+                                    _getRiskDescription(
+                                        screeningDetail!.skorRisiko),
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontSize: 15,
@@ -319,13 +331,15 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                       ),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             Icon(
                                               Icons.medical_services,
-                                              color: _getRiskColor(screeningDetail!.skorRisiko),
+                                              color: _getRiskColor(
+                                                  screeningDetail!.skorRisiko),
                                               size: 20,
                                             ),
                                             const SizedBox(width: 8),
@@ -334,14 +348,17 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
-                                                color: _getRiskColor(screeningDetail!.skorRisiko),
+                                                color: _getRiskColor(
+                                                    screeningDetail!
+                                                        .skorRisiko),
                                               ),
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          _getRiskRecommendation(screeningDetail!.skorRisiko),
+                                          _getRiskRecommendation(
+                                              screeningDetail!.skorRisiko),
                                           style: const TextStyle(
                                             fontSize: 14,
                                             color: Color(0xFF6C757D),
@@ -360,15 +377,16 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                       const SizedBox(height: 24),
                       // Answers Section
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -379,7 +397,7 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                               children: [
                                 Icon(
                                   Icons.assignment,
-                                  color: theme.primaryColor,
+                                  color: const Color(0xFF199A8E),
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
@@ -388,7 +406,7 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF343A40),
+                                    color: Color(0xFF199A8E),
                                   ),
                                 ),
                               ],
@@ -418,9 +436,9 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -430,13 +448,15 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         width: 28,
                                         height: 28,
                                         decoration: BoxDecoration(
-                                          color: theme.primaryColor.withOpacity(0.1),
+                                          color: theme.primaryColor
+                                              .withOpacity(0.1),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
@@ -482,7 +502,8 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                             width: 24,
                                             height: 24,
                                             decoration: BoxDecoration(
-                                              color: theme.primaryColor.withOpacity(0.1),
+                                              color: theme.primaryColor
+                                                  .withOpacity(0.1),
                                               shape: BoxShape.circle,
                                             ),
                                             child: Icon(
@@ -516,7 +537,8 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                       if (screeningDetail!.skorRisiko > 7)
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -545,12 +567,14 @@ class _DetailHasilScreeningScreenState extends State<DetailHasilScreeningScreen>
                                   // Action to consult doctor
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _getRiskColor(screeningDetail!.skorRisiko),
+                                  backgroundColor: _getRiskColor(
+                                      screeningDetail!.skorRisiko),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   minimumSize: const Size(double.infinity, 0),
                                   elevation: 0,
                                 ),

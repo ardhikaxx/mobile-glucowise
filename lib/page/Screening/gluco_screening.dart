@@ -14,19 +14,23 @@ class GlucoScreeningScreen extends StatelessWidget {
 
   Future<void> _checkQuestionsAvailability(BuildContext context) async {
     final questions = await ScreeningServices.getQuestions();
-    
-    if (questions == null || questions['data'] == null || (questions['data'] as List).isEmpty) {
+
+    if (questions == null ||
+        questions['data'] == null ||
+        (questions['data'] as List).isEmpty) {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
         title: 'Akses Dibatasi',
-        text: 'Screening belum bisa digunakan saat ini. Silakan coba lagi nanti.',
+        text:
+            'Screening belum bisa digunakan saat ini. Silakan coba lagi nanti.',
         confirmBtnColor: const Color(0xFF199A8E),
       );
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => TestScreeningScreen(userData: userData)),
+        MaterialPageRoute(
+            builder: (context) => TestScreeningScreen(userData: userData)),
       );
     }
   }
@@ -39,11 +43,11 @@ class GlucoScreeningScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: const Text(
-          'Screening',
+          'Screening Diabetes',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 35,
+            fontSize: 30,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -74,34 +78,23 @@ class GlucoScreeningScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Screening Diabetes',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'DarumadropOne',
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF199A8E),
-                  ),
+              const Text(
+                "Risiko Diabetes",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF199A8E),
+                  fontFamily: 'DarumadropOne',
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'Screening ini membantumu mengenali risiko diabetes lebih awal, sehingga bisa segera mengambil langkah pencegahan yang tepat.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ]),
             const SizedBox(height: 10),
             _buildRiskCard(
               FontAwesomeIcons.circleCheck,
@@ -150,8 +143,9 @@ class GlucoScreeningScreen extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF199A8E),
+                  backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
+                    side: const BorderSide(color: Color(0xFF199A8E), width: 2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -166,7 +160,7 @@ class GlucoScreeningScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Color(0xFF199A8E),
                   ),
                 ),
               ),

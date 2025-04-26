@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/detail_hasil_screening.dart';
+import 'package:medical_app/page/Screening/gluco_screening.dart';
 import 'package:medical_app/services/screening_services.dart';
 import 'package:medical_app/utils/session_manager.dart';
 import 'package:intl/intl.dart';
@@ -44,9 +45,9 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
   }
 
   Color _getRiskColor(int score) {
-    if (score <= 7) return const Color(0xFF4CAF50); // Green
-    if (score <= 14) return const Color(0xFFFF9800); // Orange
-    return const Color(0xFFF44336); // Red
+    if (score <= 7) return const Color(0xFF4CAF50);
+    if (score <= 14) return const Color(0xFFFF9800);
+    return const Color(0xFFF44336);
   }
 
   String _getRiskLevel(int score) {
@@ -71,9 +72,9 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
           'Riwayat Screening',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
-            color: Color(0xFF199A8E),
+            color: Color(0xFF1A998E),
             fontSize: 28,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: true,
@@ -101,193 +102,155 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
         ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E))))
+          ? Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF1A998E)),
+              ),
+            )
           : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (screeningHistory.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${screeningHistory.length} Riwayat',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF199A8E),
-                            ),
-                          ),
-                          const Spacer(),
-                          Icon(Icons.history, size: 20, color: Colors.grey[400]),
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    child: Text(
+                      'Semua Riwayat Screening',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
                       ),
                     ),
+                  ),
                   Expanded(
                     child: screeningHistory.isEmpty
                         ? _buildEmptyState()
                         : RefreshIndicator(
-                            color: const Color(0xFF199A8E),
+                            color: const Color(0xFF1A998E),
                             onRefresh: _loadScreeningHistory,
-                            child: ListView.separated(
+                            child: GridView.builder(
                               padding: const EdgeInsets.only(bottom: 20),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 3.2,
+                              ),
                               itemCount: screeningHistory.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 16),
                               itemBuilder: (context, index) {
                                 final item = screeningHistory[index];
                                 final score = item['skor_risiko'];
                                 final date = _formatDate(item['tanggal_screening']);
                                 final riskColor = _getRiskColor(score);
                                 final riskLevel = _getRiskLevel(score);
-                                final riskGradient = LinearGradient(
-                                  colors: [
-                                    riskColor.withOpacity(0.1),
-                                    riskColor.withOpacity(0.05),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                );
 
-                                return GestureDetector(
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DetailHasilScreeningScreen(
-                                        screeningId: item['id_screening'],
+                                return Card(
+                                  elevation: 2,
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  shadowColor: Colors.black.withOpacity(0.8),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(16),
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailHasilScreeningScreen(
+                                          screeningId: item['id_screening'],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(18),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
-                                          blurRadius: 12,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(18),
-                                            gradient: riskGradient,
-                                          ),
-                                        ),
-                                        // Card content
-                                        Padding(
-                                          padding: const EdgeInsets.all(18),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    'Screening ID: #${item['id_screening']}',
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Color(0xFF6C757D),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                        horizontal: 10, vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: riskColor.withOpacity(0.15),
-                                                      borderRadius: BorderRadius.circular(12),
-                                                      border: Border.all(
-                                                        color: riskColor.withOpacity(0.3),
-                                                        width: 1,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      riskLevel.toUpperCase(),
-                                                      style: TextStyle(
-                                                        color: riskColor,
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 11,
-                                                        letterSpacing: 0.5,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 60,
+                                            height: 60,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: riskColor.withOpacity(0.1),
+                                              border: Border.all(
+                                                color: riskColor.withOpacity(0.3),
+                                                width: 2,
                                               ),
-                                              const SizedBox(height: 12),
-                                              Text(
-                                                date,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Color(0xFF6C757D),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '$score',
+                                                style: TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: riskColor,
                                                 ),
                                               ),
-                                              const SizedBox(height: 16),
-                                              Row(
-                                                children: [
-                                                  _buildScoreIndicator(score, riskColor),
-                                                  const SizedBox(width: 16),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        const Text(
-                                                          'Tingkat Risiko',
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Color(0xFF6C757D),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(height: 4),
-                                                        Text(
-                                                          riskLevel,
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold,
-                                                            color: riskColor,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    width: 36,
-                                                    height: 36,
-                                                    decoration: BoxDecoration(
-                                                      color: riskColor.withOpacity(0.1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.arrow_forward,
-                                                      size: 18,
-                                                      color: riskColor,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                        // // Top right corner accent
-                                        // Positioned(
-                                        //   top: 0,
-                                        //   right: 0,
-                                        //   child: ClipRRect(
-                                        //     borderRadius: const BorderRadius.only(
-                                        //       topRight: Radius.circular(18),
-                                        //       bottomLeft: Radius.circular(18),
-                                        //     ),
-                                        //     child: Container(
-                                        //       width: 40,
-                                        //       height: 40,
-                                        //       color: riskColor.withOpacity(0.15),
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                      ],
+                                          const SizedBox(width: 16),
+                                          // Details
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'ID: #${item['id_screening']}',
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors.black54,
+                                                        fontWeight: FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    Container(
+                                                      padding: const EdgeInsets.symmetric(
+                                                          horizontal: 12, vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: riskColor.withOpacity(0.1),
+                                                        borderRadius: BorderRadius.circular(12),
+                                                      ),
+                                                      child: Text(
+                                                        riskLevel,
+                                                        style: TextStyle(
+                                                          color: riskColor,
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  date,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                LinearProgressIndicator(
+                                                  value: score / 15,
+                                                  backgroundColor: Colors.grey[200],
+                                                  color: riskColor,
+                                                  minHeight: 6,
+                                                  borderRadius: BorderRadius.circular(3),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          // Arrow
+                                          Icon(
+                                            FontAwesomeIcons.chevronRight,
+                                            color: Colors.grey[400],
+                                            size: 16,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );
@@ -301,33 +264,8 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
     );
   }
 
-  Widget _buildScoreIndicator(int score, Color color) {
-    return Container(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: color.withOpacity(0.3), width: 2),
-        gradient: LinearGradient(
-          colors: [color.withOpacity(0.2), color.withOpacity(0.1)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          '$score',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildEmptyState() {
+    final userData = widget.userData;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -336,53 +274,57 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF199A8E).withOpacity(0.1),
+              color: const Color(0xFFE9F3F2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.assignment_outlined,
               size: 50,
-              color: Color(0xFF199A8E),
+              color: Color(0xFF1A998E),
             ),
           ),
           const SizedBox(height: 24),
           const Text(
-            'Tidak Ada Riwayat',
+            'Belum Ada Riwayat Screening',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF343A40),
+              color: Color(0xFF1A998E),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Anda belum melakukan screening kesehatan. Lakukan screening pertama untuk melihat hasilnya di sini.',
+              'Anda belum memiliki riwayat screening. Lakukan screening pertama untuk melihat hasilnya di sini.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6C757D),
+                color: Colors.grey,
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () {
-              // Add navigation to screening page
+              MaterialPageRoute(
+                    builder: (context) => GlucoScreeningScreen(userData: userData),
+                  );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF199A8E),
+              backgroundColor: const Color(0xFF1A998E),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              elevation: 0,
             ),
             child: const Text(
-              'Lakukan Screening',
+              'Mulai Screening',
               style: TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
               ),
             ),
           ),
