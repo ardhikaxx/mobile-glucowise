@@ -1,9 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/page/Screening/riwayat_screening.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
+import 'package:medical_app/services/screening_services.dart';
+import 'package:quickalert/quickalert.dart';
+import 'package:medical_app/model/user.dart';
 
 class GlucoScreeningScreen extends StatelessWidget {
-  const GlucoScreeningScreen({super.key});
+  final UserData userData;
+  const GlucoScreeningScreen({super.key, required this.userData});
+
+  Future<void> _checkQuestionsAvailability(BuildContext context) async {
+    final questions = await ScreeningServices.getQuestions();
+    
+    if (questions == null || questions['data'] == null || (questions['data'] as List).isEmpty) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Akses Dibatasi',
+        text: 'Screening belum bisa digunakan saat ini. Silakan coba lagi nanti.',
+        confirmBtnColor: const Color(0xFF199A8E),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => TestScreeningScreen(userData: userData)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +60,7 @@ class GlucoScreeningScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => const NavBottom()),
-                // );
+                Get.offAll(() => NavBottom(userData: userData));
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
@@ -111,16 +133,36 @@ class GlucoScreeningScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TestScreeningScreen(),
-                    ),
-                  );
-                },
+                onPressed: () => _checkQuestionsAvailability(context),
                 child: const Text(
                   'Mulai Screening',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF199A8E),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RiwayatScreening(userData: userData),
+                  ),
+                ),
+                child: const Text(
+                  'Lihat Riwayat Screening',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

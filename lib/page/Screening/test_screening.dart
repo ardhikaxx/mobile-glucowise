@@ -1,20 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:medical_app/components/navbottom.dart';
+import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/hasil_screening.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:medical_app/data/data_screening.dart';
+import 'package:medical_app/services/screening_services.dart';
+import 'package:medical_app/utils/session_manager.dart';
 
 class TestScreeningScreen extends StatefulWidget {
-  const TestScreeningScreen({super.key});
+  final UserData userData;
+  const TestScreeningScreen({super.key, required this.userData});
 
   @override
-  // ignore: library_private_types_in_public_api
   _TestScreeningScreenState createState() => _TestScreeningScreenState();
 }
 
 class _TestScreeningScreenState extends State<TestScreeningScreen> {
   int currentQuestionIndex = 0;
-  Map<int, int> answers = {};
+  Map<int, int> answers = {}; // Key: questionId, Value: answerId
+  List<dynamic> questions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final result = await ScreeningServices.getQuestions();
+    if (result != null && result['success'] == true) {
+      setState(() {
+        questions = result['data'];
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      // Show error and go back
+      _showAlert("Error", "Gagal memuat pertanyaan screening");
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pop(context);
+      });
+    }
+  }
 
   void _previousQuestion() {
     if (currentQuestionIndex > 0) {
@@ -24,9 +55,9 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
     }
   }
 
-  void _selectAnswer(int value) {
+  void _selectAnswer(int questionId, int answerId) {
     setState(() {
-      answers[currentQuestionIndex] = value;
+      answers[questionId] = answerId;
     });
   }
 
@@ -38,17 +69,17 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       text: message,
       confirmBtnColor: const Color(0xFF199A8E),
       confirmBtnText: "OK",
-      autoCloseDuration: const Duration(seconds: 5),
     );
   }
 
   void _nextQuestion() {
-    if (!answers.containsKey(currentQuestionIndex)) {
-      _showAlert("Jawaban Belum Dipilih!", "Silakan pilih jawaban sebelum melanjutkan.");
+    final questionId = questions[currentQuestionIndex]['id_pertanyaan'];
+    if (!answers.containsKey(questionId)) {
+      _showAlert("Peringatan", "Silakan pilih jawaban sebelum melanjutkan");
       return;
     }
 
-    if (currentQuestionIndex < screeningQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setState(() {
         currentQuestionIndex++;
       });
@@ -60,38 +91,150 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       context: context,
       type: QuickAlertType.confirm,
       title: "Konfirmasi",
-      text: "Anda yakin ingin keluar dari tes ini?",
+      text: "Anda yakin ingin keluar dari tes screening?",
       confirmBtnText: "Ya",
       cancelBtnText: "Tidak",
       confirmBtnColor: Colors.red,
-      onConfirmBtnTap: () {
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => const NavBottom()),
-        // );
-      },
+      onConfirmBtnTap: () => Get.offAll(() => NavBottom(userData: widget.userData)),
     );
   }
 
-  void _submitTest() {
-    if (!answers.containsKey(currentQuestionIndex)) {
-      _showAlert("Jawaban Belum Dipilih!", "Silakan pilih jawaban sebelum mengirim.");
+  Future<void> _submitTest() async {
+    final questionId = questions[currentQuestionIndex]['id_pertanyaan'];
+    if (!answers.containsKey(questionId)) {
+      _showAlert("Peringatan", "Silakan pilih jawaban sebelum mengirim");
       return;
     }
 
-    int totalScore = answers.values.fold(0, (sum, item) => sum + item);
+    // Calculate total score
+    int totalScore = 0;
+    List<Map<String, dynamic>> answerList = [];
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HasilScreeningScreen(totalScore: totalScore),
-      ),
+    for (var question in questions) {
+      final questionId = question['id_pertanyaan'];
+      if (answers.containsKey(questionId)) {
+        final answerId = answers[questionId]!;
+        
+        // Find the selected answer
+        final answer = question['jawaban_screening'].firstWhere(
+          (a) => a['id_jawaban'] == answerId,
+          orElse: () => null,
+        );
+
+        if (answer != null) {
+          final answerText = answer['jawaban'] as String;
+          final scoreMatch = RegExp(r'\((\d+)\)').firstMatch(answerText);
+          if (scoreMatch != null) {
+            totalScore += int.parse(scoreMatch.group(1)!);
+          }
+
+          answerList.add({
+            'id_pertanyaan': questionId,
+            'id_jawaban': answerId,
+          });
+        }
+      }
+    }
+
+    // Get NIK from session
+    final nik = await SessionManager.getNik();
+    if (nik == null) {
+      _showAlert("Error", "Tidak dapat mengidentifikasi pengguna");
+      return;
+    }
+
+    // Submit to API
+    final isSuccess = await ScreeningServices.submitAnswers(
+      nik: nik,
+      answers: answerList,
+      totalScore: totalScore,
+      context: context,
     );
+
+    if (isSuccess && mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HasilScreeningScreen(totalScore: totalScore),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final question = screeningQuestions[currentQuestionIndex];
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                color: Color(0xFF199A8E),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Memuat pertanyaan...",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (questions.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(
+            'Screening Test',
+            style: TextStyle(
+              fontFamily: 'DarumadropOne',
+              color: Color(0xFF199A8E),
+              fontSize: 35,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          leading: Padding(
+            padding: const EdgeInsets.all(9.0),
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF199A8E),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(
+                  FontAwesomeIcons.chevronLeft,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
+        body: const Center(
+          child: Text(
+            'Tidak ada pertanyaan screening yang tersedia',
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    final question = questions[currentQuestionIndex];
+    final questionId = question['id_pertanyaan'];
+    final answersList = question['jawaban_screening'] as List;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -133,16 +276,21 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Progress indicator
             Column(
               children: [
                 const SizedBox(height: 20),
                 Text(
-                  "Soal ${currentQuestionIndex + 1} dari ${screeningQuestions.length}",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  "Soal ${currentQuestionIndex + 1} dari ${questions.length}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
-                  value: (currentQuestionIndex + 1) / screeningQuestions.length,
+                  value: (currentQuestionIndex + 1) / questions.length,
                   borderRadius: BorderRadius.circular(50),
                   backgroundColor: const Color(0xFFE8F3F1),
                   color: const Color(0xFF199A8E),
@@ -151,6 +299,8 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
               ],
             ),
             const SizedBox(height: 20),
+            
+            // Question card
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
@@ -177,8 +327,11 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      "${currentQuestionIndex + 1}. ${question['question']}",
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      "${currentQuestionIndex + 1}. ${question['pertanyaan']}",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -186,51 +339,59 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            Column(
-              children: (question['answers'] as Map<int, String>)
-                  .entries
-                  .map((entry) {
-                final isSelected = answers[currentQuestionIndex] == entry.key;
+            
+            // Answer options
+            Expanded(
+              child: ListView.builder(
+                itemCount: answersList.length,
+                itemBuilder: (context, index) {
+                  final answer = answersList[index];
+                  final isSelected = answers[questionId] == answer['id_jawaban'];
 
-                return GestureDetector(
-                  onTap: () => _selectAnswer(entry.key),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    color: isSelected ? const Color(0xFF199A8E) : const Color(0xFFF9FAFB),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      side: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
-                    ),
-                    shadowColor: Colors.black.withOpacity(0.3),
-                    elevation: isSelected ? 4 : 2,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isSelected ? Icons.check_circle : Icons.circle_outlined,
-                            color: isSelected ? const Color(0xFFF9FAFB) : const Color(0xFF199A8E),
-                            size: 40,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              entry.value,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: isSelected ? Colors.white : Colors.black,
+                  return GestureDetector(
+                    onTap: () => _selectAnswer(questionId, answer['id_jawaban']),
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      color: isSelected ? const Color(0xFF199A8E) : const Color(0xFFF9FAFB),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(
+                          color: isSelected ? const Color(0xFF199A8E) : const Color(0xFFE5E7EB),
+                          width: 2,
+                        ),
+                      ),
+                      elevation: isSelected ? 4 : 2,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isSelected ? Icons.check_circle : Icons.circle_outlined,
+                              color: isSelected ? Colors.white : const Color(0xFF199A8E),
+                              size: 30,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                answer['jawaban'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected ? Colors.white : Colors.black,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 15),
+            
+            // Navigation buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -245,27 +406,47 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                       ),
                       side: const BorderSide(color: Color(0xFF199A8E), width: 2),
                     ),
-                    child: const Row(children: [
-                      Icon(FontAwesomeIcons.chevronLeft, color: Color(0xFF199A8E)),
-                      SizedBox(width: 10),
-                      Text("Previous", style: TextStyle(color: Color(0xFF199A8E), fontSize: 18)),
-                    ]),
-
+                    child: const Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.chevronLeft,
+                          color: Color(0xFF199A8E),
+                          size: 18,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "Sebelumnya",
+                          style: TextStyle(
+                            color: Color(0xFF199A8E),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                
                 ElevatedButton(
-                  onPressed: currentQuestionIndex == screeningQuestions.length - 1 ? _submitTest : _nextQuestion,
+                  onPressed: currentQuestionIndex == questions.length - 1 
+                      ? _submitTest 
+                      : _nextQuestion,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text(currentQuestionIndex == screeningQuestions.length - 1 ? "Selesai" : "Next",
-                      style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  child: Text(
+                    currentQuestionIndex == questions.length - 1 ? "Proses" : "Selanjutnya",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),

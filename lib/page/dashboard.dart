@@ -27,12 +27,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? latestHealthData;
   Map<String, dynamic>? statusData;
   bool _mounted = false;
+  late UserData _currentUserData;
 
   @override
   void initState() {
     super.initState();
     _mounted = true;
+    _currentUserData = widget.userData;
     _loadData();
+  }
+
+  @override
+  void didUpdateWidget(DashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.userData != oldWidget.userData) {
+      setState(() {
+        _currentUserData = widget.userData;
+      });
+    }
   }
 
   @override
@@ -110,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            UserIntro(userData: widget.userData),
+            UserIntro(userData: _currentUserData),
             const SizedBox(height: 15),
             _buildGlucoziaAICard(context),
             const SizedBox(height: 20),
@@ -309,7 +321,6 @@ class CategoryIcons extends StatelessWidget {
   }
 }
 
-// Updated categories list - removed Glucozia AI
 List<Map<String, dynamic>> categories = [
   {'icon': FontAwesomeIcons.heartbeat, 'text': 'Screening'},
   {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
@@ -333,51 +344,32 @@ class CategoryIcon extends StatefulWidget {
 
 class _CategoryIconState extends State<CategoryIcon> {
   void _navigateToPage(BuildContext context) {
+    final dashboardState = context.findAncestorStateOfType<_DashboardScreenState>();
+    final userData = dashboardState?._currentUserData ?? UserData(
+      nik: '',
+      email: '',
+      namaLengkap: '',
+      createdAt: '',
+      updatedAt: ''
+    );
+
     Widget targetPage;
 
     switch (widget.text) {
       case 'GlucoCare':
-        targetPage = GlucoCareScreen(
-          userData: UserData(
-              nik: '',
-              email: '',
-              namaLengkap: '',
-              createdAt: '',
-              updatedAt: ''),
-        );
+        targetPage = GlucoCareScreen(userData: userData);
         break;
       case 'Screening':
-        targetPage = const GlucoScreeningScreen();
+        targetPage = GlucoScreeningScreen(userData: userData);
         break;
       case 'GlucoCheck':
-        targetPage = GlucoCheckScreen(
-          userData: UserData(
-              nik: '',
-              email: '',
-              namaLengkap: '',
-              createdAt: '',
-              updatedAt: ''),
-        );
+        targetPage = GlucoCheckScreen(userData: userData);
         break;
       case 'Edukasi':
-        targetPage = EdukasiScreen(
-          userData: UserData(
-              nik: '',
-              email: '',
-              namaLengkap: '',
-              createdAt: '',
-              updatedAt: ''),
-        );
+        targetPage = EdukasiScreen(userData: userData);
         break;
       default:
-        targetPage = DashboardScreen(
-          userData: UserData(
-              nik: '',
-              email: '',
-              namaLengkap: '',
-              createdAt: '',
-              updatedAt: ''),
-        );
+        targetPage = DashboardScreen(userData: userData);
     }
 
     Navigator.push(
@@ -448,7 +440,6 @@ class CardGlucoInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get color based on status
     final statusColor = status == "Tinggi"
         ? Colors.red
         : status == "Sedang"
@@ -482,7 +473,7 @@ class CardGlucoInfo extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: isLoading
               ? Center(
-                  child: LoadingAnimationWidget.staggeredDotsWave(
+                  child: LoadingAnimationWidget.progressiveDots(
                     color: Color(0xFF199A8E),
                     size: 50,
                   ),
