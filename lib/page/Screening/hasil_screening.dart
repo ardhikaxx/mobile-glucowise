@@ -11,7 +11,7 @@ class HasilScreeningScreen extends StatefulWidget {
   const HasilScreeningScreen({super.key, required this.totalScore});
 
   @override
-  _HasilScreeningScreenState createState() => _HasilScreeningScreenState();
+  State<HasilScreeningScreen> createState() => _HasilScreeningScreenState();
 }
 
 class _HasilScreeningScreenState extends State<HasilScreeningScreen> {

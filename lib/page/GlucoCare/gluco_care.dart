@@ -18,8 +18,7 @@ class GlucoCareScreen extends StatefulWidget {
   const GlucoCareScreen({super.key, required this.userData});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _GlucoCareScreenState createState() => _GlucoCareScreenState();
+  State<GlucoCareScreen> createState() => _GlucoCareScreenState();
 }
 
 class _GlucoCareScreenState extends State<GlucoCareScreen> {

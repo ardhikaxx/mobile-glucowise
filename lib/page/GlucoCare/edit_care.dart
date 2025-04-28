@@ -9,7 +9,7 @@ class EditCareScreen extends StatefulWidget {
   const EditCareScreen({super.key, required this.alarm});
 
   @override
-  _EditCareScreenState createState() => _EditCareScreenState();
+  State<EditCareScreen> createState() => _EditCareScreenState();
 }
 
 class _EditCareScreenState extends State<EditCareScreen> {

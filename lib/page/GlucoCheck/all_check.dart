@@ -7,7 +7,7 @@ class AllCheckScreen extends StatefulWidget {
   const AllCheckScreen({super.key, required this.checkData});
 
   @override
-  _AllCheckScreenState createState() => _AllCheckScreenState();
+  State<AllCheckScreen> createState() => _AllCheckScreenState();
 }
 
 class _AllCheckScreenState extends State<AllCheckScreen> {

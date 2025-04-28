@@ -10,7 +10,7 @@ class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key, required this.userData});
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {

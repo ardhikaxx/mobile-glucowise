@@ -6,7 +6,7 @@ class GlucoCheckForm extends StatefulWidget {
   const GlucoCheckForm({super.key});
 
   @override
-  _GlucoCheckFormState createState() => _GlucoCheckFormState();
+  State<GlucoCheckForm> createState() => _GlucoCheckFormState();
 }
 
 class _GlucoCheckFormState extends State<GlucoCheckForm> {

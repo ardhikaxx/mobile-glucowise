@@ -13,7 +13,7 @@ class UserScreen extends StatefulWidget {
   const UserScreen({super.key, required this.userData});
 
   @override
-  _UserScreenState createState() => _UserScreenState();
+  State<UserScreen> createState() => _UserScreenState();
 }
 
 class _UserScreenState extends State<UserScreen> {

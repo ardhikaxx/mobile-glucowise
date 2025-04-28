@@ -9,8 +9,7 @@ class DetailHasilScreeningScreen extends StatefulWidget {
   const DetailHasilScreeningScreen({super.key, required this.screeningId});
 
   @override
-  _DetailHasilScreeningScreenState createState() =>
-      _DetailHasilScreeningScreenState();
+  State<DetailHasilScreeningScreen> createState() => _DetailHasilScreeningScreenState();
 }
 
 class _DetailHasilScreeningScreenState

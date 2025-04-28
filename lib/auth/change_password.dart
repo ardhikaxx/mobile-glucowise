@@ -9,8 +9,7 @@ class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key, required this.nik});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
