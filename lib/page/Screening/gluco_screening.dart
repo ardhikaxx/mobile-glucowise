@@ -5,7 +5,6 @@ import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/Screening/riwayat_screening.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
 import 'package:medical_app/services/screening_services.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/model/user.dart';
 
 class GlucoScreeningScreen extends StatelessWidget {
@@ -18,13 +17,62 @@ class GlucoScreeningScreen extends StatelessWidget {
     if (questions == null ||
         questions['data'] == null ||
         (questions['data'] as List).isEmpty) {
-      QuickAlert.show(
+      showDialog(
         context: context,
-        type: QuickAlertType.warning,
-        title: 'Akses Dibatasi',
-        text:
-            'Screening belum bisa digunakan saat ini. Silakan coba lagi nanti.',
-        confirmBtnColor: const Color(0xFF199A8E),
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text(
+            "Akses Screening Belum Tersedia",
+            style: TextStyle(
+              color: Color(0xFF199A8E),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Mohon maaf, saat ini layanan screening belum dapat digunakan karena:",
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 10),
+              _buildAlertItem("Data pertanyaan screening belum tersedia"),
+              _buildAlertItem("Layanan sedang dalam pemeliharaan"),
+              _buildAlertItem("Atau masalah teknis lainnya"),
+              const SizedBox(height: 10),
+              const Text(
+                "Silakan coba lagi nanti.",
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Tutup",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF199A8E),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                // You can add any additional action here if needed
+              },
+              child: const Text(
+                "Mengerti",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       Navigator.push(
@@ -33,6 +81,34 @@ class GlucoScreeningScreen extends StatelessWidget {
             builder: (context) => TestScreeningScreen(userData: userData)),
       );
     }
+  }
+
+// Helper method to build alert items
+  Widget _buildAlertItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 4, right: 8),
+            child: Icon(
+              Icons.circle,
+              size: 8,
+              color: Color(0xFF199A8E),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -47,7 +123,7 @@ class GlucoScreeningScreen extends StatelessWidget {
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 30,
+            fontSize: 34,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -84,18 +160,32 @@ class GlucoScreeningScreen extends StatelessWidget {
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-              const Text(
-                "Risiko Diabetes",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF199A8E),
-                  fontFamily: 'DarumadropOne',
+                const Text(
+                  "Risiko Diabetes",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF199A8E),
+                    fontFamily: 'DarumadropOne',
+                  ),
                 ),
-              ),
-            ]),
-            const SizedBox(height: 10),
+                SizedBox(height: 5),
+                Center(
+                  child: Text(
+                    "Kenali risiko diabetes Anda melalui screening sederhana ini dan ambil langkah awal untuk hidup lebih sehat.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
             _buildRiskCard(
               FontAwesomeIcons.circleCheck,
               'Risiko Rendah (0-7)',

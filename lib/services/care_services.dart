@@ -6,7 +6,6 @@ import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
 
 class CareServices {
-  // Konstanta untuk pesan
   static const String _errorNikNotFound = "NIK tidak ditemukan. Silakan login ulang.";
   static const String _errorDefault = "Terjadi kesalahan. Coba lagi nanti.";
   static const String _errorAddCare = "Gagal menambahkan jadwal.";

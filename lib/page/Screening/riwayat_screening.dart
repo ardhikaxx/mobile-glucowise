@@ -265,71 +265,78 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
   }
 
   Widget _buildEmptyState() {
-    final userData = widget.userData;
-    return Center(
+  final userData = widget.userData;
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 120,
-            height: 120,
+            width: 160,
+            height: 160,
             decoration: BoxDecoration(
-              color: const Color(0xFFE9F3F2),
+              color: const Color(0xFFF0F9F8),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.assignment_outlined,
-              size: 50,
+              size: 64,
               color: Color(0xFF1A998E),
             ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            'Belum Ada Riwayat Screening',
+          const SizedBox(height: 32),
+          Text(
+            'Tidak Ada Riwayat',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 22,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1A998E),
+              color: const Color(0xFF1A998E),
             ),
           ),
           const SizedBox(height: 12),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              'Anda belum memiliki riwayat screening. Lakukan screening pertama untuk melihat hasilnya di sini.',
+              'Mulai screening pertama Anda untuk melihat riwayat hasil pemeriksaan di sini.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+                fontSize: 15,
+                color: Colors.grey.shade600,
+                height: 1.5,
               ),
             ),
           ),
           const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: () {
-              MaterialPageRoute(
-                    builder: (context) => GlucoScreeningScreen(userData: userData),
-                  );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A998E),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Mulai Screening',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.to(() => GlucoScreeningScreen(userData: userData));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A998E),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Mulai Screening Sekarang',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -6,14 +6,12 @@ import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
 
 class CheckServices {
-  // Konstanta untuk pesan
   static const String _errorNikNotFound = "NIK tidak ditemukan. Silakan login ulang.";
   static const String _errorDefault = "Terjadi kesalahan. Coba lagi nanti.";
   static const String _errorAddCheck = "Gagal menambahkan data kesehatan.";
   static const String _errorGetHistory = "Gagal mengambil riwayat kesehatan.";
   static const String _errorGetStatus = "Gagal mengambil status risiko.";
 
-  // Method untuk menambahkan data kesehatan
   static Future<void> addCheck(
     BuildContext context, {
     required String tanggalPemeriksaan,
@@ -63,7 +61,6 @@ class CheckServices {
     }
   }
 
-  // Method untuk mengambil riwayat kesehatan
   static Future<List<dynamic>> getRiwayatKesehatan(BuildContext context) async {
     String? nik = await SessionManager.getNik();
 
@@ -85,7 +82,7 @@ class CheckServices {
           return [];
         }
       } else {
-        _showErrorDialog(context, _errorGetHistory);
+        print("Error getRiwayatKesehatan: ${response.body}");
         return [];
       }
     } catch (e) {
@@ -94,8 +91,6 @@ class CheckServices {
       return [];
     }
   }
-
-  // Method untuk mengambil status risiko
   static Future<Map<String, dynamic>?> getStatusRisiko(
       BuildContext context, int idData) async {
     try {
@@ -121,7 +116,6 @@ class CheckServices {
     }
   }
 
-  // Method untuk menampilkan dialog sukses
   static void _showSuccessDialog(BuildContext context, String message) {
     QuickAlert.show(
       context: context,
@@ -131,12 +125,11 @@ class CheckServices {
       confirmBtnText: 'OK',
       onConfirmBtnTap: () {
         Navigator.pop(context);
-        Navigator.pop(context); // Kembali ke halaman sebelumnya
+        Navigator.pop(context);
       },
     );
   }
 
-  // Method untuk menampilkan dialog error
   static void _showErrorDialog(BuildContext context, String message) {
     QuickAlert.show(
       context: context,

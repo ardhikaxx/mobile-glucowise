@@ -275,26 +275,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 class CardNoData extends StatelessWidget {
-  const CardNoData({super.key});
+  const CardNoData({
+    super.key,
+    this.message = "Belum ada data kesehatan terbaru anda",
+    this.subMessage = "Silakan periksa kembali nanti",
+  });
+
+  final String message;
+  final String subMessage;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: const Color(0xFFE8F3F1),
-      child: const Padding(
-        padding: EdgeInsets.all(15),
-        child: Center(
-          child: Text(
-            "Belum ada data kesehatan terbaru",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF199A8E),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Color(0xFFF9FAFB),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -10,
+            right: -10,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F3F1),
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: -20,
+            left: -20,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F3F1),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF138075),
+                        Color(0xFF199A8E),
+                        Color(0xFF23B8A9),
+                      ],
+                      stops: [0.0, 0.5, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1DE9B6).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    FontAwesomeIcons.circleExclamation,
+                    size: 28,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF263238),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  subMessage,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -344,14 +432,11 @@ class CategoryIcon extends StatefulWidget {
 
 class _CategoryIconState extends State<CategoryIcon> {
   void _navigateToPage(BuildContext context) {
-    final dashboardState = context.findAncestorStateOfType<_DashboardScreenState>();
-    final userData = dashboardState?._currentUserData ?? UserData(
-      nik: '',
-      email: '',
-      namaLengkap: '',
-      createdAt: '',
-      updatedAt: ''
-    );
+    final dashboardState =
+        context.findAncestorStateOfType<_DashboardScreenState>();
+    final userData = dashboardState?._currentUserData ??
+        UserData(
+            nik: '', email: '', namaLengkap: '', createdAt: '', updatedAt: '');
 
     Widget targetPage;
 
@@ -915,12 +1000,21 @@ class UserIntro extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF199A8E).withOpacity(0.1),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF138075),
+                    Color(0xFF199A8E),
+                    Color(0xFF23B8A9),
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 FontAwesomeIcons.userEdit,
-                color: Color(0xFF199A8E),
+                color: Colors.white,
                 size: 24,
               ),
             ),

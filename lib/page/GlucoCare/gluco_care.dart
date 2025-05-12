@@ -152,6 +152,107 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     }
   }
 
+  Widget _buildNoDataCard(
+      {required IconData icon,
+      required String title,
+      required String subtitle}) {
+    return Container(
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Color(0xFFF8FDFC),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: const Color(0xFFE8F3F1),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF138075),
+                  Color(0xFF199A8E),
+                  Color(0xFF23B8A9),
+                ],
+                stops: [0.0, 0.5, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1DE9B6).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              size: 24,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF199A8E),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FormCareScreen(),
+                ),
+              ).then((_) => _loadData());
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF199A8E),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text(
+              "Tambahkan Jadwal",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,12 +308,25 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
                   _buildDateSelector(),
                   const SizedBox(height: 12),
                   _buildSectionTitle("Jadwal Minum Obat"),
-                  _buildScrollableCardList(context, jadwalObat,
-                      status: "Aktif"),
+                  jadwalObat.isEmpty
+                      ? _buildNoDataCard(
+                          icon: FontAwesomeIcons.calendarCheck,
+                          title: "Belum Ada Jadwal Obat",
+                          subtitle:
+                              "Tambahkan jadwal minum obat Anda untuk memulai pengingat",
+                        )
+                      : _buildScrollableCardList(context, jadwalObat,
+                          status: "Aktif"),
                   const SizedBox(height: 12),
                   _buildSectionTitle("Riwayat Minum Obat"),
-                  _buildScrollableCardList(context, riwayatObat,
-                      isHistory: true, status: "Sudah"),
+                  riwayatObat.isEmpty
+                      ? _buildNoDataCard(
+                          icon: FontAwesomeIcons.history,
+                          title: "Belum Ada Riwayat",
+                          subtitle: "Riwayat minum obat akan muncul di sini",
+                        )
+                      : _buildScrollableCardList(context, riwayatObat,
+                          isHistory: true, status: "Sudah"),
                 ],
               ),
             ),
@@ -313,10 +427,6 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   }) {
     double cardHeight = 70.0;
     bool isScrollable = data.length > 3;
-
-    if (data.isEmpty) {
-      return const Center(child: Text("Tidak ada data."));
-    }
 
     return SizedBox(
       height: isScrollable ? cardHeight * 3.5 : null,

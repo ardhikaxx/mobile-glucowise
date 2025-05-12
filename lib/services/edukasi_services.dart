@@ -25,10 +25,14 @@ class EdukasiServices {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        if (jsonData['success'] == true) {
-          return (jsonData['data'] as List)
-              .map((item) => Edukasi.fromJson(item))
-              .toList();
+        if (jsonData['status'] == true) {
+          if (jsonData['data'] != null && jsonData['data'] is List) {
+            return (jsonData['data'] as List)
+                .map((item) => Edukasi.fromJson(item))
+                .toList();
+          } else {
+            return [];
+          }
         } else {
           _showErrorDialog(context, jsonData['message'] ?? _errorGetEdukasi);
           return [];

@@ -31,8 +31,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         type: QuickAlertType.error,
         title: 'Oops...',
         text: 'Harap isi semua field!',
-        autoCloseDuration: const Duration(seconds: 2),
-        showConfirmBtn: false,
+        showConfirmBtn: true,
+        confirmBtnText: 'OK',
+        confirmBtnColor: const Color(0xFF199A8E),
       );
       return;
     }
@@ -43,8 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         type: QuickAlertType.error,
         title: 'Oops...',
         text: 'Password dan konfirmasi password tidak sama!',
-        autoCloseDuration: const Duration(seconds: 2),
-        showConfirmBtn: false,
+        showConfirmBtn: true,
+        confirmBtnText: 'OK',
+        confirmBtnColor: const Color(0xFF199A8E),
       );
       return;
     }

@@ -94,7 +94,8 @@ class _EdukasiScreenState extends State<EdukasiScreen>
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () => Get.offAll(() => NavBottom(userData: widget.userData)),
+              onPressed: () =>
+                  Get.offAll(() => NavBottom(userData: widget.userData)),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
@@ -270,6 +271,14 @@ class _EdukasiScreenState extends State<EdukasiScreen>
   }
 
   Widget _buildEdukasiList() {
+    if (isLoading) {
+      return Expanded(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     final filteredList = selectedCategory == 'Semua'
         ? edukasiList
         : edukasiList.where((e) => e.kategori == selectedCategory).toList();
@@ -277,9 +286,80 @@ class _EdukasiScreenState extends State<EdukasiScreen>
     if (filteredList.isEmpty) {
       return Expanded(
         child: Center(
-          child: Text(
-            'Tidak ada artikel edukasi',
-            style: TextStyle(color: Colors.grey),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              decoration: BoxDecoration(
+                color: Color(0xFFF8FDFC),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(
+                  color: const Color(0xFFE8F3F1),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF138075),
+                          Color(0xFF199A8E),
+                          Color(0xFF23B8A9),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1DE9B6).withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      FontAwesomeIcons.bookBookmark,
+                      size: 35,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum Ada Artikel',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF199A8E),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    selectedCategory == 'Semua'
+                        ? 'Saat ini belum tersedia artikel edukasi untuk semua kategori.'
+                        : 'Tidak ada artikel untuk kategori "$selectedCategory"',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       );
@@ -287,6 +367,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
 
     return Expanded(
       child: RefreshIndicator(
+        color: Color(0xFF199A8E),
         onRefresh: _loadEdukasiData,
         child: ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -321,7 +402,7 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                     child: Stack(
                       children: [
                         SizedBox(
-                          height: 225, // Tinggi tetap untuk gambar
+                          height: 225,
                           width: double.infinity,
                           child: CachedNetworkImage(
                             imageUrl: item.gambarUrl,
@@ -337,7 +418,6 @@ class _EdukasiScreenState extends State<EdukasiScreen>
                             ),
                           ),
                         ),
-                        // Overlay konten
                         Positioned(
                           bottom: 0,
                           left: 0,
