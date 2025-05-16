@@ -1,0 +1,2 @@
+D:/projek-flutter/medical_app/android/app/.cxx/RelWithDebInfo/55n82r5v/x86_64/CMakeFiles/edit_cache.dir
+D:/projek-flutter/medical_app/android/app/.cxx/RelWithDebInfo/55n82r5v/x86_64/CMakeFiles/rebuild_cache.dir
