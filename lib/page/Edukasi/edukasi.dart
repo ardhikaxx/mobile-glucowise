@@ -185,13 +185,15 @@ class _EdukasiScreenState extends State<EdukasiScreen>
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dataVideoEdukasi.length,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         itemBuilder: (context, index) {
           String? videoID =
               YoutubePlayer.convertUrlToId(dataVideoEdukasi[index]['url']!);
           if (videoID == null) return const SizedBox();
-
           return Padding(
-            padding: const EdgeInsets.only(left: 20),
+            padding: EdgeInsets.only(
+              right: index == dataVideoEdukasi.length - 1 ? 0 : 15,
+            ),
             child: GestureDetector(
               onTap: () {
                 Navigator.push(
