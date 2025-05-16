@@ -17,8 +17,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _showRepeatPassword = false;
 
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController repeatPasswordController =
-      TextEditingController();
+  final TextEditingController repeatPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,74 +58,88 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildImageWithBackground(),
-              const SizedBox(height: 20),
-              const Text(
-                "Ubah Password Anda",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF199A8E),
-                ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              const SizedBox(height: 8),
-              const Text(
-                "Masukkan password baru Anda di bawah.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildInputField(
-                controller: newPasswordController,
-                labelText: "Password Baru",
-                prefixIcon: Icons.lock,
-                obscureText: !_showNewPassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    color: const Color(0xFF199A8E),
-                    _showNewPassword ? Icons.visibility : Icons.visibility_off,
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(flex: 1),
+                      _buildImageWithBackground(),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Ubah Password Anda",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF199A8E),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          "Masukkan password baru Anda di bawah.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInputField(
+                        controller: newPasswordController,
+                        labelText: "Password Baru",
+                        prefixIcon: Icons.lock,
+                        obscureText: !_showNewPassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            color: const Color(0xFF199A8E),
+                            _showNewPassword ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showNewPassword = !_showNewPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInputField(
+                        controller: repeatPasswordController,
+                        labelText: "Ulangi Password Baru",
+                        prefixIcon: Icons.lock,
+                        obscureText: !_showRepeatPassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            color: const Color(0xFF199A8E),
+                            _showRepeatPassword ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showRepeatPassword = !_showRepeatPassword;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildChangePasswordButton(),
+                      const Spacer(flex: 2),
+                    ],
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _showNewPassword = !_showNewPassword;
-                    });
-                  },
                 ),
               ),
-              const SizedBox(height: 20),
-              _buildInputField(
-                controller: repeatPasswordController,
-                labelText: "Ulangi Password Baru",
-                prefixIcon: Icons.lock,
-                obscureText: !_showRepeatPassword,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    color: const Color(0xFF199A8E),
-                    _showRepeatPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _showRepeatPassword = !_showRepeatPassword;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildChangePasswordButton(),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -157,7 +170,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     required IconButton suffixIcon,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -176,8 +188,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
           labelStyle: const TextStyle(color: Color(0xFF199A8E)),
           prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
@@ -203,44 +214,41 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   Widget _buildChangePasswordButton() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            String newPassword = newPasswordController.text;
-            String confirmPassword = repeatPasswordController.text;
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          String newPassword = newPasswordController.text;
+          String confirmPassword = repeatPasswordController.text;
 
-            if (newPassword.isEmpty || confirmPassword.isEmpty) {
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.error,
-                text: "Harap isi semua field!",
-              );
-            } else if (newPassword != confirmPassword) {
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.error,
-                text: "Konfirmasi password tidak sesuai!",
-              );
-            } else {
-              AuthServices.updatePassword(
-                  context, widget.nik, newPassword, confirmPassword);
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF199A8E),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 5,
+          if (newPassword.isEmpty || confirmPassword.isEmpty) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              text: "Harap isi semua field!",
+            );
+          } else if (newPassword != confirmPassword) {
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              text: "Konfirmasi password tidak sesuai!",
+            );
+          } else {
+            AuthServices.updatePassword(
+                context, widget.nik, newPassword, confirmPassword);
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF199A8E),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text(
-            "Ubah",
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
+          elevation: 5,
+        ),
+        child: const Text(
+          "Ubah",
+          style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
     );

@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
       _rememberMe = _preferences.getBool('rememberMe') ?? false;
       if (_rememberMe) {
         _emailController.text = _preferences.getString('email') ?? '';
-        _passwordController.text = _preferences.getString('password') ?? '';
       }
     });
   }
@@ -41,10 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
     await _preferences.setBool('rememberMe', _rememberMe);
     if (_rememberMe) {
       await _preferences.setString('email', _emailController.text);
-      await _preferences.setString('password', _passwordController.text);
     } else {
       await _preferences.remove('email');
-      await _preferences.remove('password');
     }
   }
 

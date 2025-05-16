@@ -475,62 +475,135 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   Widget _buildInfoCard(UserData user) {
-    return Card(
-      color: const Color(0xFFE8F3F1),
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFFE8F3F1),
+            Color(0xFFF0F9F7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.email_rounded, 'Email',
-                user.email.isEmpty ? "Tidak ada data" : user.email),
-            const Divider(color: Color(0xFF199A8E)),
-            _buildInfoRow(
-                Icons.phone, 'Nomor HP', user.nomorTelepon ?? "Tidak ada data"),
-            const Divider(color: Color(0xFF199A8E)),
-            _buildInfoRow(Icons.location_on, 'Alamat',
-                user.alamatLengkap ?? "Tidak ada data"),
+            // Email Section
+            _buildEnhancedInfoItem(
+              icon: FontAwesomeIcons.solidEnvelope,
+              title: "Email",
+              value: user.email.isEmpty ? "Tidak ada data" : user.email,
+              iconColor: const Color(0xFF199A8E),
+              iconBackground: const Color(0xFFD4ECE8),
+            ),
+            const SizedBox(height: 12),
+            // Divider with decoration
+            Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    const Color(0xFF199A8E).withOpacity(0.5),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Phone Section
+            _buildEnhancedInfoItem(
+              icon: FontAwesomeIcons.phoneAlt,
+              title: "Nomor HP",
+              value: user.nomorTelepon ?? "Tidak ada data",
+              iconColor: const Color(0xFF199A8E),
+              iconBackground: const Color(0xFFD4ECE8),
+            ),
+            const SizedBox(height: 12),
+            // Divider with decoration
+            Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    const Color(0xFF199A8E).withOpacity(0.5),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Address Section
+            _buildEnhancedInfoItem(
+              icon: FontAwesomeIcons.mapMarkerAlt,
+              title: "Alamat",
+              value: user.alamatLengkap ?? "Tidak ada data",
+              iconColor: const Color(0xFF199A8E),
+              iconBackground: const Color(0xFFD4ECE8),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color(0xFF199A8E), size: 28),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF199A8E),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF101623),
-                  ),
-                ),
-              ],
+  Widget _buildEnhancedInfoItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color iconColor,
+    required Color iconBackground,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Icon with background
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconBackground,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              size: 18,
+              color: iconColor,
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        // Text content
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF57636C),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF101623),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

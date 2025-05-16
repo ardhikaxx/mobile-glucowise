@@ -9,81 +9,100 @@ import 'package:medical_app/model/user.dart';
 
 class GlucoScreeningScreen extends StatelessWidget {
   final UserData userData;
+
   const GlucoScreeningScreen({super.key, required this.userData});
 
   Future<void> _checkQuestionsAvailability(BuildContext context) async {
-    final questions = await ScreeningServices.getQuestions();
-
-    if (questions == null ||
-        questions['data'] == null ||
-        (questions['data'] as List).isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+    try {
+      final questions = await ScreeningServices.getQuestions();
+      if (questions == null || questions['data'] == null || (questions['data'] as List).isEmpty) {
+        _showQuestionsUnavailableDialog(context);
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TestScreeningScreen(userData: userData),
           ),
-          title: const Text(
-            "Akses Screening Belum Tersedia",
-            style: TextStyle(
-              color: Color(0xFF199A8E),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Mohon maaf, saat ini layanan screening belum dapat digunakan karena:",
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 10),
-              _buildAlertItem("Data pertanyaan screening belum tersedia"),
-              _buildAlertItem("Layanan sedang dalam pemeliharaan"),
-              _buildAlertItem("Atau masalah teknis lainnya"),
-              const SizedBox(height: 10),
-              const Text(
-                "Silakan coba lagi nanti.",
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Tutup",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF199A8E),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                // You can add any additional action here if needed
-              },
-              child: const Text(
-                "Mengerti",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => TestScreeningScreen(userData: userData)),
-      );
+        );
+      }
+    } catch (e) {
+      _showErrorDialog(context, e.toString());
     }
   }
 
-// Helper method to build alert items
+  void _showQuestionsUnavailableDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text(
+          "Akses Screening Belum Tersedia",
+          style: TextStyle(
+            color: Color(0xFF199A8E),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Mohon maaf, saat ini layanan screening belum dapat digunakan karena:",
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 10),
+            _buildAlertItem("Data pertanyaan screening belum tersedia"),
+            _buildAlertItem("Layanan sedang dalam pemeliharaan"),
+            _buildAlertItem("Atau masalah teknis lainnya"),
+            const SizedBox(height: 10),
+            const Text(
+              "Silakan coba lagi nanti.",
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              "Tutup",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF199A8E),
+            ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              "Mengerti",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String error) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Terjadi Kesalahan"),
+        content: Text("Gagal memuat data: $error"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Tutup"),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAlertItem(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -101,9 +120,7 @@ class GlucoScreeningScreen extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
         ],
@@ -139,9 +156,7 @@ class GlucoScreeningScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {
-                Get.offAll(() => NavBottom(userData: userData));
-              },
+              onPressed: () => Get.offAll(() => NavBottom(userData: userData)),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
@@ -155,69 +170,240 @@ class GlucoScreeningScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Risiko Diabetes",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF199A8E),
-                    fontFamily: 'DarumadropOne',
+            // Header Section
+            const _HeaderSection(),
+            const SizedBox(height: 20),
+            
+            // Risk Cards
+            SizedBox(
+              height: 220, // Increased height for better card display
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: const [
+                  _RiskCard(
+                    icon: FontAwesomeIcons.circleCheck,
+                    title: 'Risiko Rendah',
+                    scoreRange: '0-7',
+                    description: 'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
+                    color: Color(0xFF4CAF50), // Green
                   ),
+                  SizedBox(width: 15),
+                  _RiskCard(
+                    icon: FontAwesomeIcons.exclamationTriangle,
+                    title: 'Risiko Sedang',
+                    scoreRange: '8-14',
+                    description: 'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
+                    color: Color(0xFFFF9800), // Orange
+                  ),
+                  SizedBox(width: 15),
+                  _RiskCard(
+                    icon: FontAwesomeIcons.triangleExclamation,
+                    title: 'Risiko Tinggi',
+                    scoreRange: '15-24',
+                    description: 'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
+                    color: Color(0xFFF44336), // Red
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+            
+            // Action Buttons
+            _ActionButtons(
+              onStartScreening: () => _checkQuestionsAvailability(context),
+              userData: userData,
+            ),
+            
+            // Additional Info
+            const SizedBox(height: 25),
+            const _AdditionalInfo(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Improved Risk Card Widget
+class _RiskCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String scoreRange;
+  final String description;
+  final Color color;
+
+  const _RiskCard({
+    required this.icon,
+    required this.title,
+    required this.scoreRange,
+    required this.description,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.2),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ClipPath(
+          clipper: ShapeBorderClipper(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: color,
+                  width: 5,
                 ),
-                SizedBox(height: 5),
-                Center(
-                  child: Text(
-                    "Kenali risiko diabetes Anda melalui screening sederhana ini dan ambil langkah awal untuk hidup lebih sehat.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white,
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: color,
+                        size: 24,
+                      ),
                     ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: color,
+                            ),
+                          ),
+                          Text(
+                            'Skor: $scoreRange',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: color.withOpacity(0.8),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black87,
+                    height: 1.5,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
-            _buildRiskCard(
-              FontAwesomeIcons.circleCheck,
-              'Risiko Rendah (0-7)',
-              'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
-              Colors.green,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Other widget classes remain the same as in your original code
+class _HeaderSection extends StatelessWidget {
+  const _HeaderSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text(
+          "Risiko Diabetes",
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF199A8E),
+            fontFamily: 'DarumadropOne',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Kenali risiko diabetes Anda melalui screening sederhana ini dan ambil langkah awal untuk hidup lebih sehat.",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionButtons extends StatelessWidget {
+  final VoidCallback onStartScreening;
+  final UserData userData;
+
+  const _ActionButtons({
+    required this.onStartScreening,
+    required this.userData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF199A8E),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 3,
+              shadowColor: const Color(0xFF199A8E).withOpacity(0.4),
             ),
-            _buildRiskCard(
-              // ignore: deprecated_member_use
-              FontAwesomeIcons.exclamationTriangle,
-              'Risiko Sedang (8-14)',
-              'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
-              Colors.orange,
-            ),
-            _buildRiskCard(
-              FontAwesomeIcons.triangleExclamation,
-              'Risiko Tinggi (15-24)',
-              'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
-              Colors.red,
-            ),
-            const SizedBox(height: 5),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF199A8E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () => _checkQuestionsAvailability(context),
-                child: const Text(
+            onPressed: onStartScreening,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(FontAwesomeIcons.clipboardUser, size: 20, color: Colors.white),
+                SizedBox(width: 10),
+                Text(
                   'Mulai Screening',
                   style: TextStyle(
                     fontSize: 18,
@@ -225,110 +411,76 @@ class GlucoScreeningScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFF199A8E)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              backgroundColor: Colors.white,
+              elevation: 0,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RiwayatScreening(userData: userData),
               ),
             ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Color(0xFF199A8E), width: 2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RiwayatScreening(userData: userData),
-                  ),
-                ),
-                child: const Text(
-                  'Lihat Riwayat Screening',
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(FontAwesomeIcons.history, size: 18, color: Color(0xFF199A8E)),
+                SizedBox(width: 10),
+                Text(
+                  'Lihat Riwayat',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF199A8E),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
+}
 
-  Widget _buildRiskCard(
-      IconData icon, String title, String description, Color color) {
+class _AdditionalInfo extends StatelessWidget {
+  const _AdditionalInfo();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: LinearGradient(
-          colors: [color.withOpacity(0.2), Colors.white],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(2, 4),
+        color: const Color(0xFF199A8E).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(FontAwesomeIcons.circleInfo, color: Color(0xFF199A8E), size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Screening ini membantu mengidentifikasi risiko diabetes tipe 2 berdasarkan faktor gaya hidup dan riwayat kesehatan.",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+            ),
           ),
         ],
-      ),
-      margin: const EdgeInsets.only(bottom: 15),
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        elevation: 0,
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Ikon dalam lingkaran
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 30),
-              ),
-              const SizedBox(width: 15),
-
-              // Text di dalam Card
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: color,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

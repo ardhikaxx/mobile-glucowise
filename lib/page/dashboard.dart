@@ -394,8 +394,8 @@ class CategoryIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 25,
-      runSpacing: 5,
+      spacing: 22,
+      runSpacing: 4,
       crossAxisAlignment: WrapCrossAlignment.center,
       direction: Axis.horizontal,
       alignment: WrapAlignment.center,

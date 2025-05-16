@@ -51,43 +51,62 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildImageWithBackground(),
-              const SizedBox(height: 20),
-              const Text(
-                "Lupa Password?",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF199A8E),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 1),
+                    _buildImageWithBackground(),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Lupa Password?",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF199A8E),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        "Masukkan email untuk konfirmasi mereset password Anda.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildInputField(
+                        controller: inputController,
+                        labelText: "Masukkan Email",
+                        prefixIcon: Icons.email,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildConfirmButton(),
+                    ),
+                    const Spacer(flex: 2),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                "Masukkan email untuk konfirmasi mereset password Anda.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 20),
-              _buildInputField(
-                controller: inputController,
-                labelText: "Masukkan Email",
-                prefixIcon: Icons.email,
-              ),
-              const SizedBox(height: 20),
-              _buildConfirmButton(),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -119,7 +138,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
@@ -165,34 +183,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildConfirmButton() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            if (inputController.text.isNotEmpty) {
-              AuthServices.checkEmail(context, inputController.text);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Email Tidak Boleh Kosong"),
-                ),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF199A8E),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 5,
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          if (inputController.text.isNotEmpty) {
+            AuthServices.checkEmail(context, inputController.text);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Email Tidak Boleh Kosong"),
+              ),
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF199A8E),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: const Text(
-            "Konfirmasi",
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
+          elevation: 5,
+        ),
+        child: const Text(
+          "Konfirmasi",
+          style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
     );

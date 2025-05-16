@@ -29,6 +29,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isAlarmPlaying = false;
   bool _isDisposed = false;
+  Timer? _alarmRepeatTimer;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   void dispose() {
     _isDisposed = true;
     _alarmTimer?.cancel();
+    _alarmRepeatTimer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -67,7 +69,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           alarmTime == currentTime &&
           !_isAlarmPlaying &&
           !_isDisposed) {
-        await _playAlarmSound();
+        await _startRepeatingAlarm();
         if (!_isDisposed) {
           _showAlarmNotification(context, alarm);
         }
@@ -76,23 +78,46 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     }
   }
 
+  Future<void> _startRepeatingAlarm() async {
+    // Mainkan alarm pertama kali
+    await _playAlarmSound();
+    
+    // Set timer untuk mengulang alarm setiap 30 detik
+    _alarmRepeatTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_isAlarmPlaying && !_isDisposed) {
+        _playAlarmSound();
+      }
+    });
+  }
+
   Future<void> _playAlarmSound() async {
-    await _audioPlayer.play(AssetSource('alarm.mp3'),
-        mode: PlayerMode.lowLatency);
-    _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    if (!_isDisposed) {
-      setState(() {
-        _isAlarmPlaying = true;
-      });
+    try {
+      await _audioPlayer.stop(); // Hentikan dulu jika sedang bermain
+      await _audioPlayer.play(AssetSource('alarm.mp3'),
+          mode: PlayerMode.lowLatency);
+      _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      if (!_isDisposed) {
+        setState(() {
+          _isAlarmPlaying = true;
+        });
+      }
+    } catch (e) {
+      print("Error playing alarm: $e");
     }
   }
 
   Future<void> _stopAlarmSound() async {
-    await _audioPlayer.stop();
-    if (!_isDisposed) {
-      setState(() {
-        _isAlarmPlaying = false;
-      });
+    try {
+      await _audioPlayer.stop();
+      _alarmRepeatTimer?.cancel();
+      _alarmRepeatTimer = null;
+      if (!_isDisposed) {
+        setState(() {
+          _isAlarmPlaying = false;
+        });
+      }
+    } catch (e) {
+      print("Error stopping alarm: $e");
     }
   }
 
@@ -104,6 +129,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       title: 'Waktunya Minum Obat!',
       text: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
       confirmBtnText: 'Stop',
+      barrierDismissible: false, // Mencegah pengguna menutup tanpa menekan tombol
       onConfirmBtnTap: () async {
         await _stopAlarmSound();
         if (!_isDisposed) {
