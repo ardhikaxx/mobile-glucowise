@@ -638,7 +638,66 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: () => _navigateToForm(context),
+                onPressed: () async {
+                  await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      title: const Text(
+                        "Persyaratan Tes Gula Darah Puasa (GDP)",
+                        style: TextStyle(
+                          color: Color(0xFF199A8E),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Pastikan Anda telah memenuhi persyaratan berikut:",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildRequirementItem(
+                              "Tidak makan atau minum (selain air putih) selama 8 jam sebelum tes"),
+                          _buildRequirementItem(
+                              "Biasanya dilakukan pagi hari, sebelum sarapan"),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Tujuan: Menilai kadar gula darah tanpa pengaruh makanan.",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text(
+                            "Batal",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF199A8E),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _navigateToForm(context);
+                          },
+                          child: const Text(
+                            "Saya Mengerti",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
                 child: const Text(
                   "Tambah Data Sekarang",
                   style: TextStyle(

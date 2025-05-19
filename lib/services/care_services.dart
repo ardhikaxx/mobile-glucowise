@@ -55,7 +55,7 @@ class CareServices {
     }
   }
 
-  // Method untuk mengedit jadwal
+  // Method untuk mengedit jadwal - UPDATED VERSION
   static Future<void> editCare(
     BuildContext context,
     int idCare, {
@@ -64,12 +64,20 @@ class CareServices {
     required String dosis,
     required String jamMinum,
   }) async {
+    String? nik = await SessionManager.getNik();
+
+    if (nik == null) {
+      _showErrorDialog(context, _errorNikNotFound);
+      return;
+    }
+
     try {
       final url = "$apiConnect/api/gluco-care/edit/$idCare";
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
+          'nik': nik,
           'tanggal': tanggal,
           'nama_obat': namaObat,
           'dosis': dosis,

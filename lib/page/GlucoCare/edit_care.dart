@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/services/care_services.dart';
+import 'package:quickalert/quickalert.dart';
 
 class EditCareScreen extends StatefulWidget {
   final Map<String, dynamic> alarm;
@@ -15,10 +16,12 @@ class EditCareScreen extends StatefulWidget {
 class _EditCareScreenState extends State<EditCareScreen> {
   late TextEditingController namaObatController;
   late TextEditingController dosisController;
+  late TextEditingController timeController;
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay? selectedTimeObat;
   bool isLoading = false;
+  String? originalTime;
 
   @override
   void initState() {
@@ -26,7 +29,23 @@ class _EditCareScreenState extends State<EditCareScreen> {
     namaObatController = TextEditingController(text: widget.alarm["nama_obat"]);
     dosisController = TextEditingController(text: widget.alarm["dosis"]);
     selectedDate = _parseDate(widget.alarm["tanggal"]) ?? DateTime.now();
-    selectedTimeObat = _parseTime(widget.alarm["jam_minum"]);
+    originalTime = widget.alarm["jam_minum"];
+    
+    // Parse time from original format (HH:mm:ss)
+    if (originalTime != null) {
+      final timeParts = originalTime!.split(':');
+      if (timeParts.length >= 2) {
+        selectedTimeObat = TimeOfDay(
+          hour: int.parse(timeParts[0]),
+          minute: int.parse(timeParts[1]),
+        );
+        timeController = TextEditingController(
+          text: "${timeParts[0].padLeft(2, '0')}:${timeParts[1].padLeft(2, '0')}:00",
+        );
+      }
+    } else {
+      timeController = TextEditingController();
+    }
   }
 
   DateTime? _parseDate(dynamic date) {
@@ -42,14 +61,12 @@ class _EditCareScreenState extends State<EditCareScreen> {
     return null;
   }
 
-  TimeOfDay? _parseTime(String? timeString) {
-    if (timeString == null) return null;
-    final timeParts = timeString.split(":");
-    if (timeParts.length == 2) {
-      return TimeOfDay(
-          hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1]));
-    }
-    return null;
+  @override
+  void dispose() {
+    namaObatController.dispose();
+    dosisController.dispose();
+    timeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -79,9 +96,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
@@ -97,17 +112,33 @@ class _EditCareScreenState extends State<EditCareScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (originalTime != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Color(0xFF199A8E)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "Waktu sebelumnya: ${_formatOriginalTime(originalTime!)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF199A8E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              
               _buildDateSelector(),
               const SizedBox(height: 16),
               _buildTextField(
                   namaObatController, "Nama Obat", FontAwesomeIcons.pills),
               _buildTextField(dosisController, "Dosis (mg/ml)",
                   FontAwesomeIcons.prescriptionBottle),
-              _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
-                setState(() {
-                  selectedTimeObat = time;
-                });
-              }),
+              _buildTimePickerField(),
               const SizedBox(height: 20),
               _buildSaveButton(),
             ],
@@ -117,16 +148,32 @@ class _EditCareScreenState extends State<EditCareScreen> {
     );
   }
 
+  String _formatOriginalTime(String time) {
+    try {
+      final parts = time.split(':');
+      if (parts.length >= 2) {
+        return "${parts[0]}:${parts[1]}";
+      }
+      return time;
+    } catch (e) {
+      return time;
+    }
+  }
+
   Widget _buildDateSelector() {
     DateTime today = DateTime.now();
-    List<DateTime> futureDates =
-        List.generate(7, (index) => today.add(Duration(days: index)));
+    List<DateTime> futureDates = List.generate(
+      14, 
+      (index) => today.add(Duration(days: index)),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Pilih Tanggal",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          "Pilih Tanggal",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 10),
         SizedBox(
           height: 80,
@@ -135,7 +182,9 @@ class _EditCareScreenState extends State<EditCareScreen> {
             itemCount: futureDates.length,
             itemBuilder: (context, index) {
               DateTime date = futureDates[index];
-              bool isSelected = date.day == selectedDate.day;
+              bool isSelected = date.day == selectedDate.day &&
+                  date.month == selectedDate.month &&
+                  date.year == selectedDate.year;
 
               return GestureDetector(
                 onTap: () {
@@ -152,8 +201,8 @@ class _EditCareScreenState extends State<EditCareScreen> {
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color:
-                            isSelected ? const Color(0xFF199A8E) : Colors.grey),
+                      color: isSelected ? const Color(0xFF199A8E) : Colors.grey,
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -201,55 +250,79 @@ class _EditCareScreenState extends State<EditCareScreen> {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTimePickerField(
-      String label, TimeOfDay? selectedTime, Function(TimeOfDay) onTimePicked) {
+  Widget _buildTimePickerField() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
+        controller: timeController,
         readOnly: true,
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          labelText: label,
+          labelText: "Jam Minum Obat",
           prefixIcon:
               const Icon(FontAwesomeIcons.clock, color: Color(0xFF199A8E)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
+          ),
           suffixIcon: IconButton(
             icon: const Icon(Icons.access_time, color: Color(0xFF199A8E)),
-            onPressed: () async {
-              TimeOfDay? pickedTime = await showTimePicker(
-                context: context,
-                initialTime: selectedTime ?? TimeOfDay.now(),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData.light().copyWith(
-                      colorScheme: const ColorScheme.light(
-                        primary: Color(0xFF199A8E),
-                      ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (pickedTime != null) {
-                onTimePicked(pickedTime);
-              }
-            },
+            onPressed: _selectTime,
           ),
-        ),
-        controller: TextEditingController(
-          text: selectedTime != null ? selectedTime.format(context) : "",
         ),
       ),
     );
+  }
+
+  Future<void> _selectTime() async {
+    FocusScope.of(context).requestFocus(FocusNode());
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: selectedTimeObat ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF199A8E),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (pickedTime != null) {
+      setState(() {
+        selectedTimeObat = pickedTime;
+        timeController.text = 
+          "${pickedTime.hour.toString().padLeft(2, '0')}:"
+          "${pickedTime.minute.toString().padLeft(2, '0')}:00";
+      });
+    }
   }
 
   Widget _buildSaveButton() {
@@ -260,55 +333,72 @@ class _EditCareScreenState extends State<EditCareScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF199A8E),
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)),
           elevation: 5,
         ),
         child: isLoading
             ? const CircularProgressIndicator(color: Colors.white)
-            : const Text("Simpan Perubahan",
-                style: TextStyle(fontSize: 18, color: Colors.white)),
+            : const Text(
+                "Simpan Perubahan",
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
       ),
     );
   }
 
-  void _saveCare() async {
-    String namaObat = namaObatController.text.trim();
-    String dosis = dosisController.text.trim();
+  Future<void> _saveCare() async {
+    final namaObat = namaObatController.text.trim();
+    final dosis = dosisController.text.trim();
+    final jamMinum = timeController.text.trim();
 
-    if (namaObat.isEmpty || dosis.isEmpty || selectedTimeObat == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Harap lengkapi semua data.")),
-      );
+    if (namaObat.isEmpty || dosis.isEmpty || jamMinum.isEmpty) {
+      _showErrorDialog("Harap lengkapi semua data");
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    if (!_isValidTimeFormat(jamMinum)) {
+      _showErrorDialog("Format waktu tidak valid. Gunakan format HH:mm:ss");
+      return;
+    }
 
-    String tanggalFormatted = DateFormat('yyyy-MM-dd').format(selectedDate);
-    String jamMinumFormatted =
-        "${selectedTimeObat!.hour.toString().padLeft(2, '0')}:${selectedTimeObat!.minute.toString().padLeft(2, '0')}:00";
+    setState(() => isLoading = true);
 
     try {
+      final tanggalFormatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+      
       await CareServices.editCare(
         context,
         widget.alarm["id_care"],
         tanggal: tanggalFormatted,
         namaObat: namaObat,
         dosis: dosis,
-        jamMinum: jamMinumFormatted,
+        jamMinum: jamMinum,
       );
+      
+      // Tidak perlu Navigator.pop di sini karena sudah dihandle di CareServices
     } catch (e) {
       print("Error saat menyimpan data: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
-      );
+      _showErrorDialog("Terjadi kesalahan. Coba lagi nanti.");
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
+  }
+
+  bool _isValidTimeFormat(String time) {
+    final regex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$');
+    return regex.hasMatch(time);
+  }
+
+  void _showErrorDialog(String message) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: 'Gagal',
+      text: message,
+      confirmBtnText: 'OK',
+    );
   }
 }
