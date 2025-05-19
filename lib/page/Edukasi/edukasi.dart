@@ -105,18 +105,20 @@ class _EdukasiScreenState extends State<EdukasiScreen>
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //
-          const SizedBox(height: 10),
-          _buildCategoryFilter(),
-          const SizedBox(height: 5),
-          _buildSectionTitle("Video Edukasi"),
-          _buildVideoList(),
-          _buildSectionTitle("Artikel Edukasi"),
-          _buildEdukasiList(),
-        ],
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            //
+            const SizedBox(height: 10),
+            _buildCategoryFilter(),
+            const SizedBox(height: 5),
+            _buildSectionTitle("Video Edukasi"),
+            _buildVideoList(),
+            _buildSectionTitle("Artikel Edukasi"),
+            _buildEdukasiList(),
+          ],
+        ),
       ),
     );
   }

@@ -116,41 +116,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
         elevation: 0,
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            UserIntro(userData: _currentUserData),
-            const SizedBox(height: 15),
-            _buildGlucoziaAICard(context),
-            const SizedBox(height: 20),
-            const CategoryIcons(),
-            const SizedBox(height: 5),
-            isLoading
-                ? CardGlucoInfo(
-                    glucoseLevel: 0,
-                    bloodPressure: '0',
-                    height: 0,
-                    weight: 0,
-                    isLoading: true,
-                  )
-                : latestHealthData != null
-                    ? CardGlucoInfo(
-                        glucoseLevel:
-                            latestHealthData!['gula_darah']?.toInt() ?? 0,
-                        bloodPressure:
-                            latestHealthData!['tensi_darah']?.toString() ?? '0',
-                        height:
-                            latestHealthData!['tinggi_badan']?.toDouble() ?? 0,
-                        weight:
-                            latestHealthData!['berat_badan']?.toDouble() ?? 0,
-                        status:
-                            statusData?['kategori_risiko'] ?? 'Dalam proses',
-                      )
-                    : const CardNoData(),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              UserIntro(userData: _currentUserData),
+              const SizedBox(height: 15),
+              _buildGlucoziaAICard(context),
+              const SizedBox(height: 20),
+              const CategoryIcons(),
+              const SizedBox(height: 5),
+              isLoading
+                  ? CardGlucoInfo(
+                      glucoseLevel: 0,
+                      bloodPressure: '0',
+                      height: 0,
+                      weight: 0,
+                      isLoading: true,
+                    )
+                  : latestHealthData != null
+                      ? CardGlucoInfo(
+                          glucoseLevel:
+                              latestHealthData!['gula_darah']?.toInt() ?? 0,
+                          bloodPressure:
+                              latestHealthData!['tensi_darah']?.toString() ??
+                                  '0',
+                          height:
+                              latestHealthData!['tinggi_badan']?.toDouble() ??
+                                  0,
+                          weight:
+                              latestHealthData!['berat_badan']?.toDouble() ?? 0,
+                          status:
+                              statusData?['kategori_risiko'] ?? 'Dalam proses',
+                        )
+                      : const CardNoData(),
+            ],
+          ),
         ),
       ),
     );
@@ -394,8 +398,8 @@ class CategoryIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 22,
-      runSpacing: 4,
+      spacing: MediaQuery.of(context).size.width < 400 ? 5 : 20,
+      runSpacing: 10,
       crossAxisAlignment: WrapCrossAlignment.center,
       direction: Axis.horizontal,
       alignment: WrapAlignment.center,

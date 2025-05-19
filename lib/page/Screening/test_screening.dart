@@ -18,7 +18,7 @@ class TestScreeningScreen extends StatefulWidget {
 
 class _TestScreeningScreenState extends State<TestScreeningScreen> {
   int currentQuestionIndex = 0;
-  Map<int, int> answers = {}; // Key: questionId, Value: answerId
+  Map<int, int> answers = {};
   List<dynamic> questions = [];
   bool isLoading = true;
 
@@ -95,7 +95,8 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       confirmBtnText: "Ya",
       cancelBtnText: "Tidak",
       confirmBtnColor: Colors.red,
-      onConfirmBtnTap: () => Get.offAll(() => NavBottom(userData: widget.userData)),
+      onConfirmBtnTap: () =>
+          Get.offAll(() => NavBottom(userData: widget.userData)),
     );
   }
 
@@ -106,7 +107,6 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       return;
     }
 
-    // Calculate total score
     int totalScore = 0;
     List<Map<String, dynamic>> answerList = [];
 
@@ -114,8 +114,7 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       final questionId = question['id_pertanyaan'];
       if (answers.containsKey(questionId)) {
         final answerId = answers[questionId]!;
-        
-        // Find the selected answer
+
         final answer = question['jawaban_screening'].firstWhere(
           (a) => a['id_jawaban'] == answerId,
           orElse: () => null,
@@ -136,14 +135,12 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       }
     }
 
-    // Get NIK from session
     final nik = await SessionManager.getNik();
     if (nik == null) {
       _showAlert("Error", "Tidak dapat mengidentifikasi pengguna");
       return;
     }
 
-    // Submit to API
     final isSuccess = await ScreeningServices.submitAnswers(
       nik: nik,
       answers: answerList,
@@ -166,22 +163,24 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
     if (isLoading) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(
-                color: Color(0xFF199A8E),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "Memuat pertanyaan...",
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 16,
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(
+                  color: Color(0xFF199A8E),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Text(
+                  "Memuat pertanyaan...",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -299,7 +298,7 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Question card
             Card(
               shape: RoundedRectangleBorder(
@@ -339,35 +338,46 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             // Answer options
             Expanded(
               child: ListView.builder(
                 itemCount: answersList.length,
                 itemBuilder: (context, index) {
                   final answer = answersList[index];
-                  final isSelected = answers[questionId] == answer['id_jawaban'];
+                  final isSelected =
+                      answers[questionId] == answer['id_jawaban'];
 
                   return GestureDetector(
-                    onTap: () => _selectAnswer(questionId, answer['id_jawaban']),
+                    onTap: () =>
+                        _selectAnswer(questionId, answer['id_jawaban']),
                     child: Card(
                       margin: const EdgeInsets.symmetric(vertical: 8),
-                      color: isSelected ? const Color(0xFF199A8E) : const Color(0xFFF9FAFB),
+                      color: isSelected
+                          ? const Color(0xFF199A8E)
+                          : const Color(0xFFF9FAFB),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                         side: BorderSide(
-                          color: isSelected ? const Color(0xFF199A8E) : const Color(0xFFE5E7EB),
+                          color: isSelected
+                              ? const Color(0xFF199A8E)
+                              : const Color(0xFFE5E7EB),
                           width: 2,
                         ),
                       ),
                       elevation: isSelected ? 4 : 2,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 12),
                         child: Row(
                           children: [
                             Icon(
-                              isSelected ? Icons.check_circle : Icons.circle_outlined,
-                              color: isSelected ? Colors.white : const Color(0xFF199A8E),
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF199A8E),
                               size: 30,
                             ),
                             const SizedBox(width: 12),
@@ -377,7 +387,8 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: isSelected ? Colors.white : Colors.black,
+                                  color:
+                                      isSelected ? Colors.white : Colors.black,
                                 ),
                               ),
                             ),
@@ -390,7 +401,7 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
               ),
             ),
             const SizedBox(height: 15),
-            
+
             // Navigation buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -400,11 +411,13 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                     onPressed: _previousQuestion,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      side: const BorderSide(color: Color(0xFF199A8E), width: 2),
+                      side:
+                          const BorderSide(color: Color(0xFF199A8E), width: 2),
                     ),
                     child: const Row(
                       children: [
@@ -424,20 +437,22 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                       ],
                     ),
                   ),
-                
                 ElevatedButton(
-                  onPressed: currentQuestionIndex == questions.length - 1 
-                      ? _submitTest 
+                  onPressed: currentQuestionIndex == questions.length - 1
+                      ? _submitTest
                       : _nextQuestion,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text(
-                    currentQuestionIndex == questions.length - 1 ? "Proses" : "Selanjutnya",
+                    currentQuestionIndex == questions.length - 1
+                        ? "Proses"
+                        : "Selanjutnya",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

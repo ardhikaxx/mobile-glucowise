@@ -46,21 +46,23 @@ class RiwayatCareScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: riwayatObat.isNotEmpty
-            ? ListView.builder(
-                itemCount: riwayatObat.length,
-                itemBuilder: (context, index) {
-                  return _buildRiwayatCard(riwayatObat[index]);
-                },
-              )
-            : const Center(
-                child: Text(
-                  "Tidak ada riwayat minum obat.",
-                  style: TextStyle(fontSize: 18, color: Colors.black54),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: riwayatObat.isNotEmpty
+              ? ListView.builder(
+                  itemCount: riwayatObat.length,
+                  itemBuilder: (context, index) {
+                    return _buildRiwayatCard(riwayatObat[index]);
+                  },
+                )
+              : const Center(
+                  child: Text(
+                    "Tidak ada riwayat minum obat.",
+                    style: TextStyle(fontSize: 18, color: Colors.black54),
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

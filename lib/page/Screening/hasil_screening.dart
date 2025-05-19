@@ -128,7 +128,7 @@ class _HasilScreeningScreenState extends State<HasilScreeningScreen> {
           ),
         ),
       ),
-      body: isLoading
+      body: SafeArea(child: isLoading
           ? const Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E)),
@@ -414,6 +414,7 @@ class _HasilScreeningScreenState extends State<HasilScreeningScreen> {
                 ),
               ],
             ),
+          ),
     );
   }
 

@@ -183,93 +183,96 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: isLoading
-          ? Center(
-              child: LoadingAnimationWidget.inkDrop(
-                color: const Color(0xFF199A8E),
-                size: 50,
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Data Terbaru",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF199A8E),
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-                  const SizedBox(height: 10),
-                  if (dataTerbaru != null)
-                    _buildLatestDataCard(dataTerbaru)
-                  else
-                    _buildNoDataCard(
-                      title: "Belum ada data kesehatan",
-                      subtitle: "Tambahkan data kesehatan pertama Anda",
-                      icon: FontAwesomeIcons.circleExclamation,
-                    ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Semua Riwayat",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF199A8E),
-                        ),
+      body: SafeArea(
+        child: isLoading
+            ? Center(
+                child: LoadingAnimationWidget.inkDrop(
+                  color: const Color(0xFF199A8E),
+                  size: 50,
+                ),
+              )
+            : Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Data Terbaru",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF199A8E),
                       ),
-                      TextButton(
-                        onPressed: checkData.isNotEmpty
-                            ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AllCheckScreen(checkData: checkData),
-                                  ),
-                                );
-                              }
-                            : null,
-                        child: Text(
-                          "Lihat Semua",
+                      textAlign: TextAlign.start,
+                    ),
+                    const SizedBox(height: 10),
+                    if (dataTerbaru != null)
+                      _buildLatestDataCard(dataTerbaru)
+                    else
+                      _buildNoDataCard(
+                        title: "Belum ada data kesehatan",
+                        subtitle: "Tambahkan data kesehatan pertama Anda",
+                        icon: FontAwesomeIcons.circleExclamation,
+                      ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Semua Riwayat",
                           style: TextStyle(
-                            color: checkData.isNotEmpty
-                                ? const Color(0xFF199A8E)
-                                : Colors.grey,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF199A8E),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: checkData.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: checkData.length,
-                            itemBuilder: (context, index) {
-                              final data = checkData[index];
-                              return _buildHistoryItem(data);
-                            },
-                          )
-                        : _buildNoDataCard(
-                            title: "Belum ada riwayat pemeriksaan",
-                            subtitle: "Data riwayat akan muncul di sini",
-                            icon: FontAwesomeIcons.history,
-                            isSmall: true,
+                        TextButton(
+                          onPressed: checkData.isNotEmpty
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AllCheckScreen(checkData: checkData),
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: Text(
+                            "Lihat Semua",
+                            style: TextStyle(
+                              color: checkData.isNotEmpty
+                                  ? const Color(0xFF199A8E)
+                                  : Colors.grey,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
-                ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: checkData.isNotEmpty
+                          ? ListView.builder(
+                              itemCount: checkData.length,
+                              itemBuilder: (context, index) {
+                                final data = checkData[index];
+                                return _buildHistoryItem(data);
+                              },
+                            )
+                          : _buildNoDataCard(
+                              title: "Belum ada riwayat pemeriksaan",
+                              subtitle: "Data riwayat akan muncul di sini",
+                              icon: FontAwesomeIcons.history,
+                              isSmall: true,
+                            ),
+                    ),
+                    SizedBox(height: MediaQuery.of(context).padding.bottom),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 

@@ -153,121 +153,123 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            _buildTextField(
-                "Nama Lengkap", Icons.person, _namaLengkapController),
-            _buildTextField(
-                "Tempat Lahir", Icons.location_on, _tempatLahirController),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                controller: _tanggalLahirController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
-                  labelText: "Tanggal Lahir",
-                  labelStyle: const TextStyle(color: Color(0xFF199A8E)),
-                  prefixIcon: const Icon(Icons.calendar_today,
-                      color: Color(0xFF199A8E)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        // ignore: deprecated_member_use
-                        color: const Color(0xFFE5E7EB).withOpacity(0.5),
-                        width: 1.5),
-                  ),
-                  suffixIcon: IconButton(
-                    icon:
-                        const Icon(Icons.date_range, color: Color(0xFF199A8E)),
-                    onPressed: () {
-                      _selectDate(context);
-                    },
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              _buildTextField(
+                  "Nama Lengkap", Icons.person, _namaLengkapController),
+              _buildTextField(
+                  "Tempat Lahir", Icons.location_on, _tempatLahirController),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextField(
+                  controller: _tanggalLahirController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    labelText: "Tanggal Lahir",
+                    labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+                    prefixIcon: const Icon(Icons.calendar_today,
+                        color: Color(0xFF199A8E)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFE5E7EB), width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFE5E7EB), width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          // ignore: deprecated_member_use
+                          color: const Color(0xFFE5E7EB).withOpacity(0.5),
+                          width: 1.5),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.date_range,
+                          color: Color(0xFF199A8E)),
+                      onPressed: () {
+                        _selectDate(context);
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedGender,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
-                  labelText: "Jenis Kelamin",
-                  labelStyle: const TextStyle(color: Color(0xFF199A8E)),
-                  prefixIcon: const Icon(Icons.person_outline,
-                      color: Color(0xFF199A8E)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedGender,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    labelText: "Jenis Kelamin",
+                    labelStyle: const TextStyle(color: Color(0xFF199A8E)),
+                    prefixIcon: const Icon(Icons.person_outline,
+                        color: Color(0xFF199A8E)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFE5E7EB), width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFE5E7EB), width: 2.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          // ignore: deprecated_member_use
+                          color: const Color(0xFFE5E7EB).withOpacity(0.5),
+                          width: 1.5),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        // ignore: deprecated_member_use
-                        color: const Color(0xFFE5E7EB).withOpacity(0.5),
-                        width: 1.5),
-                  ),
-                ),
-                items: const [
-                  DropdownMenuItem(
-                      value: "Laki-laki", child: Text("Laki-laki")),
-                  DropdownMenuItem(
-                      value: "Perempuan", child: Text("Perempuan")),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGender = value;
-                  });
-                },
-              ),
-            ),
-            _buildTextField("Alamat Lengkap", Icons.home, _alamatController),
-            _buildTextField("Nomor Telepon", Icons.phone, _phoneController),
-            _buildTextField(
-                "Nama Ibu Kandung", Icons.person, _namaIbuKandungController),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  updateProfile();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  backgroundColor: const Color(0xFF199A8E),
-                ),
-                child: const Text(
-                  'Simpan Perubahan',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
+                  items: const [
+                    DropdownMenuItem(
+                        value: "Laki-laki", child: Text("Laki-laki")),
+                    DropdownMenuItem(
+                        value: "Perempuan", child: Text("Perempuan")),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
                 ),
               ),
-            ),
-          ],
+              _buildTextField("Alamat Lengkap", Icons.home, _alamatController),
+              _buildTextField("Nomor Telepon", Icons.phone, _phoneController),
+              _buildTextField(
+                  "Nama Ibu Kandung", Icons.person, _namaIbuKandungController),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    updateProfile();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    backgroundColor: const Color(0xFF199A8E),
+                  ),
+                  child: const Text(
+                    'Simpan Perubahan',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -297,7 +299,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
                 // ignore: deprecated_member_use
-                color: const Color(0xFFE5E7EB).withOpacity(0.5), width: 1.5),
+                color: const Color(0xFFE5E7EB).withOpacity(0.5),
+                width: 1.5),
           ),
         ),
       ),

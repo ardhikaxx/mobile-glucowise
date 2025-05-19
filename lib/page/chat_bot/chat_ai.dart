@@ -135,22 +135,24 @@ class _ChatBotPageState extends State<ChatBotPage> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          WebViewWidget(
-            controller: _controller,
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.white, // Background putih penuh
-              child: Center(
-                child: LoadingAnimationWidget.inkDrop(
-                  color: const Color(0xFF199A8E),
-                  size: 50,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            WebViewWidget(
+              controller: _controller,
+            ),
+            if (_isLoading)
+              Container(
+                color: Colors.white, // Background putih penuh
+                child: Center(
+                  child: LoadingAnimationWidget.inkDrop(
+                    color: const Color(0xFF199A8E),
+                    size: 50,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

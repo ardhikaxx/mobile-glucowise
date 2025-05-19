@@ -239,22 +239,24 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
       ),
-      body: FutureBuilder<UserData?>(
-        future: userData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: LoadingAnimationWidget.inkDrop(
-                color: const Color(0xFF199A8E),
-                size: 50,
-              ),
-            );
-          } else if (snapshot.hasError || snapshot.data == null) {
-            return const Center(child: Text("Gagal memuat profil"));
-          }
-          UserData user = snapshot.data!;
-          return _buildProfile(user);
-        },
+      body: SafeArea(
+        child: FutureBuilder<UserData?>(
+          future: userData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: LoadingAnimationWidget.inkDrop(
+                  color: const Color(0xFF199A8E),
+                  size: 50,
+                ),
+              );
+            } else if (snapshot.hasError || snapshot.data == null) {
+              return const Center(child: Text("Gagal memuat profil"));
+            }
+            UserData user = snapshot.data!;
+            return _buildProfile(user);
+          },
+        ),
       ),
     );
   }

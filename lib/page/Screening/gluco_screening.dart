@@ -15,7 +15,9 @@ class GlucoScreeningScreen extends StatelessWidget {
   Future<void> _checkQuestionsAvailability(BuildContext context) async {
     try {
       final questions = await ScreeningServices.getQuestions();
-      if (questions == null || questions['data'] == null || (questions['data'] as List).isEmpty) {
+      if (questions == null ||
+          questions['data'] == null ||
+          (questions['data'] as List).isEmpty) {
         _showQuestionsUnavailableDialog(context);
       } else {
         Navigator.push(
@@ -166,66 +168,63 @@ class GlucoScreeningScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Header Section
-            const _HeaderSection(),
-            const SizedBox(height: 20),
-            
-            // Risk Cards
-            SizedBox(
-              height: 220, // Increased height for better card display
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: const [
-                  _RiskCard(
-                    icon: FontAwesomeIcons.circleCheck,
-                    title: 'Risiko Rendah',
-                    scoreRange: '0-7',
-                    description: 'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
-                    color: Color(0xFF4CAF50), // Green
-                  ),
-                  SizedBox(width: 15),
-                  _RiskCard(
-                    icon: FontAwesomeIcons.exclamationTriangle,
-                    title: 'Risiko Sedang',
-                    scoreRange: '8-14',
-                    description: 'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
-                    color: Color(0xFFFF9800), // Orange
-                  ),
-                  SizedBox(width: 15),
-                  _RiskCard(
-                    icon: FontAwesomeIcons.triangleExclamation,
-                    title: 'Risiko Tinggi',
-                    scoreRange: '15-24',
-                    description: 'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
-                    color: Color(0xFFF44336), // Red
-                  ),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const _HeaderSection(),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 220,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: const [
+                    _RiskCard(
+                      icon: FontAwesomeIcons.circleCheck,
+                      title: 'Risiko Rendah',
+                      scoreRange: '0-7',
+                      description:
+                          'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
+                      color: Color(0xFF4CAF50),
+                    ),
+                    SizedBox(width: 15),
+                    _RiskCard(
+                      icon: FontAwesomeIcons.exclamationTriangle,
+                      title: 'Risiko Sedang',
+                      scoreRange: '8-14',
+                      description:
+                          'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
+                      color: Color(0xFFFF9800),
+                    ),
+                    SizedBox(width: 15),
+                    _RiskCard(
+                      icon: FontAwesomeIcons.triangleExclamation,
+                      title: 'Risiko Tinggi',
+                      scoreRange: '15-24',
+                      description:
+                          'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
+                      color: Color(0xFFF44336),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 25),
-            
-            // Action Buttons
-            _ActionButtons(
-              onStartScreening: () => _checkQuestionsAvailability(context),
-              userData: userData,
-            ),
-            
-            // Additional Info
-            const SizedBox(height: 25),
-            const _AdditionalInfo(),
-          ],
+              const SizedBox(height: 25),
+              _ActionButtons(
+                onStartScreening: () => _checkQuestionsAvailability(context),
+                userData: userData,
+              ),
+              const SizedBox(height: 25),
+              const _AdditionalInfo(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// Improved Risk Card Widget
 class _RiskCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -401,7 +400,8 @@ class _ActionButtons extends StatelessWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(FontAwesomeIcons.clipboardUser, size: 20, color: Colors.white),
+                Icon(FontAwesomeIcons.clipboardUser,
+                    size: 20, color: Colors.white),
                 SizedBox(width: 10),
                 Text(
                   'Mulai Screening',
@@ -437,7 +437,8 @@ class _ActionButtons extends StatelessWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(FontAwesomeIcons.history, size: 18, color: Color(0xFF199A8E)),
+                Icon(FontAwesomeIcons.history,
+                    size: 18, color: Color(0xFF199A8E)),
                 SizedBox(width: 10),
                 Text(
                   'Lihat Riwayat',
@@ -469,7 +470,8 @@ class _AdditionalInfo extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(FontAwesomeIcons.circleInfo, color: Color(0xFF199A8E), size: 24),
+          const Icon(FontAwesomeIcons.circleInfo,
+              color: Color(0xFF199A8E), size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

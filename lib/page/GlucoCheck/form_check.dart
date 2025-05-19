@@ -131,117 +131,119 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: SizedBox(
-            width: double.infinity,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(
-                    'Fitur ini membantu mengecek risiko diabetes berdasarkan data kesehatan Anda',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700]),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildDateInputField(),
-                  const SizedBox(height: 15),
-                  _buildFamilyHistoryCard(),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _umurController,
-                    labelText: 'Umur',
-                    prefixIcon: FontAwesomeIcons.calendarDays,
-                    hint: 'Contoh: 35',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi umur';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _tinggiController,
-                    labelText: 'Tinggi Badan (cm)',
-                    prefixIcon: FontAwesomeIcons.ruler,
-                    hint: 'Contoh: 170',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi tinggi badan';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _beratController,
-                    labelText: 'Berat Badan (kg)',
-                    prefixIcon: FontAwesomeIcons.weightHanging,
-                    hint: 'Contoh: 65',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi berat badan';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _gulaDarahController,
-                    labelText: 'Hasil Tes Gula Darah (mg/dL)',
-                    prefixIcon: FontAwesomeIcons.droplet,
-                    hint: 'Contoh: 100',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi hasil tes gula darah';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _lingkarPinggangController,
-                    labelText: 'Lingkar Pinggang (cm)',
-                    prefixIcon: FontAwesomeIcons.ruler,
-                    hint: 'Contoh: 100',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi lingkar pinggang';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 15),
-                  _buildInputField(
-                    controller: _tensiController,
-                    labelText: 'Hasil Tensi Darah (mmHg)',
-                    prefixIcon: FontAwesomeIcons.heartCircleCheck,
-                    hint: 'Contoh: 120/80',
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Harap isi hasil tensi darah';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProcessButton(),
-                  const SizedBox(height: 20),
-                ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Center(
+            child: SizedBox(
+              width: double.infinity,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      'Fitur ini membantu mengecek risiko diabetes berdasarkan data kesehatan Anda',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700]),
+                    ),
+                    const SizedBox(height: 15),
+                    _buildDateInputField(),
+                    const SizedBox(height: 15),
+                    _buildFamilyHistoryCard(),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _umurController,
+                      labelText: 'Umur',
+                      prefixIcon: FontAwesomeIcons.calendarDays,
+                      hint: 'Contoh: 35',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi umur';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _tinggiController,
+                      labelText: 'Tinggi Badan (cm)',
+                      prefixIcon: FontAwesomeIcons.ruler,
+                      hint: 'Contoh: 170',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi tinggi badan';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _beratController,
+                      labelText: 'Berat Badan (kg)',
+                      prefixIcon: FontAwesomeIcons.weightHanging,
+                      hint: 'Contoh: 65',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi berat badan';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _gulaDarahController,
+                      labelText: 'Hasil Tes Gula Darah (mg/dL)',
+                      prefixIcon: FontAwesomeIcons.droplet,
+                      hint: 'Contoh: 100',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi hasil tes gula darah';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _lingkarPinggangController,
+                      labelText: 'Lingkar Pinggang (cm)',
+                      prefixIcon: FontAwesomeIcons.ruler,
+                      hint: 'Contoh: 100',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi lingkar pinggang';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildInputField(
+                      controller: _tensiController,
+                      labelText: 'Hasil Tensi Darah (mmHg)',
+                      prefixIcon: FontAwesomeIcons.heartCircleCheck,
+                      hint: 'Contoh: 120/80',
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Harap isi hasil tensi darah';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    _buildProcessButton(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),

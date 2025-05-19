@@ -81,7 +81,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   Future<void> _startRepeatingAlarm() async {
     // Mainkan alarm pertama kali
     await _playAlarmSound();
-    
+
     // Set timer untuk mengulang alarm setiap 30 detik
     _alarmRepeatTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_isAlarmPlaying && !_isDisposed) {
@@ -129,7 +129,8 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       title: 'Waktunya Minum Obat!',
       text: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
       confirmBtnText: 'Stop',
-      barrierDismissible: false, // Mencegah pengguna menutup tanpa menekan tombol
+      barrierDismissible:
+          false, // Mencegah pengguna menutup tanpa menekan tombol
       onConfirmBtnTap: () async {
         await _stopAlarmSound();
         if (!_isDisposed) {
@@ -319,43 +320,46 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           ),
         ],
       ),
-      body: isLoading
-          ? Center(
-              child: LoadingAnimationWidget.inkDrop(
-                color: Color(0xFF199A8E),
-                size: 50,
+      body: SafeArea(
+        child: isLoading
+            ? Center(
+                child: LoadingAnimationWidget.inkDrop(
+                  color: Color(0xFF199A8E),
+                  size: 50,
+                ),
+              )
+            : Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDateSelector(),
+                    const SizedBox(height: 12),
+                    _buildSectionTitle("Jadwal Minum Obat"),
+                    jadwalObat.isEmpty
+                        ? _buildNoDataCard(
+                            icon: FontAwesomeIcons.calendarCheck,
+                            title: "Belum Ada Jadwal Obat",
+                            subtitle:
+                                "Tambahkan jadwal minum obat Anda untuk memulai pengingat",
+                          )
+                        : _buildScrollableCardList(context, jadwalObat,
+                            status: "Aktif"),
+                    const SizedBox(height: 12),
+                    _buildSectionTitle("Riwayat Minum Obat"),
+                    riwayatObat.isEmpty
+                        ? _buildNoDataCard(
+                            icon: FontAwesomeIcons.history,
+                            title: "Belum Ada Riwayat",
+                            subtitle: "Riwayat minum obat akan muncul di sini",
+                          )
+                        : _buildScrollableCardList(context, riwayatObat,
+                            isHistory: true, status: "Sudah"),
+                  ],
+                ),
               ),
-            )
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDateSelector(),
-                  const SizedBox(height: 12),
-                  _buildSectionTitle("Jadwal Minum Obat"),
-                  jadwalObat.isEmpty
-                      ? _buildNoDataCard(
-                          icon: FontAwesomeIcons.calendarCheck,
-                          title: "Belum Ada Jadwal Obat",
-                          subtitle:
-                              "Tambahkan jadwal minum obat Anda untuk memulai pengingat",
-                        )
-                      : _buildScrollableCardList(context, jadwalObat,
-                          status: "Aktif"),
-                  const SizedBox(height: 12),
-                  _buildSectionTitle("Riwayat Minum Obat"),
-                  riwayatObat.isEmpty
-                      ? _buildNoDataCard(
-                          icon: FontAwesomeIcons.history,
-                          title: "Belum Ada Riwayat",
-                          subtitle: "Riwayat minum obat akan muncul di sini",
-                        )
-                      : _buildScrollableCardList(context, riwayatObat,
-                          isHistory: true, status: "Sudah"),
-                ],
-              ),
-            ),
+      ),
     );
   }
 

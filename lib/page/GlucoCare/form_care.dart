@@ -56,25 +56,27 @@ class _FormCareScreenState extends State<FormCareScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDateSelector(),
-            const SizedBox(height: 16),
-            _buildTextField(
-                namaObatController, "Nama Obat", FontAwesomeIcons.pills),
-            _buildTextField(dosisController, "Dosis (mg/ml)",
-                FontAwesomeIcons.prescriptionBottle),
-            _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
-              setState(() {
-                selectedTimeObat = time;
-              });
-            }),
-            const SizedBox(height: 20),
-            _buildSaveButton(),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDateSelector(),
+              const SizedBox(height: 16),
+              _buildTextField(
+                  namaObatController, "Nama Obat", FontAwesomeIcons.pills),
+              _buildTextField(dosisController, "Dosis (mg/ml)",
+                  FontAwesomeIcons.prescriptionBottle),
+              _buildTimePickerField("Jam Minum Obat", selectedTimeObat, (time) {
+                setState(() {
+                  selectedTimeObat = time;
+                });
+              }),
+              const SizedBox(height: 20),
+              _buildSaveButton(),
+            ],
+          ),
         ),
       ),
     );
