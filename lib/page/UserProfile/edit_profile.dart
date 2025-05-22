@@ -43,9 +43,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: 'Apakah Anda yakin ingin kembali?',
       confirmBtnText: 'Ya',
       cancelBtnText: 'Tidak',
+      showCancelBtn: true,
       confirmBtnColor: const Color(0xFF199A8E),
       onConfirmBtnTap: () {
         Navigator.pop(context);
+        Navigator.pop(context);
+      },
+      onCancelBtnTap: () {
         Navigator.pop(context);
       },
     );
