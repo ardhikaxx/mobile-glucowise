@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Diabetic Management',
+      title: 'GlucoWise',
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
     );
