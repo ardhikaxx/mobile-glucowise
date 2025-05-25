@@ -25,7 +25,7 @@ class EdukasiServices {
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        if (jsonData['success'] == true) {
+        if (jsonData['status'] == true) {
           if (jsonData['data'] != null && jsonData['data'] is List) {
             return (jsonData['data'] as List)
                 .map((item) => Edukasi.fromJson(item))
