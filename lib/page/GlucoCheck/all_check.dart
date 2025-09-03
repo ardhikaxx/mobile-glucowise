@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/services/check_services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class AllCheckScreen extends StatefulWidget {
   final List checkData;
@@ -12,6 +13,43 @@ class AllCheckScreen extends StatefulWidget {
 
 class _AllCheckScreenState extends State<AllCheckScreen> {
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDateFormat();
+  }
+
+  void _initializeDateFormat() async {
+    try {
+      await initializeDateFormatting('id_ID', null);
+    } catch (e) {
+      print("Error initializing date formatting: $e");
+    }
+  }
+
+  String _formatTanggal(String dateString) {
+    try {
+      // Cek jika tanggal sudah dalam format yang diinginkan
+      if (dateString.contains(RegExp(r'[a-zA-Z]'))) {
+        return dateString;
+      }
+      
+      // Parse tanggal
+      DateTime dateTime = DateTime.parse(dateString);
+      
+      // Format manual ke bahasa Indonesia
+      List<String> bulan = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      
+      return '${dateTime.day} ${bulan[dateTime.month - 1]} ${dateTime.year}';
+    } catch (e) {
+      print("Error formatting date: $e");
+      return dateString; // Return original string jika parsing gagal
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +133,7 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
                                             color: Color(0xFF199A8E)),
                                         const SizedBox(width: 8),
                                         Text(
-                                          data["tanggal_pemeriksaan"],
+                                          _formatTanggal(data["tanggal_pemeriksaan"]),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,

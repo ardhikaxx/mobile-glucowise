@@ -1,13 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
-import 'package:medical_app/page/GlucoCheck/gluco_check.dart';
-import 'package:medical_app/page/GlucoCare/gluco_care.dart';
-import 'package:medical_app/page/Screening/gluco_screening.dart';
-import 'package:medical_app/page/UserProfile/profile.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/chat_bot/chat_ai.dart';
 import 'package:medical_app/services/check_services.dart';
@@ -65,8 +58,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       if (!_mounted) return;
 
-      await Future.delayed(const Duration(seconds: 1));
-
       if (data.isNotEmpty) {
         final latestData = data[0];
         final status =
@@ -87,8 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
     } catch (e) {
       print("Error loading data: $e");
-      await Future.delayed(const Duration(seconds: 1));
-
       if (_mounted) {
         setState(() {
           isLoading = false;
@@ -126,17 +115,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               UserIntro(userData: _currentUserData),
               const SizedBox(height: 15),
               _buildGlucoziaAICard(context),
-              const SizedBox(height: 20),
-              const CategoryIcons(),
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
+              _buildEdukasiCard(context),
+              const SizedBox(height: 10),
               isLoading
-                  ? CardGlucoInfo(
-                      glucoseLevel: 0,
-                      bloodPressure: '0',
-                      height: 0,
-                      weight: 0,
-                      isLoading: true,
-                    )
+                  ? _buildLoadingCard()
                   : latestHealthData != null
                       ? CardGlucoInfo(
                           glucoseLevel:
@@ -153,7 +136,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               statusData?['kategori_risiko'] ?? 'Dalam proses',
                         )
                       : const CardNoData(),
+                      SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingCard() {
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFE8F3F1),
+              Color(0xFFD4E8E4),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E)),
+                strokeWidth: 3,
+              ),
+            ),
           ),
         ),
       ),
@@ -268,6 +288,123 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const Icon(
                 Icons.arrow_forward_ios,
                 color: Colors.white,
+                size: 16,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEdukasiCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) =>
+                EdukasiScreen(userData: _currentUserData),
+            transitionsBuilder: (_, animation, __, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.5, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+          ),
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: const Color(0xFF199A8E),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF199A8E).withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF138075), Color(0xFF23B8A9)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFF199A8E),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  FontAwesomeIcons.graduationCap,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text(
+                      'Edukasi Diabetes',
+                      style: TextStyle(
+                        color: Color(0xFF138075),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'DarumadropOne',
+                        letterSpacing: 0.5,
+                        height: 1.2,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'Pelajari tentang diabetes',
+                      style: TextStyle(
+                        color: Color(0xFF199A8E),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Color(0xFF199A8E),
                 size: 16,
               ),
             ],
@@ -392,121 +529,6 @@ class CardNoData extends StatelessWidget {
   }
 }
 
-class CategoryIcons extends StatelessWidget {
-  const CategoryIcons({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: MediaQuery.of(context).size.width < 400 ? 5 : 20,
-      runSpacing: 10,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      direction: Axis.horizontal,
-      alignment: WrapAlignment.center,
-      children: categories.map((category) {
-        return CategoryIcon(
-          icon: category['icon'] as IconData,
-          text: category['text'] as String,
-        );
-      }).toList(),
-    );
-  }
-}
-
-List<Map<String, dynamic>> categories = [
-  {'icon': FontAwesomeIcons.heartbeat, 'text': 'Screening'},
-  {'icon': FontAwesomeIcons.kitMedical, 'text': 'GlucoCheck'},
-  {'icon': FontAwesomeIcons.pills, 'text': 'GlucoCare'},
-  {'icon': FontAwesomeIcons.bookBookmark, 'text': 'Edukasi'},
-];
-
-class CategoryIcon extends StatefulWidget {
-  final IconData icon;
-  final String text;
-
-  const CategoryIcon({
-    required this.icon,
-    required this.text,
-    super.key,
-  });
-
-  @override
-  State<CategoryIcon> createState() => _CategoryIconState();
-}
-
-class _CategoryIconState extends State<CategoryIcon> {
-  void _navigateToPage(BuildContext context) {
-    final dashboardState =
-        context.findAncestorStateOfType<_DashboardScreenState>();
-    final userData = dashboardState?._currentUserData ??
-        UserData(
-            nik: '', email: '', namaLengkap: '', createdAt: '', updatedAt: '');
-
-    Widget targetPage;
-
-    switch (widget.text) {
-      case 'GlucoCare':
-        targetPage = GlucoCareScreen(userData: userData);
-        break;
-      case 'Screening':
-        targetPage = GlucoScreeningScreen(userData: userData);
-        break;
-      case 'GlucoCheck':
-        targetPage = GlucoCheckScreen(userData: userData);
-        break;
-      case 'Edukasi':
-        targetPage = EdukasiScreen(userData: userData);
-        break;
-      default:
-        targetPage = DashboardScreen(userData: userData);
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => targetPage),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      splashColor: const Color(0xFFE8F3F1),
-      onTap: () => _navigateToPage(context),
-      child: Padding(
-        padding: const EdgeInsets.all(3.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F3F1),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Icon(
-                widget.icon,
-                color: const Color(0xFF199A8E),
-                size: 25,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              widget.text,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class CardGlucoInfo extends StatelessWidget {
   final int glucoseLevel;
   final String bloodPressure;
@@ -548,68 +570,79 @@ class CardGlucoInfo extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFFE8F3F1).withOpacity(0.9),
-              const Color(0xFFD4E8E4),
+              Color(0xFFE8F3F1),
+              Color(0xFFD4E8E4),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: isLoading
-              ? Center(
-                  child: LoadingAnimationWidget.progressiveDots(
-                    color: Color(0xFF199A8E),
-                    size: 50,
-                  ),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(children: [
+                    _buildHeaderIcon(),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Gluco Info',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF199A8E),
+                      ),
+                    ),
+                  ]),
+                  if (lastCheckDate != null)
+                    _buildLastCheckedDate(lastCheckDate!),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(children: [
-                          _buildHeaderIcon(),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'Gluco Info',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF199A8E),
-                            ),
-                          ),
-                        ]),
-                        if (lastCheckDate != null)
-                          _buildLastCheckedDate(lastCheckDate!),
-                        const Spacer(),
                         Icon(
                           status == "Tinggi"
-                              ? FontAwesomeIcons.solidFaceFrown
+                              ? FontAwesomeIcons.triangleExclamation
                               : status == "Sedang"
-                                  ? FontAwesomeIcons.faceMeh
+                                  ? FontAwesomeIcons.circleExclamation
                                   : status == "Rendah"
-                                      ? FontAwesomeIcons.solidFaceSmile
+                                      ? FontAwesomeIcons.circleCheck
                                       : FontAwesomeIcons.clock,
                           color: statusColor,
-                          size: 32,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          status,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: statusColor,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildGlucoseSection(statusColor, glucoseLevel),
-                    const SizedBox(height: 16),
-                    _buildVitalStatsSection(
-                        bloodPressure, height, weight, bmi, bmiStatus),
-                    const SizedBox(height: 8),
-                    _buildStatusIndicator(statusColor, bmiStatus),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildGlucoseSection(statusColor, glucoseLevel),
+              const SizedBox(height: 12),
+              _buildVitalStatsSection(bloodPressure, height, weight, bmi, bmiStatus),
+            ],
+          ),
         ),
       ),
     );
@@ -657,6 +690,23 @@ class CardGlucoInfo extends StatelessWidget {
   }
 
   Widget _buildGlucoseSection(Color statusColor, int glucoseLevel) {
+    String status;
+    String statusMessage;
+
+    if (glucoseLevel < 70) {
+      status = "Hipoglikemia";
+      statusMessage = "Glukosa darah terlalu rendah";
+    } else if (glucoseLevel >= 70 && glucoseLevel <= 130) {
+      status = "Normal";
+      statusMessage = "Glukosa darah dalam batas normal";
+    } else if (glucoseLevel > 130 && glucoseLevel <= 180) {
+      status = "Pra-Diabetes";
+      statusMessage = "Glukosa darah sedikit tinggi";
+    } else {
+      status = "Diabetes";
+      statusMessage = "Glukosa darah sangat tinggi";
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -673,15 +723,21 @@ class CardGlucoInfo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Tingkat Glukosa Darah',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
+          Row(
+            children: [
+              const Icon(Icons.monitor_heart, size: 18, color: Colors.black54),
+              const SizedBox(width: 6),
+              const Text(
+                'Tingkat Glukosa Darah',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Row(
             children: [
               Text(
@@ -706,7 +762,7 @@ class CardGlucoInfo extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
+                  color: statusColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -714,11 +770,20 @@ class CardGlucoInfo extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: statusColor,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            statusMessage,
+            style: TextStyle(
+              fontSize: 12,
+              color: statusColor,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
@@ -728,15 +793,50 @@ class CardGlucoInfo extends StatelessWidget {
             minHeight: 6,
             borderRadius: BorderRadius.circular(3),
           ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "70",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                "130",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                "180",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                "200+",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  double _getGlucoseLevelValue(int level) {
-    if (level < 70) return 0.3;
-    if (level < 100) return 0.5;
-    if (level < 126) return 0.7;
+  double _getGlucoseLevelValue(int glucoseLevel) {
+    if (glucoseLevel <= 70) return 0.2;
+    if (glucoseLevel <= 130) return 0.4;
+    if (glucoseLevel <= 180) return 0.6;
+    if (glucoseLevel <= 200) return 0.8;
     return 1.0;
   }
 
@@ -747,33 +847,41 @@ class CardGlucoInfo extends StatelessWidget {
     double bmi,
     BMIStatus bmiStatus,
   ) {
-    return Row(
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 12,
+      childAspectRatio: 2,
       children: [
-        Expanded(
-          child: _buildVitalStatItem(
-            icon: FontAwesomeIcons.heartPulse,
-            title: 'Tekanan Darah',
-            value: '$bloodPressure mmHg',
-            color: const Color(0xFF199A8E),
-          ),
+        _buildVitalStatItem(
+          icon: FontAwesomeIcons.heartPulse,
+          title: 'Tekanan Darah',
+          value: '$bloodPressure mmHg',
+          color: const Color(0xFF199A8E),
+          gradient: [const Color(0xFF199A8E), const Color(0xFF23B8A9)],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildVitalStatItem(
-            icon: FontAwesomeIcons.rulerVertical,
-            title: 'Tinggi Badan',
-            value: '${height.toStringAsFixed(1)} cm',
-            color: const Color(0xFF199A8E),
-          ),
+        _buildVitalStatItem(
+          icon: FontAwesomeIcons.rulerVertical,
+          title: 'Tinggi Badan',
+          value: '${height.toStringAsFixed(1)} cm',
+          color: const Color(0xFF138075),
+          gradient: [const Color(0xFF138075), const Color(0xFF23B8A9)],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildVitalStatItem(
-            icon: FontAwesomeIcons.weightScale,
-            title: 'Berat Badan',
-            value: '${weight.toStringAsFixed(1)} kg',
-            color: const Color(0xFF199A8E),
-          ),
+        _buildVitalStatItem(
+          icon: FontAwesomeIcons.weightScale,
+          title: 'Berat Badan',
+          value: '${weight.toStringAsFixed(1)} kg',
+          color: const Color(0xFF199A8E),
+          gradient: [const Color(0xFF199A8E), const Color(0xFF4FD1C5)],
+        ),
+        _buildVitalStatItem(
+          icon: FontAwesomeIcons.calculator,
+          title: 'IMT',
+          value: bmi.toStringAsFixed(1),
+          color: bmiStatus.color,
+          gradient: [bmiStatus.color.withOpacity(0.8), bmiStatus.color],
         ),
       ],
     );
@@ -784,123 +892,63 @@ class CardGlucoInfo extends StatelessWidget {
     required String title,
     required String value,
     required Color color,
+    required List<Color> gradient,
   }) {
     return Container(
-      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: color.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: color,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.2),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
           ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusIndicator(Color statusColor, BMIStatus bmiStatus) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatusBar('Status Risiko', statusColor,
-                  _getGlucoseLevelValue(glucoseLevel)),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildStatusBar('IMT', bmiStatus.color, bmiStatus.level),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Status: $status',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: statusColor,
-              ),
-            ),
-            Text(
-              'IMT: ${bmiStatus.label}',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: bmiStatus.color,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatusBar(String label, Color color, double level) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          height: 6,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Row(
+          const SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: level * 100,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(3),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -942,42 +990,66 @@ class UserIntro extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Text(
-                    'Halo, ',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.grey[700],
-                    ),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF199A8E),
+                      Color(0xFF23B8A9),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  Text(
-                    userData.namaLengkap.split(' ')[0],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF199A8E),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(2, 2),
                     ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    FontAwesomeIcons.idCard,
+                    size: 22,
+                    color: Colors.white,
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 2),
-              Row(
+              const SizedBox(width: 10),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.verified_user,
-                    size: 18,
-                    color: Colors.grey[500],
+                  Row(
+                    children: [
+                      Text(
+                        'Halo, ',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        userData.namaLengkap,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF199A8E),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(height: 2),
                   Text(
                     userData.nik,
                     style: TextStyle(
@@ -989,40 +1061,7 @@ class UserIntro extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-          GestureDetector(
-            onTap: () {
-              Get.to(
-                () => UserScreen(userData: userData),
-                transition: Transition.fadeIn,
-                duration: const Duration(milliseconds: 300),
-              );
-            },
-            child: Container(
-              height: 50,
-              width: 50,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF138075),
-                    Color(0xFF199A8E),
-                    Color(0xFF23B8A9),
-                  ],
-                  stops: [0.0, 0.5, 1.0],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                FontAwesomeIcons.userEdit,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          ),
+          )
         ],
       ),
     );

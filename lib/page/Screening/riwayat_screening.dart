@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/detail_hasil_screening.dart';
@@ -25,6 +26,10 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
   void initState() {
     super.initState();
     _loadScreeningHistory();
+  }
+
+  Future<void> initDateFormat() async {
+    await initializeDateFormatting('id', null);
   }
 
   Future<void> _loadScreeningHistory() async {
@@ -58,7 +63,7 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
 
   String _formatDate(String dateString) {
     final date = DateTime.parse(dateString);
-    return DateFormat('dd MMM yyyy, HH:mm').format(date);
+    return DateFormat('dd MMMM yyyy, HH:mm', 'id').format(date);
   }
 
   @override

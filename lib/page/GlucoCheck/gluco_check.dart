@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCheck/all_check.dart';
@@ -25,6 +26,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   void initState() {
     super.initState();
     _isMounted = true;
+    _initializeDateFormat();
     _loadData();
   }
 
@@ -32,6 +34,37 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   void dispose() {
     _isMounted = false;
     super.dispose();
+  }
+
+  void _initializeDateFormat() async {
+    try {
+      await initializeDateFormatting('id_ID', null);
+    } catch (e) {
+      print("Error initializing date formatting: $e");
+    }
+  }
+
+  String _formatTanggal(String dateString) {
+    try {
+      // Cek jika tanggal sudah dalam format yang diinginkan
+      if (dateString.contains(RegExp(r'[a-zA-Z]'))) {
+        return dateString;
+      }
+      
+      // Parse tanggal
+      DateTime dateTime = DateTime.parse(dateString);
+      
+      // Format manual ke bahasa Indonesia
+      List<String> bulan = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      
+      return '${dateTime.day} ${bulan[dateTime.month - 1]} ${dateTime.year}';
+    } catch (e) {
+      print("Error formatting date: $e");
+      return dateString; // Return original string jika parsing gagal
+    }
   }
 
   void _loadData() async {
@@ -290,14 +323,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              const Color(0xFFE8F5F4).withOpacity(0.6),
-            ],
-          ),
+          color: Color(0xFFE8F5F4),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -313,7 +339,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                           color: Color(0xFF199A8E), size: 20),
                       const SizedBox(width: 10),
                       Text(
-                        data["tanggal_pemeriksaan"],
+                        _formatTanggal(data["tanggal_pemeriksaan"]),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -440,12 +466,13 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
 
   Widget _buildHistoryItem(Map<String, dynamic> data) {
     return Card(
+      color: Color(0xFFE8F5F4),
       elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Colors.grey.shade200,
+          color: Colors.white,
           width: 1,
         ),
       ),
@@ -504,7 +531,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          data["tanggal_pemeriksaan"],
+                          _formatTanggal(data["tanggal_pemeriksaan"]),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -515,7 +542,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                           "Gula Darah: ${data["gula_darah"]} mg/dL",
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey.shade600,
+                            color: Colors.grey.shade800,
                           ),
                         ),
                       ],
@@ -525,12 +552,8 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: statusColor.withOpacity(0.3),
-                        width: 1,
-                      ),
                     ),
                     child: Text(
                       status["kategori_risiko"],
@@ -717,7 +740,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   Widget _infoItem(IconData icon, String value, String label) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
