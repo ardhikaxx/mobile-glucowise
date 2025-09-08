@@ -6,7 +6,6 @@ import 'package:medical_app/auth/change_password.dart';
 import 'package:medical_app/auth/login.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/utils/session_manager.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/services/connect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,7 +75,7 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _showSuccessDialog(context, jsonData['message']);
+        _showCustomAlert(context, jsonData['message'], "success");
         await Future.delayed(const Duration(seconds: 2));
         Navigator.pushReplacement(
           context,
@@ -86,14 +85,15 @@ class AuthServices {
         if (jsonData.containsKey('errors')) {
           String errorMessage =
               jsonData['errors'].values.map((e) => e.join("\n")).join("\n");
-          _showErrorDialog(context, errorMessage);
+          _showCustomAlert(context, errorMessage, "error");
         } else {
-          _showErrorDialog(context, jsonData['message'] ?? 'Registrasi gagal.');
+          _showCustomAlert(
+              context, jsonData['message'] ?? 'Registrasi gagal.', "error");
         }
       }
     } catch (e) {
       print("Terjadi error: $e");
-      _showErrorDialog(context, "Terjadi kesalahan, coba lagi nanti.");
+      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
     }
   }
 
@@ -116,11 +116,11 @@ class AuthServices {
           ),
         );
       } else {
-        _showErrorDialog(context, jsonData['message']);
+        _showCustomAlert(context, jsonData['message'], "error");
       }
     } catch (e) {
       print('Error: $e');
-      _showErrorDialog(context, "Terjadi kesalahan, coba lagi nanti.");
+      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
     }
   }
 
@@ -141,37 +141,18 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'Berhasil',
-          text: jsonData['message'],
-          confirmBtnText: 'OK',
-          onConfirmBtnTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          },
+        _showCustomAlert(context, jsonData['message'], "success");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       } else {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Gagal',
-          text: jsonData['message'] ?? 'Terjadi kesalahan, coba lagi nanti.',
-          confirmBtnText: 'OK',
-        );
+        _showCustomAlert(
+            context, jsonData['message'] ?? 'Terjadi kesalahan.', "error");
       }
     } catch (e) {
       print('Error: $e');
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Gagal',
-        text: 'Terjadi kesalahan, coba lagi nanti.',
-        confirmBtnText: 'OK',
-      );
+      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
     }
   }
 
@@ -217,7 +198,7 @@ class AuthServices {
       String? nik = prefs.getString('nik');
 
       if (nik == null) {
-        _showErrorDialog(context, "NIK tidak ditemukan. Silakan login ulang.");
+        _showCustomAlert(context, "NIK tidak ditemukan. Silakan login ulang.", "error");
         return false;
       }
 
@@ -234,73 +215,122 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.success,
-          title: 'Berhasil',
-          text: jsonData['message'],
-          confirmBtnText: 'OK',
-          onConfirmBtnTap: () => Navigator.pop(context),
-        );
+        _showCustomAlert(context, jsonData['message'], "success");
         return true;
       } else {
-        _showErrorDialog(
-            context, jsonData['message'] ?? 'Gagal memperbarui profil.');
+        _showCustomAlert(
+            context, jsonData['message'] ?? 'Gagal memperbarui profil.', "error");
         return false;
       }
     } catch (e) {
       print("Terjadi error: $e");
-      _showErrorDialog(context, "Terjadi kesalahan, coba lagi nanti.");
+      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
       return false;
     }
   }
 }
 
-void _showSuccessDialog(BuildContext context, String message) {
-  QuickAlert.show(
+void _showCustomAlert(BuildContext context, String message, String type) {
+  Color backgroundColor;
+  IconData iconData;
+  Color iconColor;
+
+  switch (type) {
+    case "error":
+      backgroundColor = Colors.red.shade50;
+      iconData = Icons.error_outline;
+      iconColor = Colors.red;
+      break;
+    case "success":
+      backgroundColor = Colors.green.shade50;
+      iconData = Icons.check_circle_outline;
+      iconColor = Colors.green;
+      break;
+    case "warning":
+      backgroundColor = Colors.orange.shade50;
+      iconData = Icons.warning_amber_outlined;
+      iconColor = Colors.orange;
+      break;
+    default:
+      backgroundColor = Colors.blue.shade50;
+      iconData = Icons.info_outline;
+      iconColor = Colors.blue;
+  }
+
+  showDialog(
     context: context,
-    type: QuickAlertType.success,
-    title: 'Berhasil',
-    text: message,
-    confirmBtnText: 'OK',
-    confirmBtnColor: const Color(0xFF199A8E),
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                iconData,
+                size: 60,
+                color: iconColor,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Pesan",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF199A8E),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: const Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
   );
 }
 
-void _showErrorDialog(BuildContext context, String message) {
-  QuickAlert.show(
-    context: context,
-    type: QuickAlertType.error,
-    title: 'Gagal',
-    text: message,
-    confirmBtnText: 'OK',
-    confirmBtnColor: const Color(0xFF199A8E),
-  );
-}
-
+/// 🔔 Untuk login sukses (auto redirect)
 void _showMessageDialog(
     BuildContext context, String message, UserData userData) {
-  QuickAlert.show(
-    context: context,
-    type: QuickAlertType.success,
-    title: 'Login Berhasil',
-    text: '$message\nSelamat Datang, ${userData.namaLengkap}!',
-    autoCloseDuration: const Duration(seconds: 3),
-    showConfirmBtn: false,
-  );
+  _showCustomAlert(context, '$message\nSelamat Datang, ${userData.namaLengkap}!', "success");
 
-  Future.delayed(const Duration(seconds: 3), () {
+  Future.delayed(const Duration(seconds: 2), () {
     Get.off(() => NavBottom(userData: userData));
   });
 }
 
 void _showLoginErrorDialog(BuildContext context) {
-  QuickAlert.show(
-    context: context,
-    type: QuickAlertType.error,
-    title: 'Login Gagal',
-    text: 'Email atau password salah. Silakan coba lagi.',
-    confirmBtnText: 'OK',
-    confirmBtnColor: const Color(0xFF199A8E),
-  );
+  _showCustomAlert(context, 'Email atau password salah. Silakan coba lagi.', "error");
 }

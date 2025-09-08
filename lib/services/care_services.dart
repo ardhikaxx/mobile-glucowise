@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
 
@@ -55,7 +54,7 @@ class CareServices {
     }
   }
 
-  // Method untuk mengedit jadwal - UPDATED VERSION
+  // Method untuk mengedit jadwal
   static Future<void> editCare(
     BuildContext context,
     int idCare, {
@@ -162,29 +161,59 @@ class CareServices {
     }
   }
 
-  // Method untuk menampilkan dialog sukses
+  // Custom Success Dialog
   static void _showSuccessDialog(BuildContext context, String message) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.success,
-      title: 'Berhasil',
-      text: message,
-      confirmBtnText: 'OK',
-      onConfirmBtnTap: () {
-        Navigator.pop(context);
-        Navigator.pop(context); // Kembali ke halaman sebelumnya
+      barrierDismissible: false, // supaya harus klik tombol
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.green, size: 28),
+              SizedBox(width: 8),
+              Text("Berhasil"),
+            ],
+          ),
+          content: Text(message, style: const TextStyle(fontSize: 16)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx); // tutup dialog
+                Navigator.pop(context); // kembali ke halaman sebelumnya
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
       },
     );
   }
 
-  // Method untuk menampilkan dialog error
+  // Custom Error Dialog
   static void _showErrorDialog(BuildContext context, String message) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.error,
-      title: 'Gagal',
-      text: message,
-      confirmBtnText: 'OK',
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: const [
+              Icon(Icons.error, color: Colors.red, size: 28),
+              SizedBox(width: 8),
+              Text("Gagal"),
+            ],
+          ),
+          content: Text(message, style: const TextStyle(fontSize: 16)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

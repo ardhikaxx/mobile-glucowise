@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCare/edit_care.dart';
@@ -123,25 +122,76 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
 
   void _showAlarmNotification(
       BuildContext context, Map<String, dynamic> alarm) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.warning,
-      title: 'Waktunya Minum Obat!',
-      text: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
-      confirmBtnText: 'Stop',
-      barrierDismissible:
-          false, // Mencegah pengguna menutup tanpa menekan tombol
-      onConfirmBtnTap: () async {
-        await _stopAlarmSound();
-        if (!_isDisposed) {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(20.0),
             ),
-          );
-        }
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.warning_amber_outlined,
+                  size: 60,
+                  color: Colors.orange,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Waktunya Minum Obat!",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${alarm["nama_obat"]} - ${alarm["dosis"]}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _stopAlarmSound();
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF199A8E),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    "Stop",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -544,7 +594,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditCareScreen(alarm: data),
+                builder: (context) => EditCareScreen(alarm: data, data: {},),
               ),
             ).then((_) => _loadData());
           }

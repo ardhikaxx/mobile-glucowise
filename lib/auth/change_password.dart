@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/services/auth_services.dart';
-import 'package:quickalert/quickalert.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   final String nik;
@@ -222,20 +221,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           String confirmPassword = repeatPasswordController.text;
 
           if (newPassword.isEmpty || confirmPassword.isEmpty) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              text: "Harap isi semua field!",
-            );
+            _showCustomAlert(context, "Harap isi semua field!", "error");
           } else if (newPassword != confirmPassword) {
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              text: "Konfirmasi password tidak sesuai!",
-            );
+            _showCustomAlert(context, "Konfirmasi password tidak sesuai!", "error");
           } else {
             AuthServices.updatePassword(
-                context, widget.nik, newPassword, confirmPassword);
+              context, widget.nik, newPassword, confirmPassword);
           }
         },
         style: ElevatedButton.styleFrom(
@@ -251,6 +242,97 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           style: TextStyle(fontSize: 18, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  void _showCustomAlert(BuildContext context, String message, String type) {
+    Color backgroundColor;
+    IconData iconData;
+    Color iconColor;
+
+    switch (type) {
+      case "error":
+        backgroundColor = Colors.red.shade50;
+        iconData = Icons.error_outline;
+        iconColor = Colors.red;
+        break;
+      case "success":
+        backgroundColor = Colors.green.shade50;
+        iconData = Icons.check_circle_outline;
+        iconColor = Colors.green;
+        break;
+      case "warning":
+        backgroundColor = Colors.orange.shade50;
+        iconData = Icons.warning_amber_outlined;
+        iconColor = Colors.orange;
+        break;
+      default:
+        backgroundColor = Colors.blue.shade50;
+        iconData = Icons.info_outline;
+        iconColor = Colors.blue;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  iconData,
+                  size: 60,
+                  color: iconColor,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Pesan",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: iconColor,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF199A8E),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

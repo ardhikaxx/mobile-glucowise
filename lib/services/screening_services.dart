@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
 
@@ -31,9 +30,9 @@ class ScreeningServices {
     required int totalScore,
     required BuildContext context,
   }) async {
-    String? nik = await SessionManager.getNik();
+    String? nikSession = await SessionManager.getNik();
 
-    if (nik == null) {
+    if (nikSession == null) {
       _showErrorDialog(context, _errorNikNotFound);
       return false;
     }
@@ -43,7 +42,7 @@ class ScreeningServices {
         Uri.parse('$apiConnect/api/screening/results'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'nik': nik,
+          'nik': nikSession,
           'answers': answers,
           'skor_risiko': totalScore,
         }),
@@ -53,36 +52,26 @@ class ScreeningServices {
         final data = json.decode(response.body);
         return data['success'] == true;
       } else {
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Gagal',
-          text: 'Gagal menyimpan hasil screening',
-        );
+        _showErrorDialog(context, "Gagal menyimpan hasil screening");
         return false;
       }
     } catch (e) {
       debugPrint('Error submitting answers: $e');
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Error',
-        text: 'Terjadi kesalahan saat mengirim data',
-      );
+      _showErrorDialog(context, "Terjadi kesalahan saat mengirim data");
       return false;
     }
   }
 
   static Future<List<dynamic>?> getScreeningHistory(String nik, BuildContext context) async {
-    String? nik = await SessionManager.getNik();
+    String? nikSession = await SessionManager.getNik();
 
-    if (nik == null) {
+    if (nikSession == null) {
       _showErrorDialog(context, _errorNikNotFound);
       return [];
     }
     try {
       final response = await http.get(
-        Uri.parse('$apiConnect/api/screening/history/$nik'),
+        Uri.parse('$apiConnect/api/screening/history/$nikSession'),
       );
 
       if (response.statusCode == 200) {
@@ -113,12 +102,27 @@ class ScreeningServices {
   }
 
   static void _showErrorDialog(BuildContext context, String message) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.error,
-      title: 'Gagal',
-      text: message,
-      confirmBtnText: 'OK',
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: Row(
+            children: const [
+              Icon(Icons.error, color: Colors.red, size: 28),
+              SizedBox(width: 8),
+              Text("Gagal"),
+            ],
+          ),
+          content: Text(message, style: const TextStyle(fontSize: 16)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

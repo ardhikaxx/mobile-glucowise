@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/hasil_screening.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:medical_app/services/screening_services.dart';
 import 'package:medical_app/utils/session_manager.dart';
 
@@ -62,13 +61,37 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
   }
 
   void _showAlert(String title, String message) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.warning,
-      title: title,
-      text: message,
-      confirmBtnColor: const Color(0xFF199A8E),
-      confirmBtnText: "OK",
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF199A8E),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "OK",
+                style: TextStyle(
+                  color: Color(0xFF199A8E),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -87,16 +110,97 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
   }
 
   void _confirmExit() {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.confirm,
-      title: "Konfirmasi",
-      text: "Anda yakin ingin keluar dari tes screening?",
-      confirmBtnText: "Ya",
-      cancelBtnText: "Tidak",
-      confirmBtnColor: Colors.red,
-      onConfirmBtnTap: () =>
-          Get.offAll(() => NavBottom(userData: widget.userData)),
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.warning_rounded,
+                  color: Colors.amber,
+                  size: 60,
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  "Konfirmasi",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF199A8E),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Anda yakin ingin keluar dari tes screening?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: Color(0xFF199A8E)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: const Text(
+                          "Tidak",
+                          style: TextStyle(
+                            color: Color(0xFF199A8E),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Get.offAll(() => NavBottom(userData: widget.userData));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF199A8E),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                        child: const Text(
+                          "Ya",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -141,6 +245,37 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       return;
     }
 
+    // Tampilkan dialog loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(
+                  color: Color(0xFF199A8E),
+                ),
+                const SizedBox(width: 20),
+                const Text(
+                  "Memproses hasil...",
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     final isSuccess = await ScreeningServices.submitAnswers(
       nik: nik,
       answers: answerList,
@@ -149,12 +284,15 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
     );
 
     if (isSuccess && mounted) {
+      Navigator.of(context).pop(); // Tutup dialog loading
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HasilScreeningScreen(totalScore: totalScore),
         ),
       );
+    } else {
+      Navigator.of(context).pop(); // Tutup dialog loading
     }
   }
 

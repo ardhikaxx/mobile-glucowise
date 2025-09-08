@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/services/care_services.dart';
-import 'package:quickalert/quickalert.dart';
 
 class EditCareScreen extends StatefulWidget {
   final Map<String, dynamic> alarm;
 
-  const EditCareScreen({super.key, required this.alarm});
+  const EditCareScreen({super.key, required this.alarm, required Map<String, dynamic> data});
 
   @override
   State<EditCareScreen> createState() => _EditCareScreenState();
@@ -31,7 +30,6 @@ class _EditCareScreenState extends State<EditCareScreen> {
     selectedDate = _parseDate(widget.alarm["tanggal"]) ?? DateTime.now();
     originalTime = widget.alarm["jam_minum"];
     
-    // Parse time from original format (HH:mm:ss)
     if (originalTime != null) {
       final timeParts = originalTime!.split(':');
       if (timeParts.length >= 2) {
@@ -376,7 +374,6 @@ class _EditCareScreenState extends State<EditCareScreen> {
         jamMinum: jamMinum,
       );
       
-      // Tidak perlu Navigator.pop di sini karena sudah dihandle di CareServices
     } catch (e) {
       print("Error saat menyimpan data: $e");
       _showErrorDialog("Terjadi kesalahan. Coba lagi nanti.");
@@ -393,12 +390,30 @@ class _EditCareScreenState extends State<EditCareScreen> {
   }
 
   void _showErrorDialog(String message) {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.error,
-      title: 'Gagal',
-      text: message,
-      confirmBtnText: 'OK',
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          "Gagal",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text(
+              "OK",
+              style: TextStyle(color: Color(0xFF199A8E)),
+            ),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+        ],
+      ),
     );
   }
 }

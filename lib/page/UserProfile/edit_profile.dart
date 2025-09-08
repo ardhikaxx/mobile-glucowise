@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/services/auth_services.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -35,26 +34,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _selectedGender = widget.userData.jenisKelamin;
   }
 
+  /// Fungsi dialog konfirmasi keluar
   void _showExitConfirmation() {
-    QuickAlert.show(
+    showDialog(
       context: context,
-      type: QuickAlertType.info,
-      title: 'Konfirmasi',
-      text: 'Apakah Anda yakin ingin kembali?',
-      confirmBtnText: 'Ya',
-      cancelBtnText: 'Tidak',
-      showCancelBtn: true,
-      confirmBtnColor: const Color(0xFF199A8E),
-      onConfirmBtnTap: () {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      },
-      onCancelBtnTap: () {
-        Navigator.pop(context);
-      },
+      builder: (context) => AlertDialog(
+        title: const Text("Konfirmasi"),
+        content: const Text("Apakah Anda yakin ingin kembali?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // batal
+            child: const Text("Tidak", style: TextStyle(color: Color(0xFF199A8E))),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // tutup dialog
+              Navigator.pop(context); // kembali ke halaman sebelumnya
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF199A8E),
+            ),
+            child: const Text("Ya", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
+  /// Fungsi update profile
   void updateProfile() async {
     Map<String, dynamic> profileData = {
       'nama_lengkap': _namaLengkapController.text,
@@ -73,27 +80,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       Navigator.pop(context, true);
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.success,
-        title: 'Berhasil',
-        text: 'Profil berhasil diperbarui.',
-        confirmBtnText: 'OK',
-        confirmBtnColor: const Color(0xFF199A8E),
+
+      _showMessageDialog(
+        title: "Berhasil",
+        message: "Profil berhasil diperbarui.",
+        isSuccess: true,
       );
     } else {
-      // ignore: use_build_context_synchronously
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Gagal',
-        text: 'Gagal memperbarui profil.',
-        confirmBtnText: 'OK',
-        confirmBtnColor: const Color(0xFF199A8E),
+      _showMessageDialog(
+        title: "Gagal",
+        message: "Gagal memperbarui profil.",
+        isSuccess: false,
       );
     }
   }
 
+  void _showMessageDialog({
+    required String title,
+    required String message,
+    bool isSuccess = true,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          title,
+          style: TextStyle(
+            color: isSuccess ? Colors.green : Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(message),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF199A8E),
+            ),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Fungsi pilih tanggal
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -183,18 +214,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderSide: const BorderSide(
                           color: Color(0xFFE5E7EB), width: 1.5),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFFE5E7EB), width: 2.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          // ignore: deprecated_member_use
-                          color: const Color(0xFFE5E7EB).withOpacity(0.5),
-                          width: 1.5),
-                    ),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.date_range,
                           color: Color(0xFF199A8E)),
@@ -221,18 +240,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderSide: const BorderSide(
                           color: Color(0xFFE5E7EB), width: 1.5),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Color(0xFFE5E7EB), width: 2.0),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          // ignore: deprecated_member_use
-                          color: const Color(0xFFE5E7EB).withOpacity(0.5),
-                          width: 1.5),
-                    ),
                   ),
                   items: const [
                     DropdownMenuItem(
@@ -255,9 +262,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    updateProfile();
-                  },
+                  onPressed: updateProfile,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
@@ -294,17 +299,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-                // ignore: deprecated_member_use
-                color: const Color(0xFFE5E7EB).withOpacity(0.5),
-                width: 1.5),
           ),
         ),
       ),

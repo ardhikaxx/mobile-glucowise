@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/auth/forgot.dart';
 import 'package:medical_app/auth/register.dart';
 import 'package:medical_app/services/auth_services.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -277,16 +276,13 @@ class _LoginScreenState extends State<LoginScreen> {
             String password = _passwordController.text;
 
             if (email.isEmpty && password.isEmpty) {
-              _showQuickAlert(context, "Email dan password tidak boleh kosong",
-                  QuickAlertType.error);
+              _showCustomAlert(context, "Email dan password tidak boleh kosong", "error");
               return;
             } else if (email.isEmpty) {
-              _showQuickAlert(
-                  context, "Email tidak boleh kosong", QuickAlertType.error);
+              _showCustomAlert(context, "Email tidak boleh kosong", "error");
               return;
             } else if (password.isEmpty) {
-              _showQuickAlert(
-                  context, "Password tidak boleh kosong", QuickAlertType.error);
+              _showCustomAlert(context, "Password tidak boleh kosong", "error");
               return;
             }
             
@@ -306,14 +302,94 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _showQuickAlert(
-      BuildContext context, String message, QuickAlertType alertType) {
-    QuickAlert.show(
+  void _showCustomAlert(BuildContext context, String message, String type) {
+    Color backgroundColor;
+    IconData iconData;
+    Color iconColor;
+
+    switch (type) {
+      case "error":
+        backgroundColor = Colors.red.shade50;
+        iconData = Icons.error_outline;
+        iconColor = Colors.red;
+        break;
+      case "success":
+        backgroundColor = Colors.green.shade50;
+        iconData = Icons.check_circle_outline;
+        iconColor = Colors.green;
+        break;
+      case "warning":
+        backgroundColor = Colors.orange.shade50;
+        iconData = Icons.warning_amber_outlined;
+        iconColor = Colors.orange;
+        break;
+      default:
+        backgroundColor = Colors.blue.shade50;
+        iconData = Icons.info_outline;
+        iconColor = Colors.blue;
+    }
+
+    showDialog(
       context: context,
-      type: alertType,
-      title: 'Pesan',
-      text: message,
-      confirmBtnText: 'OK',
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  iconData,
+                  size: 60,
+                  color: iconColor,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Pesan",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: iconColor,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF199A8E),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
