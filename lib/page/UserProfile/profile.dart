@@ -6,7 +6,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
-import 'package:medical_app/page/UserProfile/kode_identitas.dart';
+import 'package:medical_app/page/UserProfile/qr_identitas.dart';
 import 'package:medical_app/services/auth_services.dart';
 
 class UserScreen extends StatefulWidget {
@@ -575,7 +575,7 @@ class _UserScreenState extends State<UserScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const KodeIdentitasScreen(),
+                  builder: (context) => const DigitalIDScreen(),
                 ),
               );
             },
@@ -592,7 +592,7 @@ class _UserScreenState extends State<UserScreen> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "Kode Identitas",
+                      "GlucoID",
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
