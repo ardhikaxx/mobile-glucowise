@@ -475,7 +475,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5F4),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
