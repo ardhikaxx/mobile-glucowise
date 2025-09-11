@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/services/auth_services.dart';
 import 'package:intl/intl.dart';
+import 'package:medical_app/components/alert.dart'; // Import komponen alert
 
 class EditProfileScreen extends StatefulWidget {
   final UserData userData;
@@ -34,30 +35,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _selectedGender = widget.userData.jenisKelamin;
   }
 
-  /// Fungsi dialog konfirmasi keluar
-  void _showExitConfirmation() {
-    showDialog(
+  void _confirmExit() {
+    CustomAlert.showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Konfirmasi"),
-        content: const Text("Apakah Anda yakin ingin kembali?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), // batal
-            child: const Text("Tidak", style: TextStyle(color: Color(0xFF199A8E))),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context); // tutup dialog
-              Navigator.pop(context); // kembali ke halaman sebelumnya
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF199A8E),
-            ),
-            child: const Text("Ya", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      title: "Konfirmasi",
+      message: "Anda yakin ingin keluar dari halaman Edit Profile?",
+      onConfirm: () {
+        Navigator.pop(context);
+      },
     );
   }
 
@@ -76,52 +61,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     bool success = await AuthServices.editProfile(context, profileData);
 
     if (success) {
-      // ignore: use_build_context_synchronously
       Navigator.pop(context, true);
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context);
 
-      _showMessageDialog(
+      CustomAlert.showMessageDialog(
+        context: context,
         title: "Berhasil",
         message: "Profil berhasil diperbarui.",
         isSuccess: true,
       );
     } else {
-      _showMessageDialog(
+      CustomAlert.showMessageDialog(
+        context: context,
         title: "Gagal",
         message: "Gagal memperbarui profil.",
         isSuccess: false,
       );
     }
-  }
-
-  void _showMessageDialog({
-    required String title,
-    required String message,
-    bool isSuccess = true,
-  }) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isSuccess ? Colors.green : Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(message),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF199A8E),
-            ),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Fungsi pilih tanggal
@@ -164,6 +119,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             color: Color(0xFF199A8E),
             fontSize: 35,
             fontWeight: FontWeight.w900,
+            letterSpacing: 1,
           ),
         ),
         centerTitle: true,
@@ -178,7 +134,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: _showExitConfirmation,
+              onPressed: _confirmExit,
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,

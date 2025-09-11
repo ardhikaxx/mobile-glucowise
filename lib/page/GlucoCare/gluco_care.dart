@@ -594,7 +594,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EditCareScreen(alarm: data, data: {},),
+                builder: (context) => EditCareScreen(alarm: data),
               ),
             ).then((_) => _loadData());
           }

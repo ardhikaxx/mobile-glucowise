@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/services/care_services.dart';
+import 'package:medical_app/components/alert.dart'; // Import komponen alert
 
 class FormCareScreen extends StatefulWidget {
   const FormCareScreen({super.key});
@@ -263,8 +264,11 @@ class _FormCareScreenState extends State<FormCareScreen> {
     String dosis = dosisController.text.trim();
 
     if (namaObat.isEmpty || dosis.isEmpty || selectedTimeObat == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Harap lengkapi semua data.")),
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Peringatan",
+        message: "Harap lengkapi semua data.",
+        isSuccess: false,
       );
       return;
     }
@@ -287,8 +291,11 @@ class _FormCareScreenState extends State<FormCareScreen> {
       );
     } catch (e) {
       print("Error saat menyimpan data: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Terjadi kesalahan. Coba lagi nanti.")),
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Error",
+        message: "Terjadi kesalahan. Coba lagi nanti.",
+        isSuccess: false,
       );
     } finally {
       setState(() {

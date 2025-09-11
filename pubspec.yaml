@@ -53,7 +53,7 @@ dependencies:
   cached_network_image: ^3.4.1
   readmore: ^3.0.0
   flutter_launcher_icons: ^0.14.3
-  flutter_awesome_alert_box: ^2.1.1
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

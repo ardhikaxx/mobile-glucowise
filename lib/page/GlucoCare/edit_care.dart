@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/services/care_services.dart';
+import 'package:medical_app/components/alert.dart'; // Import komponen alert
 
 class EditCareScreen extends StatefulWidget {
   final Map<String, dynamic> alarm;
 
-  const EditCareScreen({super.key, required this.alarm, required Map<String, dynamic> data});
+  const EditCareScreen({super.key, required this.alarm});
 
   @override
   State<EditCareScreen> createState() => _EditCareScreenState();
@@ -38,7 +39,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
           minute: int.parse(timeParts[1]),
         );
         timeController = TextEditingController(
-          text: "${timeParts[0].padLeft(2, '0')}:${timeParts[1].padLeft(2, '0')}:00",
+          text: "${timeParts[0].padLeft(2, '0')}:${timeParts[1].padLeft(2, '0')}",
         );
       }
     } else {
@@ -318,7 +319,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
         selectedTimeObat = pickedTime;
         timeController.text = 
           "${pickedTime.hour.toString().padLeft(2, '0')}:"
-          "${pickedTime.minute.toString().padLeft(2, '0')}:00";
+          "${pickedTime.minute.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -351,12 +352,22 @@ class _EditCareScreenState extends State<EditCareScreen> {
     final jamMinum = timeController.text.trim();
 
     if (namaObat.isEmpty || dosis.isEmpty || jamMinum.isEmpty) {
-      _showErrorDialog("Harap lengkapi semua data");
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Peringatan",
+        message: "Harap lengkapi semua data.",
+        isSuccess: false,
+      );
       return;
     }
 
     if (!_isValidTimeFormat(jamMinum)) {
-      _showErrorDialog("Format waktu tidak valid. Gunakan format HH:mm:ss");
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Format Salah",
+        message: "Format waktu tidak valid. Gunakan format HH:mm",
+        isSuccess: false,
+      );
       return;
     }
 
@@ -364,6 +375,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
 
     try {
       final tanggalFormatted = DateFormat('yyyy-MM-dd').format(selectedDate);
+      final jamMinumFormatted = "$jamMinum:00"; // Tambahkan detik
       
       await CareServices.editCare(
         context,
@@ -371,12 +383,17 @@ class _EditCareScreenState extends State<EditCareScreen> {
         tanggal: tanggalFormatted,
         namaObat: namaObat,
         dosis: dosis,
-        jamMinum: jamMinum,
+        jamMinum: jamMinumFormatted,
       );
       
     } catch (e) {
       print("Error saat menyimpan data: $e");
-      _showErrorDialog("Terjadi kesalahan. Coba lagi nanti.");
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Error",
+        message: "Terjadi kesalahan. Coba lagi nanti.",
+        isSuccess: false,
+      );
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -385,35 +402,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
   }
 
   bool _isValidTimeFormat(String time) {
-    final regex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$');
+    final regex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$');
     return regex.hasMatch(time);
-  }
-
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          "Gagal",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
-          ),
-        ),
-        content: Text(message),
-        actions: [
-          TextButton(
-            child: const Text(
-              "OK",
-              style: TextStyle(color: Color(0xFF199A8E)),
-            ),
-            onPressed: () => Navigator.of(ctx).pop(),
-          ),
-        ],
-      ),
-    );
   }
 }

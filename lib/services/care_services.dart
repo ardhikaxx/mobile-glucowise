@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
+import 'package:medical_app/components/alert.dart'; // Import komponen alert
 
 class CareServices {
   static const String _errorNikNotFound = "NIK tidak ditemukan. Silakan login ulang.";
@@ -44,7 +45,7 @@ class CareServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _showSuccessDialog(context, jsonData['message']);
+        showMessageDialog(context, jsonData['message']);
       } else {
         _showErrorDialog(context, jsonData['message'] ?? _errorAddCare);
       }
@@ -87,7 +88,7 @@ class CareServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        _showSuccessDialog(context, jsonData['message']);
+        showMessageDialog(context, jsonData['message']);
       } else {
         _showErrorDialog(context, jsonData['message'] ?? _errorEditCare);
       }
@@ -161,59 +162,26 @@ class CareServices {
     }
   }
 
-  // Custom Success Dialog
-  static void _showSuccessDialog(BuildContext context, String message) {
-    showDialog(
+  static void showMessageDialog(BuildContext context, String message) {
+    CustomAlert.showMessageDialog(
       context: context,
-      barrierDismissible: false, // supaya harus klik tombol
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
-            children: const [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 8),
-              Text("Berhasil"),
-            ],
-          ),
-          content: Text(message, style: const TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx); // tutup dialog
-                Navigator.pop(context); // kembali ke halaman sebelumnya
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
+      title: "Berhasil",
+      message: message,
+      isSuccess: true,
+      buttonText: "OK",
+      onPressed: () {
+        Navigator.pop(context);
       },
     );
   }
 
-  // Custom Error Dialog
   static void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
+    CustomAlert.showMessageDialog(
       context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
-            children: const [
-              Icon(Icons.error, color: Colors.red, size: 28),
-              SizedBox(width: 8),
-              Text("Gagal"),
-            ],
-          ),
-          content: Text(message, style: const TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
+      title: "Gagal",
+      message: message,
+      isSuccess: false,
+      buttonText: "OK",
     );
   }
 }

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
+import 'package:medical_app/components/alert.dart'; // Import komponen alert
 
 class CheckServices {
-  static const String _errorNikNotFound = "NIK tidak ditemukan. Silakan login ulang.";
+  static const String _errorNikNotFound =
+      "NIK tidak ditemukan. Silakan login ulang.";
   static const String _errorDefault = "Terjadi kesalahan. Coba lagi nanti.";
   static const String _errorAddCheck = "Gagal menambahkan data kesehatan.";
   static const String _errorGetHistory = "Gagal mengambil riwayat kesehatan.";
@@ -25,7 +27,12 @@ class CheckServices {
     String? nik = await SessionManager.getNik();
 
     if (nik == null) {
-      _showErrorDialog(context, _errorNikNotFound);
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Gagal",
+        message: _errorNikNotFound,
+        isSuccess: false,
+      );
       return;
     }
 
@@ -50,13 +57,31 @@ class CheckServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _showSuccessDialog(context, "Data kesehatan berhasil ditambahkan.");
+        CustomAlert.showMessageDialog(
+          context: context,
+          title: "Berhasil",
+          message: "Data kesehatan berhasil ditambahkan.",
+          isSuccess: true,
+          onPressed: () {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        );
       } else {
-        _showErrorDialog(context, jsonData['message'] ?? _errorAddCheck);
+        CustomAlert.showMessageDialog(
+          context: context,
+          title: "Gagal",
+          message: jsonData['message'] ?? _errorAddCheck,
+          isSuccess: false,
+        );
       }
     } catch (e) {
       print("Error addCheck: $e");
-      _showErrorDialog(context, _errorDefault);
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Gagal",
+        message: _errorDefault,
+        isSuccess: false,
+      );
     }
   }
 
@@ -64,7 +89,12 @@ class CheckServices {
     String? nik = await SessionManager.getNik();
 
     if (nik == null) {
-      _showErrorDialog(context, _errorNikNotFound);
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Gagal",
+        message: _errorNikNotFound,
+        isSuccess: false,
+      );
       return [];
     }
 
@@ -77,16 +107,32 @@ class CheckServices {
         if (jsonData['status'] == true) {
           return jsonData['data'];
         } else {
-          _showErrorDialog(context, jsonData['message'] ?? _errorGetHistory);
+          CustomAlert.showMessageDialog(
+            context: context,
+            title: "Gagal",
+            message: jsonData['message'] ?? _errorGetHistory,
+            isSuccess: false,
+          );
           return [];
         }
       } else {
         print("Error getRiwayatKesehatan: ${response.body}");
+        CustomAlert.showMessageDialog(
+          context: context,
+          title: "Gagal",
+          message: _errorGetHistory,
+          isSuccess: false,
+        );
         return [];
       }
     } catch (e) {
       print("Error getRiwayatKesehatan: $e");
-      _showErrorDialog(context, _errorDefault);
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Gagal",
+        message: _errorDefault,
+        isSuccess: false,
+      );
       return [];
     }
   }
@@ -102,73 +148,32 @@ class CheckServices {
         if (jsonData['status'] == true) {
           return jsonData['data'];
         } else {
-          _showErrorDialog(context, jsonData['message'] ?? _errorGetStatus);
+          CustomAlert.showMessageDialog(
+            context: context,
+            title: "Gagal",
+            message: jsonData['message'] ?? _errorGetStatus,
+            isSuccess: false,
+          );
           return null;
         }
       } else {
-        _showErrorDialog(context, _errorGetStatus);
+        CustomAlert.showMessageDialog(
+          context: context,
+          title: "Gagal",
+          message: _errorGetStatus,
+          isSuccess: false,
+        );
         return null;
       }
     } catch (e) {
       print("Error getStatusRisiko: $e");
-      _showErrorDialog(context, _errorDefault);
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Gagal",
+        message: _errorDefault,
+        isSuccess: false,
+      );
       return null;
     }
-  }
-
-  // Custom Success Dialog
-  static void _showSuccessDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
-            children: const [
-              Icon(Icons.check_circle, color: Colors.green, size: 28),
-              SizedBox(width: 8),
-              Text("Berhasil"),
-            ],
-          ),
-          content: Text(message, style: const TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(ctx); // tutup dialog
-                Navigator.pop(context); // kembali ke halaman sebelumnya
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // Custom Error Dialog
-  static void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Row(
-            children: const [
-              Icon(Icons.error, color: Colors.red, size: 28),
-              SizedBox(width: 8),
-              Text("Gagal"),
-            ],
-          ),
-          content: Text(message, style: const TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

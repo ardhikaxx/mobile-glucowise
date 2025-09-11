@@ -32,16 +32,26 @@ class AuthServices {
 
           await SessionManager.setNik(userResponse.nik);
 
-          _showMessageDialog(context, userResponse.message, userResponse.user);
+          _showLoginAlert(
+            context, 
+            "Login Berhasil", 
+            "${userResponse.message}\nSelamat Datang, ${userResponse.user.namaLengkap}!", 
+            true,
+            onConfirm: () {
+              Get.off(() => NavBottom(userData: userResponse.user));
+            }
+          );
         } else {
-          _showLoginErrorDialog(context);
+          _showLoginAlert(context, "Login Gagal", "Terjadi kesalahan pada server. Silakan coba lagi.", false);
         }
       } else {
-        _showLoginErrorDialog(context);
+        final jsonData = jsonDecode(response.body);
+        String errorMessage = jsonData['message'] ?? 'Email atau password salah. Silakan coba lagi.';
+        _showLoginAlert(context, "Login Gagal", errorMessage, false);
       }
     } catch (e) {
       print("Terjadi error: $e");
-      _showLoginErrorDialog(context);
+      _showLoginAlert(context, "Error", "Terjadi kesalahan koneksi. Silakan coba lagi.", false);
     }
   }
 
@@ -75,25 +85,26 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _showCustomAlert(context, jsonData['message'], "success");
-        await Future.delayed(const Duration(seconds: 2));
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        _showLoginAlert(context, "Registrasi Berhasil", jsonData['message'], true,
+            onConfirm: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+        });
       } else {
         if (jsonData.containsKey('errors')) {
           String errorMessage =
               jsonData['errors'].values.map((e) => e.join("\n")).join("\n");
-          _showCustomAlert(context, errorMessage, "error");
+          _showLoginAlert(context, "Registrasi Gagal", errorMessage, false);
         } else {
-          _showCustomAlert(
-              context, jsonData['message'] ?? 'Registrasi gagal.', "error");
+          _showLoginAlert(
+              context, "Registrasi Gagal", jsonData['message'] ?? 'Registrasi gagal.', false);
         }
       }
     } catch (e) {
       print("Terjadi error: $e");
-      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
+      _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
 
@@ -116,11 +127,11 @@ class AuthServices {
           ),
         );
       } else {
-        _showCustomAlert(context, jsonData['message'], "error");
+        _showLoginAlert(context, "Error", jsonData['message'], false);
       }
     } catch (e) {
       print('Error: $e');
-      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
+      _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
 
@@ -141,18 +152,20 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        _showCustomAlert(context, jsonData['message'], "success");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        _showLoginAlert(context, "Sukses", jsonData['message'], true,
+            onConfirm: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+        });
       } else {
-        _showCustomAlert(
-            context, jsonData['message'] ?? 'Terjadi kesalahan.', "error");
+        _showLoginAlert(
+            context, "Error", jsonData['message'] ?? 'Terjadi kesalahan.', false);
       }
     } catch (e) {
       print('Error: $e');
-      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
+      _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
 
@@ -198,7 +211,7 @@ class AuthServices {
       String? nik = prefs.getString('nik');
 
       if (nik == null) {
-        _showCustomAlert(context, "NIK tidak ditemukan. Silakan login ulang.", "error");
+        _showLoginAlert(context, "Error", "NIK tidak ditemukan. Silakan login ulang.", false);
         return false;
       }
 
@@ -215,122 +228,88 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        _showCustomAlert(context, jsonData['message'], "success");
+        _showLoginAlert(context, "Sukses", jsonData['message'], true);
         return true;
       } else {
-        _showCustomAlert(
-            context, jsonData['message'] ?? 'Gagal memperbarui profil.', "error");
+        _showLoginAlert(
+            context, "Error", jsonData['message'] ?? 'Gagal memperbarui profil.', false);
         return false;
       }
     } catch (e) {
       print("Terjadi error: $e");
-      _showCustomAlert(context, "Terjadi kesalahan, coba lagi nanti.", "error");
+      _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
       return false;
     }
   }
-}
 
-void _showCustomAlert(BuildContext context, String message, String type) {
-  Color backgroundColor;
-  IconData iconData;
-  Color iconColor;
-
-  switch (type) {
-    case "error":
-      backgroundColor = Colors.red.shade50;
-      iconData = Icons.error_outline;
-      iconColor = Colors.red;
-      break;
-    case "success":
-      backgroundColor = Colors.green.shade50;
-      iconData = Icons.check_circle_outline;
-      iconColor = Colors.green;
-      break;
-    case "warning":
-      backgroundColor = Colors.orange.shade50;
-      iconData = Icons.warning_amber_outlined;
-      iconColor = Colors.orange;
-      break;
-    default:
-      backgroundColor = Colors.blue.shade50;
-      iconData = Icons.info_outline;
-      iconColor = Colors.blue;
-  }
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(20.0),
-          decoration: BoxDecoration(
-            color: backgroundColor,
+  static void _showLoginAlert(BuildContext context, String title, String message, bool isSuccess, {VoidCallback? onConfirm}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                iconData,
-                size: 60,
-                color: iconColor,
-              ),
-              const SizedBox(height: 15),
-              Text(
-                "Pesan",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: iconColor,
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSuccess ? Icons.check_circle : Icons.warning_rounded,
+                  color: isSuccess ? const Color(0xFF199A8E) : Colors.amber,
+                  size: 60,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF199A8E),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: const Text(
-                  "OK",
-                  style: TextStyle(
-                    color: Colors.white,
+                const SizedBox(height: 15),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: Color(0xFF199A8E),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onConfirm?.call();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF199A8E),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
-/// 🔔 Untuk login sukses (auto redirect)
-void _showMessageDialog(
-    BuildContext context, String message, UserData userData) {
-  _showCustomAlert(context, '$message\nSelamat Datang, ${userData.namaLengkap}!', "success");
-
-  Future.delayed(const Duration(seconds: 2), () {
-    Get.off(() => NavBottom(userData: userData));
-  });
-}
-
-void _showLoginErrorDialog(BuildContext context) {
-  _showCustomAlert(context, 'Email atau password salah. Silakan coba lagi.', "error");
+        );
+      },
+    );
+  }
 }

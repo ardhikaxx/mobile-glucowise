@@ -21,20 +21,36 @@ class RiwayatScreening extends StatefulWidget {
 class _RiwayatScreeningState extends State<RiwayatScreening> {
   List<dynamic> screeningHistory = [];
   bool isLoading = true;
+  bool _isDateFormatInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadScreeningHistory();
+    _initializeDateFormatting();
   }
 
-  Future<void> initDateFormat() async {
-    await initializeDateFormatting('id', null);
+  Future<void> _initializeDateFormatting() async {
+    try {
+      await initializeDateFormatting('id', null);
+      setState(() {
+        _isDateFormatInitialized = true;
+      });
+      _loadScreeningHistory();
+    } catch (e) {
+      print('Error initializing date formatting: $e');
+      // Fallback: load data anyway, will use default locale
+      _loadScreeningHistory();
+    }
   }
 
   Future<void> _loadScreeningHistory() async {
     final nik = await SessionManager.getNik();
-    if (nik == null) return;
+    if (nik == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
 
     final history = await ScreeningServices.getScreeningHistory(nik, context);
     if (history != null) {
@@ -56,14 +72,23 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
   }
 
   String _getRiskLevel(int score) {
-    if (score <= 7) return 'Rendah';
+    if (score <= 7) return 'Himbauan Rendah';
     if (score <= 14) return 'Sedang';
     return 'Tinggi';
   }
 
   String _formatDate(String dateString) {
-    final date = DateTime.parse(dateString);
-    return DateFormat('dd MMMM yyyy, HH:mm', 'id').format(date);
+    try {
+      final date = DateTime.parse(dateString);
+      if (_isDateFormatInitialized) {
+        return DateFormat('dd MMMM yyyy, HH:mm', 'id').format(date);
+      } else {
+        // Fallback format jika inisialisasi gagal
+        return DateFormat('dd/MM/yyyy, HH:mm').format(date);
+      }
+    } catch (e) {
+      return 'Tanggal tidak valid';
+    }
   }
 
   @override

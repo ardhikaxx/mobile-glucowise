@@ -6,6 +6,7 @@ import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/hasil_screening.dart';
 import 'package:medical_app/services/screening_services.dart';
 import 'package:medical_app/utils/session_manager.dart';
+import 'package:medical_app/components/alert.dart';
 
 class TestScreeningScreen extends StatefulWidget {
   final UserData userData;
@@ -61,37 +62,11 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
   }
 
   void _showAlert(String title, String message) {
-    showDialog(
+    CustomAlert.showMessageDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF199A8E),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                "OK",
-                style: TextStyle(
-                  color: Color(0xFF199A8E),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+      title: title,
+      message: message,
+      isSuccess: title == "Error" ? false : true,
     );
   }
 
@@ -110,96 +85,12 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
   }
 
   void _confirmExit() {
-    showDialog(
+    CustomAlert.showConfirmDialog(
       context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.warning_rounded,
-                  color: Colors.amber,
-                  size: 60,
-                ),
-                const SizedBox(height: 15),
-                const Text(
-                  "Konfirmasi",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF199A8E),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Anda yakin ingin keluar dari tes screening?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: Color(0xFF199A8E)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        child: const Text(
-                          "Tidak",
-                          style: TextStyle(
-                            color: Color(0xFF199A8E),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Get.offAll(() => NavBottom(userData: widget.userData));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF199A8E),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        child: const Text(
-                          "Ya",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+      title: "Konfirmasi",
+      message: "Anda yakin ingin keluar dari tes screening?",
+      onConfirm: () {
+        Get.offAll(() => NavBottom(userData: widget.userData));
       },
     );
   }
@@ -246,34 +137,24 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
     }
 
     // Tampilkan dialog loading
-    showDialog(
+    CustomAlert.showCustomDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
+      content: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(
+            color: Color(0xFF199A8E),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(
-                  color: Color(0xFF199A8E),
-                ),
-                const SizedBox(width: 20),
-                const Text(
-                  "Memproses hasil...",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+          const SizedBox(width: 20),
+          const Text(
+            "Memproses hasil...",
+            style: TextStyle(
+              fontSize: 16,
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
 
     final isSuccess = await ScreeningServices.submitAnswers(

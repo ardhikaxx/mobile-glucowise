@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/services/check_services.dart';
+import 'package:medical_app/components/alert.dart';
 
 class GlucoCheckForm extends StatefulWidget {
   const GlucoCheckForm({super.key});
@@ -71,10 +72,6 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
           lingkarPinggang: double.parse(_lingkarPinggangController.text),
           tensiDarah: double.parse(_tensiController.text),
         );
-
-        // Kembali ke halaman sebelumnya setelah berhasil
-        Navigator.pop(context);
-        Navigator.pop(context);
       } catch (e) {
         print("Error submitting form: $e");
       } finally {
@@ -83,11 +80,11 @@ class _GlucoCheckFormState extends State<GlucoCheckForm> {
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Data Tidak Boleh Kosong. Harap lengkapi semua data."),
-          backgroundColor: Colors.red,
-        ),
+      CustomAlert.showMessageDialog(
+        context: context,
+        title: "Data Tidak Lengkap",
+        message: "Harap lengkapi semua data termasuk riwayat keluarga diabetes.",
+        isSuccess: false,
       );
     }
   }

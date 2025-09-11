@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
+import 'package:medical_app/page/UserProfile/kode_identitas.dart';
 import 'package:medical_app/services/auth_services.dart';
 
 class UserScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _UserScreenState extends State<UserScreen> {
     super.initState();
     _isMounted = true;
     userData = _loadProfileData();
+    initializeDateFormatting('id_ID', null);
   }
 
   Future<UserData?> _loadProfileData() async {
@@ -41,6 +44,30 @@ class _UserScreenState extends State<UserScreen> {
   void dispose() {
     _isMounted = false;
     super.dispose();
+  }
+
+  String _formatTanggal(String tanggalString) {
+    try {
+      DateTime tanggal = DateTime.parse(tanggalString);
+      List<String> namaBulan = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+      ];
+
+      return '${tanggal.day} ${namaBulan[tanggal.month - 1]} ${tanggal.year}';
+    } catch (e) {
+      return tanggalString;
+    }
   }
 
   bool isUserDataIncomplete(UserData user) {
@@ -203,7 +230,7 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7FBFA),
       appBar: AppBar(
         title: const Text(
           'Profile',
@@ -211,12 +238,13 @@ class _UserScreenState extends State<UserScreen> {
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
             fontSize: 35,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 0.5,
         leading: Padding(
           padding: const EdgeInsets.all(9.0),
           child: Container(
@@ -227,17 +255,54 @@ class _UserScreenState extends State<UserScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
+              onPressed: () =>
+                  Get.offAll(() => NavBottom(userData: widget.userData)),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,
                 size: 20,
               ),
-              onPressed: () {
-                Get.offAll(() => NavBottom(userData: widget.userData));
-              },
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(9.0),
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFF199A8E),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: IconButton(
+                onPressed: () async {
+                  UserData? currentUserData = await AuthServices().getProfile();
+                  if (currentUserData != null && _isMounted) {
+                    bool? isUpdated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfileScreen(userData: currentUserData),
+                      ),
+                    );
+
+                    if (isUpdated == true && _isMounted) {
+                      setState(() {
+                        userData = _loadProfileData();
+                      });
+                    }
+                  }
+                },
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: FutureBuilder<UserData?>(
@@ -256,7 +321,7 @@ class _UserScreenState extends State<UserScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FDFC),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -265,10 +330,6 @@ class _UserScreenState extends State<UserScreen> {
                           offset: const Offset(0, 4),
                         ),
                       ],
-                      border: Border.all(
-                        color: const Color(0xFFE8F3F1),
-                        width: 1.5,
-                      ),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -278,37 +339,24 @@ class _UserScreenState extends State<UserScreen> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF138075),
-                                  Color(0xFF199A8E),
-                                  Color(0xFF23B8A9),
-                                ],
-                                stops: [0.0, 0.5, 1.0],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: const Color(0xFFF8FDFC),
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      const Color(0xFF1DE9B6).withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                              border: Border.all(
+                                color: const Color(0xFFE8F3F1),
+                                width: 1.5,
+                              ),
                             ),
                             child: const Icon(
                               FontAwesomeIcons.exclamationCircle,
                               size: 32,
-                              color: Colors.white,
+                              color: Color(0xFF199A8E),
                             ),
                           ),
                           const SizedBox(height: 20),
                           const Text(
                             'Gagal Memuat Profil',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF199A8E),
                             ),
@@ -369,30 +417,52 @@ class _UserScreenState extends State<UserScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(user),
-          const SizedBox(height: 15),
+          _buildHealthHeader(user),
+          const SizedBox(height: 10),
           if (!isComplete) ...[
             _buildIncompleteDataCard(),
-            const SizedBox(height: 15),
+            const SizedBox(height: 16),
           ],
-          if (isComplete) ...[
-            _buildInfoCard(user),
-            const SizedBox(height: 15),
-          ],
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0, bottom: 8),
+            child: Text(
+              'Informasi Pribadi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF199A8E),
+              ),
+            ),
+          ),
+          _buildPersonalInfoCard(user),
+          const SizedBox(height: 10),
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0, bottom: 8),
+            child: Text(
+              'Pengaturan Akun',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF199A8E),
+              ),
+            ),
+          ),
+          _buildQuickAccessMenu(),
+          const SizedBox(height: 16),
           _buildActionButtons(context),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
         ],
       ),
     );
   }
 
-  Widget _buildIncompleteDataCard() {
+  Widget _buildHealthHeader(UserData user) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFF8FDFC),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -401,96 +471,137 @@ class _UserScreenState extends State<UserScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: const Color(0xFFE8F3F1),
-          width: 1.5,
-        ),
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF138075),
-                  Color(0xFF199A8E),
-                  Color(0xFF23B8A9),
-                ],
-                stops: [0.0, 0.5, 1.0],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF1DE9B6).withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+          Row(
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFE8F3F1),
+                      Color(0xFFD4ECE8),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            child: Icon(
-              FontAwesomeIcons.exclamationTriangle,
-              size: 24,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Data Tidak Lengkap',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF199A8E),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Mohon lengkapi data profil Anda untuk pengalaman yang lebih baik',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              height: 1.4,
-            ),
+                child: Center(
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFA0E7DE),
+                          Color(0xFF199A8E),
+                        ],
+                      ),
+                    ),
+                    child: const Icon(
+                      FontAwesomeIcons.userAlt,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.namaLengkap.isEmpty
+                          ? "Tidak ada data"
+                          : user.namaLengkap,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF199A8E),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(FontAwesomeIcons.idCard,
+                            size: 16, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            user.nik.isEmpty ? "Tidak ada data" : user.nik,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(FontAwesomeIcons.calendarCheck,
+                            size: 16, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            user.tanggalLahir!.isEmpty
+                                ? "Tidak ada data"
+                                : _formatTanggal(user.tanggalLahir!),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF199A8E),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const KodeIdentitasScreen(),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7FBFA),
+                borderRadius: BorderRadius.circular(12),
               ),
-              onPressed: () async {
-                UserData? currentUserData = await AuthServices().getProfile();
-                if (currentUserData != null && _isMounted) {
-                  bool? isUpdated = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          EditProfileScreen(userData: currentUserData),
+              child: Row(
+                children: const [
+                  Icon(FontAwesomeIcons.qrcode,
+                      color: Color(0xFF199A8E), size: 20),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Kode Identitas",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF199A8E),
+                      ),
                     ),
-                  );
-
-                  if (isUpdated == true && _isMounted) {
-                    setState(() {
-                      userData = _loadProfileData();
-                    });
-                  }
-                }
-              },
-              child: const Text(
-                'Lengkapi Data',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                  ),
+                  Icon(Icons.chevron_right, color: Colors.grey),
+                ],
               ),
             ),
           ),
@@ -499,190 +610,151 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildProfileHeader(UserData userData) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFE8F3F1),
-                Color(0xFFD4ECE8),
-              ],
-            ),
-          ),
-          child: CircleAvatar(
-            radius: 60,
-            backgroundColor: Colors.transparent,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFFA0E7DE),
-                        Color(0xFF199A8E),
-                      ],
-                    ),
-                  ),
-                ),
-                // Icon with shine effect
-                ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white,
-                        Colors.white70,
-                      ],
-                    ).createShader(bounds);
-                  },
-                  child: const Icon(
-                    FontAwesomeIcons.userAlt,
-                    color: Colors.white,
-                    size: 55,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          userData.namaLengkap.isEmpty
-              ? "Tidak ada data"
-              : userData.namaLengkap,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF199A8E),
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          userData.nik.isEmpty ? "Tidak ada data" : userData.nik,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF101623),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoCard(UserData user) {
+  Widget _buildIncompleteDataCard() {
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFE8F3F1),
-            Color(0xFFF0F9F7),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFFEF3C7),
+          width: 1.5,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Email Section
-            _buildEnhancedInfoItem(
-              icon: FontAwesomeIcons.solidEnvelope,
-              title: "Email",
-              value: user.email.isEmpty ? "Tidak ada data" : user.email,
-              iconColor: const Color(0xFF199A8E),
-              iconBackground: const Color(0xFFD4ECE8),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF59E0B),
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 12),
-            // Divider with decoration
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    const Color(0xFF199A8E).withOpacity(0.5),
-                    Colors.transparent,
-                  ],
+            child: const Icon(
+              FontAwesomeIcons.exclamationTriangle,
+              size: 18,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Data Tidak Lengkap',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF92400E),
+                  ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  'Lengkapi profil untuk pengalaman terbaik',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              UserData? currentUserData = await AuthServices().getProfile();
+              if (currentUserData != null && _isMounted) {
+                bool? isUpdated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditProfileScreen(userData: currentUserData),
+                  ),
+                );
+
+                if (isUpdated == true && _isMounted) {
+                  setState(() {
+                    userData = _loadProfileData();
+                  });
+                }
+              }
+            },
+            child: const Text(
+              'Lengkapi',
+              style: TextStyle(
+                color: Color(0xFF199A8E),
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 12),
-            // Phone Section
-            _buildEnhancedInfoItem(
-              icon: FontAwesomeIcons.phoneAlt,
-              title: "Nomor HP",
-              value: user.nomorTelepon ?? "Tidak ada data",
-              iconColor: const Color(0xFF199A8E),
-              iconBackground: const Color(0xFFD4ECE8),
-            ),
-            const SizedBox(height: 12),
-            // Divider with decoration
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    const Color(0xFF199A8E).withOpacity(0.5),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            // Address Section
-            _buildEnhancedInfoItem(
-              icon: FontAwesomeIcons.mapMarkerAlt,
-              title: "Alamat",
-              value: user.alamatLengkap ?? "Tidak ada data",
-              iconColor: const Color(0xFF199A8E),
-              iconBackground: const Color(0xFFD4ECE8),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEnhancedInfoItem({
+  Widget _buildPersonalInfoCard(UserData user) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildInfoItem(
+            icon: FontAwesomeIcons.solidEnvelope,
+            title: "Email",
+            value: user.email.isEmpty ? "Tidak ada data" : user.email,
+          ),
+          const Divider(height: 24, color: Color(0xFFE8F3F1)),
+          _buildInfoItem(
+            icon: FontAwesomeIcons.phoneAlt,
+            title: "Nomor Telepon",
+            value: user.nomorTelepon ?? "Tidak ada data",
+          ),
+          const Divider(height: 24, color: Color(0xFFE8F3F1)),
+          _buildInfoItem(
+            icon: FontAwesomeIcons.mapMarkerAlt,
+            title: "Alamat",
+            value: user.alamatLengkap ?? "Tidak ada data",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
     required IconData icon,
     required String title,
     required String value,
-    required Color iconColor,
-    required Color iconBackground,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Icon with background
         Container(
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
-            color: iconBackground,
-            shape: BoxShape.circle,
+            color: const Color(0xFFE8F3F1),
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Center(
             child: Icon(
               icon,
-              size: 18,
-              color: iconColor,
+              size: 16,
+              color: const Color(0xFF199A8E),
             ),
           ),
         ),
         const SizedBox(width: 12),
-        // Text content
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -691,7 +763,7 @@ class _UserScreenState extends State<UserScreen> {
                 title,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF57636C),
+                  color: Colors.grey,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -699,7 +771,7 @@ class _UserScreenState extends State<UserScreen> {
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: Color(0xFF101623),
                   fontWeight: FontWeight.w600,
                 ),
@@ -711,82 +783,132 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
-    return Column(
-      children: [
-        _buildButton(
-          icon: FontAwesomeIcons.penToSquare,
-          text: 'Edit Profil',
-          onTap: () async {
-            UserData? currentUserData = await AuthServices().getProfile();
-            if (currentUserData != null && _isMounted) {
-              bool? isUpdated = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      EditProfileScreen(userData: currentUserData),
-                ),
-              );
+  Widget _buildQuickAccessMenu() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildMenuButton(
+            icon: FontAwesomeIcons.userGear,
+            title: 'Edit Profile',
+            onTap: () async {
+              UserData? currentUserData = await AuthServices().getProfile();
+              if (currentUserData != null && _isMounted) {
+                bool? isUpdated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditProfileScreen(userData: currentUserData),
+                  ),
+                );
 
-              if (isUpdated == true && _isMounted) {
-                setState(() {
-                  userData = _loadProfileData();
-                });
+                if (isUpdated == true && _isMounted) {
+                  setState(() {
+                    userData = _loadProfileData();
+                  });
+                }
               }
-            }
-          },
-        ),
-        const SizedBox(height: 10),
-        _buildLogoutButton(context),
-      ],
+            },
+          ),
+          const Divider(height: 24, color: Color(0xFFE8F3F1)),
+          _buildMenuButton(
+            icon: FontAwesomeIcons.key,
+            title: 'Reset Password',
+            onTap: () {},
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildButton({
+  Widget _buildMenuButton({
     required IconData icon,
-    required String text,
+    required String title,
     required VoidCallback onTap,
   }) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: const Color(0xFF199A8E),
-          foregroundColor: Colors.white,
-        ),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon),
-            const SizedBox(width: 10),
-            Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F3F1),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: 16,
+                  color: const Color(0xFF199A8E),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF101623),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.grey,
+              size: 20,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => _showLogoutConfirmation(context),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          side: const BorderSide(color: Color(0xFF199A8E), width: 2),
+  Widget _buildActionButtons(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _showLogoutConfirmation(context),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              side: const BorderSide(color: Color(0xFF199A8E), width: 1.5),
+            ),
+            icon: const Icon(
+              FontAwesomeIcons.signOutAlt,
+              size: 18,
+              color: Color(0xFF199A8E),
+            ),
+            label: const Text(
+              'Keluar',
+              style: TextStyle(
+                color: Color(0xFF199A8E),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
         ),
-        child: const Text(
-          'Logout',
-          style:
-              TextStyle(color: Color(0xFF199A8E), fontWeight: FontWeight.bold),
-        ),
-      ),
+      ],
     );
   }
 }

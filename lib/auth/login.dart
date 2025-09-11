@@ -276,13 +276,13 @@ class _LoginScreenState extends State<LoginScreen> {
             String password = _passwordController.text;
 
             if (email.isEmpty && password.isEmpty) {
-              _showCustomAlert(context, "Email dan password tidak boleh kosong", "error");
+              _showLoginAlert(context, "Peringatan", "Email dan password tidak boleh kosong", false);
               return;
             } else if (email.isEmpty) {
-              _showCustomAlert(context, "Email tidak boleh kosong", "error");
+              _showLoginAlert(context, "Peringatan", "Email tidak boleh kosong", false);
               return;
             } else if (password.isEmpty) {
-              _showCustomAlert(context, "Password tidak boleh kosong", "error");
+              _showLoginAlert(context, "Peringatan", "Password tidak boleh kosong", false);
               return;
             }
             
@@ -302,33 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _showCustomAlert(BuildContext context, String message, String type) {
-    Color backgroundColor;
-    IconData iconData;
-    Color iconColor;
-
-    switch (type) {
-      case "error":
-        backgroundColor = Colors.red.shade50;
-        iconData = Icons.error_outline;
-        iconColor = Colors.red;
-        break;
-      case "success":
-        backgroundColor = Colors.green.shade50;
-        iconData = Icons.check_circle_outline;
-        iconColor = Colors.green;
-        break;
-      case "warning":
-        backgroundColor = Colors.orange.shade50;
-        iconData = Icons.warning_amber_outlined;
-        iconColor = Colors.orange;
-        break;
-      default:
-        backgroundColor = Colors.blue.shade50;
-        iconData = Icons.info_outline;
-        iconColor = Colors.blue;
-    }
-
+  void _showLoginAlert(BuildContext context, String title, String message, bool isSuccess) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -339,24 +313,24 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             padding: const EdgeInsets.all(20.0),
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20.0),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  iconData,
+                  isSuccess ? Icons.check_circle : Icons.warning_rounded,
+                  color: isSuccess ? const Color(0xFF199A8E) : Colors.amber,
                   size: 60,
-                  color: iconColor,
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  "Pesan",
-                  style: TextStyle(
+                  title,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: iconColor,
+                    color: Color(0xFF199A8E),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -368,20 +342,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF199A8E),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "OK",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

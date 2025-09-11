@@ -8,7 +8,6 @@ class EdukasiServices {
   static const String _errorGetEdukasi = 'Gagal mengambil data edukasi';
   static const String _errorDefault = 'Terjadi kesalahan';
 
-  // Custom Error Dialog
   static void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
