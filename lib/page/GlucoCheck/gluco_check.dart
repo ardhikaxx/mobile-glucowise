@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/GlucoCheck/all_check.dart';
+import 'package:medical_app/page/GlucoCheck/detail_check.dart';
 import 'package:medical_app/page/GlucoCheck/form_check.dart';
 import 'package:medical_app/services/check_services.dart';
 import 'package:medical_app/components/navbottom.dart';
@@ -293,12 +294,10 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                 : (status == "Rendah" ? Colors.green : Colors.grey));
 
         final statusIcon = status == "Tinggi"
-          ? Iconsax.danger
-          : (status == "Sedang"
-              ? Iconsax.warning_2
-              : (status == "Rendah"
-                  ? Iconsax.tick_circle
-                  : Iconsax.clock));
+            ? Iconsax.danger
+            : (status == "Sedang"
+                ? Iconsax.warning_2
+                : (status == "Rendah" ? Iconsax.tick_circle : Iconsax.clock));
 
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
@@ -436,10 +435,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
-
-                // Riwayat Keluarga
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -606,7 +602,17 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
 
           return InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GlucoCheckDetailScreen(
+                    checkData: data,
+                    userData: widget.userData,
+                  ),
+                ),
+              );
+            },
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
