@@ -29,6 +29,12 @@ class _UserScreenState extends State<UserScreen> {
     initializeDateFormatting('id_ID', null);
   }
 
+  String _formatNIK(String nik) {
+    if (nik.length != 16) return '**********';
+
+    return '${nik.substring(0, 3)}**********${nik.substring(13)}';
+  }
+
   Future<UserData?> _loadProfileData() async {
     try {
       await Future.delayed(const Duration(seconds: 2));
@@ -482,34 +488,26 @@ class _UserScreenState extends State<UserScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF199A8E),
+                      Color(0xFF23B8A9),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFE8F3F1),
-                      Color(0xFFD4ECE8),
-                    ],
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(2, 2),
+                    ),
+                  ],
                 ),
-                child: Center(
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFA0E7DE),
-                          Color(0xFF199A8E),
-                        ],
-                      ),
-                    ),
-                    child: const Icon(
-                      FontAwesomeIcons.userAlt,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                child: const Center(
+                  child: Icon(
+                    FontAwesomeIcons.solidUser,
+                    size: 32,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -531,12 +529,14 @@ class _UserScreenState extends State<UserScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(FontAwesomeIcons.idCard,
-                            size: 16, color: Colors.grey),
-                        const SizedBox(width: 8),
+                        const Icon(FontAwesomeIcons.phone,
+                            size: 14, color: Colors.grey),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            user.nik.isEmpty ? "Tidak ada data" : user.nik,
+                            user.nomorTelepon!.isEmpty
+                                ? "Tidak ada data"
+                                : user.nomorTelepon!,
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -548,14 +548,13 @@ class _UserScreenState extends State<UserScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(FontAwesomeIcons.calendarCheck,
-                            size: 16, color: Colors.grey),
-                        const SizedBox(width: 8),
+                        const Icon(FontAwesomeIcons.idCardClip,
+                            size: 14, color: Colors.grey),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            user.tanggalLahir!.isEmpty
-                                ? "Tidak ada data"
-                                : _formatTanggal(user.tanggalLahir!),
+                            _formatNIK(
+                                user.nik.isEmpty ? "Tidak ada data" : user.nik),
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -716,13 +715,15 @@ class _UserScreenState extends State<UserScreen> {
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildInfoItem(
-            icon: FontAwesomeIcons.phoneAlt,
-            title: "Nomor Telepon",
-            value: user.nomorTelepon ?? "Tidak ada data",
+            icon: FontAwesomeIcons.birthdayCake,
+            title: "Tempat & Tanggal Lahir",
+            value: user.tanggalLahir != null && user.tanggalLahir!.isNotEmpty
+                ? "${user.tempatLahir ?? 'Tidak ada data'}, ${_formatTanggal(user.tanggalLahir!)}"
+                : "Tidak ada data",
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildInfoItem(
-            icon: FontAwesomeIcons.mapMarkerAlt,
+            icon: FontAwesomeIcons.locationDot,
             title: "Alamat",
             value: user.alamatLengkap ?? "Tidak ada data",
           ),
@@ -737,7 +738,8 @@ class _UserScreenState extends State<UserScreen> {
     required String value,
   }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           width: 36,

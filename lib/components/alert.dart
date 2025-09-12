@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart'; // Import iconsax
 
 class CustomAlert {
   static void showConfirmDialog({
@@ -26,7 +27,7 @@ class CustomAlert {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.warning_rounded,
+                  Iconsax.warning_2, // Iconsax warning icon
                   color: Colors.amber,
                   size: 60,
                 ),
@@ -103,7 +104,7 @@ class CustomAlert {
     );
   }
 
-  // Alert dialog pesan biasa - DIUBAH
+  // Alert dialog pesan biasa - DIUBAH dengan Iconsax animated
   static void showMessageDialog({
     required BuildContext context,
     required String title,
@@ -128,11 +129,18 @@ class CustomAlert {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
-                  color: isSuccess ? const Color(0xFF199A8E) : Colors.red,
-                  size: 60,
-                ),
+                // Menggunakan Iconsax animated icons
+                isSuccess 
+                  ? const Icon(
+                      Iconsax.tick_circle,
+                      color: Color(0xFF199A8E),
+                      size: 60,
+                    )
+                  : const Icon(
+                      Iconsax.close_circle,
+                      color: Colors.red,
+                      size: 60,
+                    ),
                 const SizedBox(height: 15),
                 Text(
                   title,
@@ -182,7 +190,7 @@ class CustomAlert {
     );
   }
 
-  // Alert dialog dengan custom content - DIUBAH
+  // Alert dialog dengan custom content - DIUBAH dengan Iconsax animated
   static void showCustomDialog({
     required BuildContext context,
     required Widget content,
@@ -207,6 +215,12 @@ class CustomAlert {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (title != null) ...[
+                const Icon(
+                  Iconsax.info_circle, // Iconsax info icon animated
+                  color: Color(0xFF199A8E),
+                  size: 50,
+                ),
+                const SizedBox(height: 10),
                 Text(
                   title,
                   style: const TextStyle(

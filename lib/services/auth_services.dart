@@ -9,6 +9,7 @@ import 'package:medical_app/utils/session_manager.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/services/connect.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:iconsax/iconsax.dart';
 
 class AuthServices {
   static String? _nik;
@@ -35,7 +36,7 @@ class AuthServices {
           _showLoginAlert(
             context, 
             "Login Berhasil", 
-            "${userResponse.message}\nSelamat Datang, ${userResponse.user.namaLengkap}!", 
+            "Selamat Datang, ${userResponse.user.namaLengkap}!", 
             true,
             onConfirm: () {
               Get.off(() => NavBottom(userData: userResponse.user));
@@ -260,7 +261,7 @@ class AuthServices {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  isSuccess ? Icons.check_circle : Icons.warning_rounded,
+                  isSuccess ? Iconsax.tick_circle : Iconsax.warning_2,
                   color: isSuccess ? const Color(0xFF199A8E) : Colors.amber,
                   size: 60,
                 ),

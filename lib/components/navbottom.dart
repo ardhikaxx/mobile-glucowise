@@ -32,22 +32,22 @@ class NavBottom extends StatelessWidget {
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.heartbeat,
           title: "Screening",
-          page: GlucoScreeningScreen(userData: userData),  // Kirim userData ke GlucoScreening
+          page: GlucoScreeningScreen(userData: userData),
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.kitMedical,
           title: "GlucoCheck",
-          page: GlucoCheckScreen(userData: userData),  // Kirim userData ke GlucoCheck
+          page: GlucoCheckScreen(userData: userData),
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.pills,
           title: "GlucoCare",
-          page: GlucoCareScreen(userData: userData),  // Kirim userData ke GlucoCare
+          page: GlucoCareScreen(userData: userData),
         ),
         FloatingNavBarItem(
           iconData: FontAwesomeIcons.user,
           title: "User",
-          page: UserScreen(userData: userData),  // Kirim userData ke UserScreen
+          page: UserScreen(userData: userData),
         ),
       ],
     );

@@ -136,7 +136,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               statusData?['kategori_risiko'] ?? 'Dalam proses',
                         )
                       : const CardNoData(),
-                      SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
             ],
           ),
         ),
@@ -420,6 +420,12 @@ class UserIntro extends StatelessWidget {
 
   const UserIntro({super.key, required this.userData});
 
+  String _formatNIK(String nik) {
+    if (nik.length != 16) return '**********';
+
+    return '${nik.substring(0, 3)}**********${nik.substring(13)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -428,37 +434,8 @@ class UserIntro extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF199A8E),
-                      Color(0xFF23B8A9),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(2, 2),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(
-                    FontAwesomeIcons.idCard,
-                    size: 22,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,7 +462,7 @@ class UserIntro extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    userData.nik,
+                    _formatNIK(userData.nik),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -493,6 +470,35 @@ class UserIntro extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFF199A8E),
+                      Color(0xFF23B8A9),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(2, 2),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(
+                    FontAwesomeIcons.solidUser,
+                    size: 22,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           )
@@ -727,7 +733,8 @@ class CardGlucoInfo extends StatelessWidget {
               const SizedBox(height: 12),
               _buildGlucoseSection(statusColor, glucoseLevel),
               const SizedBox(height: 12),
-              _buildVitalStatsSection(bloodPressure, height, weight, bmi, bmiStatus),
+              _buildVitalStatsSection(
+                  bloodPressure, height, weight, bmi, bmiStatus),
             ],
           ),
         ),

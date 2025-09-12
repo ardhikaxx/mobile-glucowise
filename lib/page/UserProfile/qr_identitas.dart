@@ -78,7 +78,6 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
 
   Future<bool> _requestPermissions() async {
     if (Platform.isAndroid) {
-      // Untuk Android, meminta izin penyimpanan
       final status = await Permission.storage.status;
       if (status.isDenied) {
         final result = await Permission.storage.request();
@@ -86,7 +85,6 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
       }
       return status.isGranted;
     } else if (Platform.isIOS) {
-      // Untuk iOS, meminta izin gallery (photos)
       final status = await Permission.photos.status;
       if (status.isDenied) {
         final result = await Permission.photos.request();
@@ -97,7 +95,6 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
     return false;
   }
 
-  // Method 1: Using photo_manager package
   Future<void> _downloadQrCodeWithPhotoManager() async {
     if (_isGenerating) return;
 
@@ -106,31 +103,27 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
     });
 
     try {
-      // Meminta izin sebelum menyimpan
       final hasPermission = await _requestPermissions();
       if (!hasPermission) {
-        throw Exception('Izin akses penyimpanan ditolak. Silakan berikan izin melalui pengaturan perangkat.');
+        throw Exception(
+            'Izin akses penyimpanan ditolak. Silakan berikan izin melalui pengaturan perangkat.');
       }
 
       final imageBytes = await _captureQrImage();
       if (imageBytes == null) {
         throw Exception('Gagal menghasilkan gambar QR code');
       }
-
-      // Membuat file sementara
       final tempDir = await getTemporaryDirectory();
       final userData = await _userDataFuture;
-      final fileName = 'glucoid_${userData?.namaLengkap.replaceAll(' ', '_') ?? 'user'}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final fileName =
+          'glucoid_${userData?.namaLengkap.replaceAll(' ', '_') ?? 'user'}_${DateTime.now().millisecondsSinceEpoch}.png';
       final tempFile = File('${tempDir.path}/$fileName');
       await tempFile.writeAsBytes(imageBytes);
-
-      // Menyimpan ke gallery menggunakan photo_manager
       final AssetEntity? asset = await PhotoManager.editor.saveImage(
         imageBytes,
-        title: fileName, filename: '',
+        title: fileName,
+        filename: '',
       );
-
-      // Hapus file sementara
       if (tempFile.existsSync()) {
         tempFile.deleteSync();
       }
@@ -152,7 +145,7 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text(e.toString()),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -167,9 +160,7 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
     }
   }
 
-  // Main download function that uses the preferred method
   Future<void> _downloadQrCode() async {
-    // Use photo_manager method by default
     await _downloadQrCodeWithPhotoManager();
   }
 
@@ -186,16 +177,15 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
         throw Exception('Failed to generate QR code image');
       }
 
-      // Create temporary file with user's full name
       final tempDir = await getTemporaryDirectory();
-      final fileName = 'glucoid_${user.namaLengkap.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final fileName =
+          'glucoid_${user.namaLengkap.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(imageBytes);
-
-      // Share file with user's full name
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'GlucoID - Identitas Digital ${user.namaLengkap}\n\nQR Code ini berisi informasi identitas untuk keperluan pelayanan medis.',
+        text:
+            'GlucoID - Identitas Digital ${user.namaLengkap}\n\nQR Code ini berisi informasi identitas untuk keperluan pelayanan medis.',
         subject: 'GlucoID - ${user.namaLengkap}',
       );
 
@@ -237,19 +227,19 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
         throw Exception('Failed to generate QR code image');
       }
 
-      // Create temporary file with user's full name
       final tempDir = await getTemporaryDirectory();
-      final fileName = 'glucoid_${user.namaLengkap.replaceAll(' ', '_')}_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png';
+      final fileName =
+          'glucoid_${user.namaLengkap.replaceAll(' ', '_')}_whatsapp_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(imageBytes);
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: 'GlucoID - Identitas Digital ${user.namaLengkap}\n\nQR Code ini berisi informasi identitas untuk keperluan pelayanan medis.',
+        text:
+            'GlucoID - Identitas Digital ${user.namaLengkap}\n\nQR Code ini berisi informasi identitas untuk keperluan pelayanan medis.',
         subject: 'GlucoID - ${user.namaLengkap}',
       );
 
-      // Clean up temporary file after a delay
       Future.delayed(const Duration(seconds: 30), () {
         if (file.existsSync()) {
           file.deleteSync();
@@ -277,50 +267,209 @@ class _DigitalIDScreenState extends State<DigitalIDScreen> {
   void _showShareOptions(UserData user) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.qr_code_2, color: Color(0xFF199A8E)),
-                title: const Text('Download QR Code'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _downloadQrCode();
-                },
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24.0),
+                topRight: Radius.circular(24.0),
               ),
-              ListTile(
-                leading:
-                    const Icon(Icons.share_rounded, color: Color(0xFF199A8E)),
-                title: const Text('Bagikan ke Media Sosial'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _shareQrCode(user);
-                },
-              ),
-              ListTile(
-                leading:
-                    const Icon(FontAwesomeIcons.whatsapp, color: Colors.green),
-                title: const Text('Bagikan ke WhatsApp'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _shareToWhatsApp(user);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy_all_rounded,
-                    color: Color(0xFF199A8E)),
-                title: const Text('Salin Data sebagai Teks'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _copyUserData(user);
-                },
-              ),
-            ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header section
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24.0),
+                      topRight: Radius.circular(24.0),
+                    ),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Title
+                Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 16, left: 24, right: 24),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Bagikan GlucoID',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Options list
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      _buildOptionTile(
+                        icon: Icons.qr_code_2,
+                        iconColor: const Color(0xFF199A8E),
+                        title: 'Download QR Code',
+                        subtitle: 'Simpan QR code ke galeri',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _downloadQrCode();
+                        },
+                      ),
+                      _buildOptionTile(
+                        icon: Icons.share_rounded,
+                        iconColor: const Color(0xFF199A8E),
+                        title: 'Bagikan ke Media Sosial',
+                        subtitle: 'Bagikan ke berbagai platform',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _shareQrCode(user);
+                        },
+                      ),
+                      _buildOptionTile(
+                        icon: FontAwesomeIcons.whatsapp,
+                        iconColor: Colors.green,
+                        title: 'Bagikan ke WhatsApp',
+                        subtitle: 'Kirim langsung ke WhatsApp',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _shareToWhatsApp(user);
+                        },
+                      ),
+                      _buildOptionTile(
+                        icon: Icons.copy_all_rounded,
+                        iconColor: const Color(0xFF199A8E),
+                        title: 'Salin Data sebagai Teks',
+                        subtitle: 'Salin ke clipboard',
+                        onTap: () {
+                          Navigator.pop(context);
+                          _copyUserData(user);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Cancel button
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.grey[100],
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Batal',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildOptionTile({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Icon container
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              // Text content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Chevron icon
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.grey[400],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
