@@ -506,61 +506,60 @@ class _UserScreenState extends State<UserScreen> {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  UserData? currentUserData = await AuthServices().getProfile();
-                  if (currentUserData != null && _isMounted) {
-                    bool? isUpdated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EditProfileScreen(userData: currentUserData),
-                      ),
-                    );
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    UserData? currentUserData =
+                        await AuthServices().getProfile();
+                    if (currentUserData != null && _isMounted) {
+                      bool? isUpdated = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EditProfileScreen(userData: currentUserData),
+                        ),
+                      );
 
-                    if (isUpdated == true && _isMounted) {
-                      setState(() {
-                        userData = _loadProfileData();
-                      });
+                      if (isUpdated == true && _isMounted) {
+                        setState(() {
+                          userData = _loadProfileData();
+                        });
+                      }
                     }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: const CircleBorder(),
-                ),
-                child: Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF199A8E),
-                        Color(0xFF23B8A9),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
-                        offset: const Offset(2, 2),
+                  },
+                  borderRadius: BorderRadius.circular(30),
+                  child: Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF199A8E),
+                          Color(0xFF23B8A9),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      FontAwesomeIcons.pencil,
-                      size: 20,
-                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 6,
+                          offset: const Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        FontAwesomeIcons.pencil,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 12),
