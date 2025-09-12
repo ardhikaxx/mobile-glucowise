@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:medical_app/services/check_services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -34,21 +35,315 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
       if (dateString.contains(RegExp(r'[a-zA-Z]'))) {
         return dateString;
       }
-      
+
       // Parse tanggal
       DateTime dateTime = DateTime.parse(dateString);
-      
+
       // Format manual ke bahasa Indonesia
       List<String> bulan = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
       ];
-      
+
       return '${dateTime.day} ${bulan[dateTime.month - 1]} ${dateTime.year}';
     } catch (e) {
       print("Error formatting date: $e");
       return dateString; // Return original string jika parsing gagal
     }
+  }
+
+  // Fungsi untuk membangun card data terbaru (diambil dari gluco_check.dart)
+  Widget _buildLatestDataCard(Map<String, dynamic> data) {
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: CheckServices.getStatusRisiko(context, data["id_data"]),
+      builder: (context, snapshot) {
+        final statusData = snapshot.data;
+        final status = statusData?["kategori_risiko"] ?? "Loading";
+        final statusColor = status == "Tinggi"
+            ? Colors.red
+            : (status == "Sedang"
+                ? Colors.orange
+                : (status == "Rendah" ? Colors.green : Colors.grey));
+
+        final statusIcon = status == "Tinggi"
+            ? Iconsax.danger
+            : (status == "Sedang"
+                ? Iconsax.warning_2
+                : (status == "Rendah" ? Iconsax.tick_circle : Iconsax.clock));
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Color(0xFFE8F5F4),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF199A8E).withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF199A8E).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            FontAwesomeIcons.calendarDay,
+                            color: Color(0xFF199A8E),
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          _formatTanggal(data["tanggal_pemeriksaan"]),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF199A8E),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            statusIcon,
+                            size: 16,
+                            color: statusColor,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: statusColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF199A8E).withOpacity(0.2),
+                        const Color(0xFF199A8E).withOpacity(0.1),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 2.8,
+                  children: [
+                    _buildInfoCard(
+                      FontAwesomeIcons.ruler,
+                      "${data["tinggi_badan"]} cm",
+                      "Tinggi Badan",
+                      const Color(0xFF199A8E),
+                    ),
+                    _buildInfoCard(
+                      FontAwesomeIcons.weightScale,
+                      "${data["berat_badan"]} kg",
+                      "Berat Badan",
+                      const Color(0xFF199A8E),
+                    ),
+                    _buildInfoCard(
+                      FontAwesomeIcons.droplet,
+                      "${data["gula_darah"]} mg/dL",
+                      "Gula Darah",
+                      const Color(0xFF199A8E),
+                    ),
+                    _buildInfoCard(
+                      FontAwesomeIcons.heartPulse,
+                      data["tensi_darah"].toString(),
+                      "Tensi Darah",
+                      const Color(0xFF199A8E),
+                    ),
+                    _buildInfoCard(
+                      FontAwesomeIcons.rulerCombined,
+                      "${data["lingkar_pinggang"]} cm",
+                      "Lingkar Pinggang",
+                      const Color(0xFF199A8E),
+                    ),
+                    _buildInfoCard(
+                      FontAwesomeIcons.userClock,
+                      "${data["umur"]} tahun",
+                      "Umur",
+                      const Color(0xFF199A8E),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Riwayat Keluarga
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF199A8E).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          FontAwesomeIcons.userGroup,
+                          color: Color(0xFF199A8E),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Riwayat Keluarga",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            Text(
+                              data["riwayat_keluarga_diabetes"],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF199A8E),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Fungsi untuk membangun info card (diambil dari gluco_check.dart)
+  Widget _buildInfoCard(
+      IconData icon, String value, String label, Color color) {
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -102,223 +397,17 @@ class _AllCheckScreenState extends State<AllCheckScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
                     itemCount: widget.checkData.length,
                     itemBuilder: (context, index) {
                       final data = widget.checkData[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          elevation: 5,
-                          shadowColor: Colors.black.withOpacity(0.2),
-                          color: const Color(0xFFE8F3F1),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Tanggal dan Ikon Kalender
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(FontAwesomeIcons.calendarDay,
-                                            color: Color(0xFF199A8E)),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _formatTanggal(data["tanggal_pemeriksaan"]),
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const Icon(FontAwesomeIcons.fileMedical,
-                                        color: Color(0xFF199A8E)),
-                                  ],
-                                ),
-                                const Divider(
-                                  color: Color(0xFF199A8E),
-                                  thickness: 0.8,
-                                  height: 15,
-                                ),
-                                const SizedBox(height: 5),
-
-                                GridView.count(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                  childAspectRatio: 2.5,
-                                  children: [
-                                    _infoItem(
-                                        FontAwesomeIcons.ruler,
-                                        "${data["tinggi_badan"]} cm",
-                                        "Tinggi Badan"),
-                                    _infoItem(
-                                        FontAwesomeIcons.weightScale,
-                                        "${data["berat_badan"]} kg",
-                                        "Berat Badan"),
-                                    _infoItem(
-                                        FontAwesomeIcons.droplet,
-                                        "${data["gula_darah"]} mg/dL",
-                                        "Gula Darah"),
-                                    _infoItem(
-                                        FontAwesomeIcons.heartPulse,
-                                        data["tensi_darah"].toString(),
-                                        "Tensi"),
-                                    _infoItem(
-                                        FontAwesomeIcons.ruler,
-                                        "${data["lingkar_pinggang"]} cm",
-                                        "Lingkar Pinggang"),
-                                    _infoItem(FontAwesomeIcons.userClock,
-                                        "${data["umur"]} tahun", "Umur"),
-                                    _infoItem(
-                                        FontAwesomeIcons.userGroup,
-                                        data["riwayat_keluarga_diabetes"],
-                                        "Riwayat Keluarga"),
-                                    FutureBuilder<Map<String, dynamic>?>(
-                                      future: CheckServices.getStatusRisiko(
-                                          context, data["id_data"]),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return const Center(
-                                              child: CircularProgressIndicator(
-                                            color: Color(0xFF199A8E),
-                                            strokeWidth: 2,
-                                          ));
-                                        } else if (snapshot.hasError) {
-                                          return const Center(
-                                              child: Text("Error"));
-                                        } else if (!snapshot.hasData) {
-                                          return const Center(
-                                              child: Text("No data"));
-                                        }
-
-                                        final status = snapshot.data!;
-                                        final statusColor = status[
-                                                    "kategori_risiko"] ==
-                                                "Tinggi"
-                                            ? Colors.red
-                                            : (status["kategori_risiko"] ==
-                                                    "Sedang"
-                                                ? Colors.orange
-                                                : (status["kategori_risiko"] ==
-                                                        "Rendah"
-                                                    ? Colors.green
-                                                    : Colors.grey));
-
-                                        return Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF9FAFB),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12, horizontal: 12),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                status[
-                                                            "kategori_risiko"] ==
-                                                        "Tinggi"
-                                                    ? FontAwesomeIcons
-                                                        .solidFaceFrown
-                                                    : (status["kategori_risiko"] ==
-                                                            "Sedang"
-                                                        ? FontAwesomeIcons
-                                                            .faceMeh
-                                                        : (status["kategori_risiko"] ==
-                                                                "Rendah"
-                                                            ? FontAwesomeIcons
-                                                                .solidFaceSmile
-                                                            : FontAwesomeIcons
-                                                                .clock)),
-                                                color: statusColor,
-                                                size: 22,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const Text(
-                                                    "Status Risiko",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black87),
-                                                  ),
-                                                  Text(
-                                                    status["kategori_risiko"],
-                                                    style: TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: statusColor,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: _buildLatestDataCard(data),
                       );
                     },
                   ),
-      ),
-    );
-  }
-
-  Widget _infoItem(IconData icon, String value, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: const Color(0xFF199A8E), size: 22),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                value,
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                label,
-                style: const TextStyle(fontSize: 12, color: Colors.black87),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
