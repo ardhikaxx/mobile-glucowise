@@ -3,7 +3,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
 import 'package:medical_app/page/UserProfile/qr_identitas.dart';
@@ -250,65 +249,6 @@ class _UserScreenState extends State<UserScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: Padding(
-          padding: const EdgeInsets.all(9.0),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF199A8E),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: () =>
-                  Get.offAll(() => NavBottom(userData: widget.userData)),
-              icon: const Icon(
-                FontAwesomeIcons.chevronLeft,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(9.0),
-            child: Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFF199A8E),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: IconButton(
-                onPressed: () async {
-                  UserData? currentUserData = await AuthServices().getProfile();
-                  if (currentUserData != null && _isMounted) {
-                    bool? isUpdated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EditProfileScreen(userData: currentUserData),
-                      ),
-                    );
-
-                    if (isUpdated == true && _isMounted) {
-                      setState(() {
-                        userData = _loadProfileData();
-                      });
-                    }
-                  }
-                },
-                icon: const Icon(
-                  Icons.settings_outlined,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: FutureBuilder<UserData?>(
@@ -511,7 +451,7 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,7 +461,7 @@ class _UserScreenState extends State<UserScreen> {
                           ? "Tidak ada data"
                           : user.namaLengkap,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF199A8E),
                       ),
@@ -530,7 +470,7 @@ class _UserScreenState extends State<UserScreen> {
                     Row(
                       children: [
                         const Icon(FontAwesomeIcons.phone,
-                            size: 14, color: Colors.grey),
+                            size: 16, color: Colors.grey),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -538,7 +478,7 @@ class _UserScreenState extends State<UserScreen> {
                                 ? "Tidak ada data"
                                 : user.nomorTelepon!,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
                               color: Colors.grey,
                             ),
                           ),
@@ -548,15 +488,15 @@ class _UserScreenState extends State<UserScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(FontAwesomeIcons.idCardClip,
-                            size: 14, color: Colors.grey),
+                        const Icon(FontAwesomeIcons.creditCardAlt,
+                            size: 16, color: Colors.grey),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _formatNIK(
                                 user.nik.isEmpty ? "Tidak ada data" : user.nik),
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
                               color: Colors.grey,
                             ),
                           ),
@@ -566,6 +506,61 @@ class _UserScreenState extends State<UserScreen> {
                   ],
                 ),
               ),
+              ElevatedButton(
+                onPressed: () async {
+                  UserData? currentUserData = await AuthServices().getProfile();
+                  if (currentUserData != null && _isMounted) {
+                    bool? isUpdated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfileScreen(userData: currentUserData),
+                      ),
+                    );
+
+                    if (isUpdated == true && _isMounted) {
+                      setState(() {
+                        userData = _loadProfileData();
+                      });
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: const CircleBorder(),
+                ),
+                child: Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF199A8E),
+                        Color(0xFF23B8A9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      FontAwesomeIcons.pencil,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
           const SizedBox(height: 12),
