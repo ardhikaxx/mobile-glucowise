@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/Screening/riwayat_screening.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
@@ -182,29 +183,29 @@ class GlucoScreeningScreen extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   children: const [
                     _RiskCard(
-                      icon: FontAwesomeIcons.circleCheck,
-                      title: 'Risiko Rendah',
+                      icon: Iconsax.tick_circle,
+                      title: 'Indikasi Rendah',
                       scoreRange: '0-7',
                       description:
-                          'Risiko diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
+                          'Indikasi diabetes sangat rendah. Untuk tetap terhindar, pastikan untuk menjaga pola makan sehat dan rutin berolahraga.',
                       color: Color(0xFF4CAF50),
                     ),
                     SizedBox(width: 15),
                     _RiskCard(
-                      icon: FontAwesomeIcons.exclamationTriangle,
-                      title: 'Risiko Sedang',
+                      icon: Iconsax.warning_2,
+                      title: 'Indikasi Sedang',
                       scoreRange: '8-14',
                       description:
-                          'Risiko sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
+                          'Indikasi sedang. Disarankan untuk mulai memperbaiki pola makan, meningkatkan aktivitas fisik, dan menjaga berat badan ideal.',
                       color: Color(0xFFFF9800),
                     ),
                     SizedBox(width: 15),
                     _RiskCard(
-                      icon: FontAwesomeIcons.triangleExclamation,
-                      title: 'Risiko Tinggi',
+                      icon: Iconsax.danger,
+                      title: 'Indikasi Tinggi',
                       scoreRange: '15-24',
                       description:
-                          'Risiko tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
+                          'Indikasi tinggi. Sebaiknya segera konsultasi dengan dokter dan lakukan pemeriksaan gula darah secara rutin untuk memantau kondisi kesehatan.',
                       color: Color(0xFFF44336),
                     ),
                   ],
@@ -293,7 +294,7 @@ class _RiskCard extends StatelessWidget {
                       child: Icon(
                         icon,
                         color: color,
-                        size: 24,
+                        size: 28,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -325,9 +326,9 @@ class _RiskCard extends StatelessWidget {
                 const SizedBox(height: 15),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.black87,
+                    color: Colors.grey[600],
                     height: 1.5,
                   ),
                 ),
@@ -340,7 +341,6 @@ class _RiskCard extends StatelessWidget {
   }
 }
 
-// Other widget classes remain the same as in your original code
 class _HeaderSection extends StatelessWidget {
   const _HeaderSection();
 
@@ -349,7 +349,7 @@ class _HeaderSection extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          "Risiko Diabetes",
+          "Indikasi Diabetes",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -359,10 +359,10 @@ class _HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "Kenali risiko diabetes Anda melalui screening sederhana ini dan ambil langkah awal untuk hidup lebih sehat.",
+          "Deteksi dini indikasi diabetes dengan screening ini. Ambil langkah preventif untuk kesehatan yang lebih baik.",
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             color: Colors.grey[600],
           ),
         ),
@@ -475,7 +475,7 @@ class _AdditionalInfo extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              "Screening ini membantu mengidentifikasi risiko diabetes tipe 2 berdasarkan faktor gaya hidup dan riwayat kesehatan.",
+              "Screening ini membantu mengidentifikasi indikasi diabetes tipe 2 berdasarkan faktor gaya hidup dan riwayat kesehatan.",
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[700],

@@ -45,23 +45,23 @@ class _DetailHasilScreeningScreenState
     return const Color(0xFFF44336); // Red
   }
 
-  String _getRiskLevel(int score) {
-    if (score <= 7) return 'Risiko Rendah';
-    if (score <= 14) return 'Risiko Sedang';
-    return 'Risiko Tinggi';
+  String _getIndikasiLevel(int score) {
+    if (score <= 7) return 'Indikasi Rendah';
+    if (score <= 14) return 'Indikasi Sedang';
+    return 'Indikasi Tinggi';
   }
 
-  String _getRiskDescription(int score) {
+  String _getIndikasiDescription(int score) {
     if (score <= 7) {
-      return 'Hasil screening menunjukkan risiko diabetes yang rendah. Pertahankan gaya hidup sehat dengan pola makan seimbang dan aktivitas fisik rutin.';
+      return 'Hasil screening menunjukkan indikasi diabetes yang rendah. Pertahankan gaya hidup sehat dengan pola makan seimbang dan aktivitas fisik rutin.';
     } else if (score <= 14) {
-      return 'Hasil screening menunjukkan risiko diabetes sedang. Disarankan untuk berkonsultasi dengan dokter dan melakukan pemeriksaan lebih lanjut.';
+      return 'Hasil screening menunjukkan indikasi diabetes sedang. Disarankan untuk berkonsultasi dengan dokter dan melakukan pemeriksaan lebih lanjut.';
     } else {
-      return 'Hasil screening menunjukkan risiko diabetes tinggi. Segera konsultasikan dengan dokter untuk evaluasi lebih lanjut dan penanganan tepat.';
+      return 'Hasil screening menunjukkan indikasi diabetes tinggi. Segera konsultasikan dengan dokter untuk evaluasi lebih lanjut dan penanganan tepat.';
     }
   }
 
-  String _getRiskRecommendation(int score) {
+  String _getIndikasiRecommendation(int score) {
     if (score <= 7) {
       return '• Lanjutkan pola makan sehat\n• Olahraga rutin 30 menit/hari\n• Periksa gula darah setahun sekali';
     } else if (score <= 14) {
@@ -296,7 +296,7 @@ class _DetailHasilScreeningScreenState
                                         borderRadius: BorderRadius.circular(30),
                                       ),
                                       child: Text(
-                                        _getRiskLevel(
+                                        _getIndikasiLevel(
                                             screeningDetail!.skorRisiko),
                                         style: TextStyle(
                                           fontSize: 18,
@@ -309,7 +309,7 @@ class _DetailHasilScreeningScreenState
                                     const SizedBox(height: 20),
                                     // Description
                                     Text(
-                                      _getRiskDescription(
+                                      _getIndikasiDescription(
                                           screeningDetail!.skorRisiko),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -359,7 +359,7 @@ class _DetailHasilScreeningScreenState
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
-                                            _getRiskRecommendation(
+                                            _getIndikasiRecommendation(
                                                 screeningDetail!.skorRisiko),
                                             style: const TextStyle(
                                               fontSize: 14,
@@ -536,63 +536,6 @@ class _DetailHasilScreeningScreenState
                             );
                           },
                         ),
-                        const SizedBox(height: 20),
-                        // Action Button
-                        if (screeningDetail!.skorRisiko > 7)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const Text(
-                                  'Hasil screening Anda menunjukkan risiko yang perlu perhatian',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF495057),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Action to consult doctor
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _getRiskColor(
-                                        screeningDetail!.skorRisiko),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    minimumSize: const Size(double.infinity, 0),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text(
-                                    'Konsultasi dengan Dokter',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                       ],
                     ),
                   ),
