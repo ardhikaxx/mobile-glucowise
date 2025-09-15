@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -9,6 +10,8 @@ import 'package:medical_app/page/GlucoCare/riwayat_care.dart';
 import 'package:medical_app/page/GlucoCare/form_care.dart';
 import 'package:medical_app/services/care_services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:timezone/data/latest.dart';
+import 'package:timezone/timezone.dart';
 
 class GlucoCareScreen extends StatefulWidget {
   final UserData userData;
@@ -27,12 +30,15 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   bool _isAlarmPlaying = false;
   bool _isDisposed = false;
   Timer? _alarmRepeatTimer;
+  final FlutterLocalNotificationsPlugin notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
     _isDisposed = false;
     _loadData();
+    init();
     _startAlarmChecker();
   }
 
@@ -43,6 +49,78 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     _alarmRepeatTimer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> init() async {
+    initializeTimeZones();
+
+    setLocalLocation(
+      getLocation('Asia/Jakarta'),
+    );
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/launcher_icon');
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings();
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+    await notificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> showInstantNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    await notificationsPlugin.show(
+      id,
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'instant_notification_channel_id',
+          'Instant Notifications',
+          channelDescription: 'Instant notification channel',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
+  }
+
+  Future<void> scheduleReminder({
+    required int id,
+    required String title,
+    String? body,
+  }) async {
+    TZDateTime now = TZDateTime.now(local);
+    TZDateTime scheduledDate = now.add(
+      Duration(seconds: 3),
+    );
+
+    await notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'daily_reminder_channel_id', // A unique ID to group notifications together.
+          'Daily Reminders', // A human-readable name shown to users in their notification settings.
+          channelDescription: 'Reminder to complete daily habits',
+          importance: Importance.max,
+          priority: Priority.high,
+        ), // AndroidNotificationDetails
+        iOS: DarwinNotificationDetails(),
+      ), // NotificationDetails
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents:
+          DateTimeComponents.dayOfWeekAndTime, // or dateAndTime
+    );
   }
 
   void _startAlarmChecker() {
@@ -167,13 +245,15 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RiwayatCareScreen(riwayatObat: riwayatObat),
+                        builder: (context) =>
+                            RiwayatCareScreen(riwayatObat: riwayatObat),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -345,6 +425,27 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
+        // leading: Padding(
+        //   padding: const EdgeInsets.all(9.0),
+        //   child: Container(
+        //     height: 40,
+        //     width: 40,
+        //     decoration: BoxDecoration(
+        //       color: const Color(0xFF199A8E),
+        //       borderRadius: BorderRadius.circular(8),
+        //     ),
+        //     child: IconButton(
+        //       onPressed: () {
+        //         showInstantNotification(id: 5, title: 'Halo', body: 'Ini Notifikasi');
+        //       },
+        //       icon: const Icon(
+        //         FontAwesomeIcons.bell,
+        //         color: Colors.white,
+        //         size: 20,
+        //       ),
+        //     ),
+        //   ),
+        // ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
