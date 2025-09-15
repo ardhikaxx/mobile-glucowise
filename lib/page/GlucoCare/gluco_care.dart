@@ -9,8 +9,6 @@ import 'package:medical_app/page/GlucoCare/riwayat_care.dart';
 import 'package:medical_app/page/GlucoCare/form_care.dart';
 import 'package:medical_app/services/care_services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:medical_app/components/navbottom.dart';
-import 'package:get/get.dart';
 
 class GlucoCareScreen extends StatefulWidget {
   final UserData userData;
@@ -347,13 +345,6 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(9.0),
-          child: _buildIconButton(
-            icon: FontAwesomeIcons.chevronLeft,
-            onTap: () => Get.offAll(() => NavBottom(userData: widget.userData)),
-          ),
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),

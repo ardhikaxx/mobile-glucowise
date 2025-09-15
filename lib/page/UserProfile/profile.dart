@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
-import 'package:medical_app/page/UserProfile/qr_identitas.dart';
+// import 'package:medical_app/page/UserProfile/qr_identitas.dart';
 import 'package:medical_app/services/auth_services.dart';
 
 class UserScreen extends StatefulWidget {
@@ -387,7 +387,7 @@ class _UserScreenState extends State<UserScreen> {
           const Padding(
             padding: EdgeInsets.only(left: 8.0, bottom: 8),
             child: Text(
-              'Pengaturan Akun',
+              'Pengaturan Lainnya',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -562,42 +562,42 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DigitalIDScreen(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF7FBFA),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: const [
-                  Icon(FontAwesomeIcons.qrcode,
-                      color: Color(0xFF199A8E), size: 20),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "GlucoID",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF199A8E),
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, color: Colors.grey),
-                ],
-              ),
-            ),
-          ),
+          // const SizedBox(height: 12),
+          // InkWell(
+          //   onTap: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const DigitalIDScreen(),
+          //       ),
+          //     );
+          //   },
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          //     decoration: BoxDecoration(
+          //       color: const Color(0xFFF7FBFA),
+          //       borderRadius: BorderRadius.circular(12),
+          //     ),
+          //     child: Row(
+          //       children: const [
+          //         Icon(FontAwesomeIcons.qrcode,
+          //             color: Color(0xFF199A8E), size: 20),
+          //         SizedBox(width: 12),
+          //         Expanded(
+          //           child: Text(
+          //             "GlucoID",
+          //             style: TextStyle(
+          //               fontSize: 15,
+          //               fontWeight: FontWeight.w600,
+          //               color: Color(0xFF199A8E),
+          //             ),
+          //           ),
+          //         ),
+          //         Icon(Icons.chevron_right, color: Colors.grey),
+          //       ],
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -745,7 +745,7 @@ class _UserScreenState extends State<UserScreen> {
           child: Center(
             child: Icon(
               icon,
-              size: 16,
+              size: 18,
               color: const Color(0xFF199A8E),
             ),
           ),
@@ -796,31 +796,14 @@ class _UserScreenState extends State<UserScreen> {
       child: Column(
         children: [
           _buildMenuButton(
-            icon: FontAwesomeIcons.userGear,
-            title: 'Edit Profile',
-            onTap: () async {
-              UserData? currentUserData = await AuthServices().getProfile();
-              if (currentUserData != null && _isMounted) {
-                bool? isUpdated = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditProfileScreen(userData: currentUserData),
-                  ),
-                );
-
-                if (isUpdated == true && _isMounted) {
-                  setState(() {
-                    userData = _loadProfileData();
-                  });
-                }
-              }
-            },
+            icon: FontAwesomeIcons.key,
+            title: 'Kata Sandi & Keamanan',
+            onTap: () {},
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildMenuButton(
-            icon: FontAwesomeIcons.key,
-            title: 'Reset Password',
+            icon: FontAwesomeIcons.infoCircle,
+            title: 'Tentang GlucoWise',
             onTap: () {},
           ),
         ],
@@ -849,7 +832,7 @@ class _UserScreenState extends State<UserScreen> {
               child: Center(
                 child: Icon(
                   icon,
-                  size: 16,
+                  size: 18,
                   color: const Color(0xFF199A8E),
                 ),
               ),

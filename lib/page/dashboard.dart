@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/model/user.dart';
+import 'package:medical_app/page/UserProfile/edit_profile.dart';
 import 'package:medical_app/page/chat_bot/chat_ai.dart';
+import 'package:medical_app/services/auth_services.dart';
 import 'package:medical_app/services/check_services.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -415,15 +417,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class UserIntro extends StatelessWidget {
+class UserIntro extends StatefulWidget {
   final UserData userData;
-
   const UserIntro({super.key, required this.userData});
+
+  @override
+  State<UserIntro> createState() => _UserIntroState();
+}
+
+class _UserIntroState extends State<UserIntro> {
+  bool _isMounted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isMounted = true;
+  }
 
   String _formatNIK(String nik) {
     if (nik.length != 16) return '**********';
-
     return '${nik.substring(0, 3)}**********${nik.substring(13)}';
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   @override
@@ -451,7 +470,7 @@ class UserIntro extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        userData.namaLengkap,
+                        widget.userData.namaLengkap,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -462,7 +481,7 @@ class UserIntro extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _formatNIK(userData.nik),
+                    _formatNIK(widget.userData.nik),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -471,32 +490,50 @@ class UserIntro extends StatelessWidget {
                   ),
                 ],
               ),
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF199A8E),
-                      Color(0xFF23B8A9),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(2, 2),
+              InkWell(
+                onTap: () async {
+                  UserData? currentUserData = await AuthServices().getProfile();
+                  if (currentUserData != null && _isMounted) {
+                    bool? isUpdated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditProfileScreen(userData: currentUserData),
+                      ),
+                    );
+
+                    if (isUpdated == true && _isMounted) {
+                      setState(() {});
+                    }
+                  }
+                },
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF199A8E),
+                        Color(0xFF23B8A9),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(
-                    FontAwesomeIcons.solidUser,
-                    size: 22,
-                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(2, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      FontAwesomeIcons.userPen,
+                      size: 22,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -946,7 +983,7 @@ class CardGlucoInfo extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
       crossAxisSpacing: 10,
-      mainAxisSpacing: 12,
+      mainAxisSpacing: 10,
       childAspectRatio: 2,
       children: [
         _buildVitalStatItem(
@@ -1010,14 +1047,14 @@ class CardGlucoInfo extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withOpacity(0.2),
             ),
             child: Icon(icon, color: Colors.white, size: 20),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

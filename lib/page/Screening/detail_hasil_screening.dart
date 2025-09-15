@@ -84,7 +84,7 @@ class _DetailHasilScreeningScreenState
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
-            fontSize: 24,
+            fontSize: 30,
             fontWeight: FontWeight.bold,
           ),
         ),

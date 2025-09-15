@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:iconsax/iconsax.dart';
@@ -8,8 +9,6 @@ import 'package:medical_app/page/GlucoCheck/all_check.dart';
 import 'package:medical_app/page/GlucoCheck/detail_check.dart';
 import 'package:medical_app/page/GlucoCheck/form_check.dart';
 import 'package:medical_app/services/check_services.dart';
-import 'package:medical_app/components/navbottom.dart';
-import 'package:get/get.dart';
 
 class GlucoCheckScreen extends StatefulWidget {
   final UserData userData;
@@ -23,6 +22,7 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   List<dynamic> checkData = [];
   bool isLoading = true;
   bool _isMounted = false;
+  Map<int, Map<String, dynamic>> _statusCache = {};
 
   @override
   void initState() {
@@ -30,6 +30,9 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
     _isMounted = true;
     _initializeDateFormat();
     _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkIfReturnedFromForm();
+    });
   }
 
   @override
@@ -38,25 +41,29 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
     super.dispose();
   }
 
+  void _checkIfReturnedFromForm() {
+    final ModalRoute<Object?>? route = ModalRoute.of(context);
+    if (route != null && route.isCurrent) {
+      _loadData();
+    }
+  }
+
   void _initializeDateFormat() async {
     try {
       await initializeDateFormatting('id_ID', null);
     } catch (e) {
-      print("Error initializing date formatting: $e");
+      debugPrint("Error initializing date formatting: $e");
     }
   }
 
   String _formatTanggal(String dateString) {
     try {
-      // Cek jika tanggal sudah dalam format yang diinginkan
       if (dateString.contains(RegExp(r'[a-zA-Z]'))) {
         return dateString;
       }
 
-      // Parse tanggal
       DateTime dateTime = DateTime.parse(dateString);
 
-      // Format manual ke bahasa Indonesia
       List<String> bulan = [
         'Januari',
         'Februari',
@@ -74,8 +81,8 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
 
       return '${dateTime.day} ${bulan[dateTime.month - 1]} ${dateTime.year}';
     } catch (e) {
-      print("Error formatting date: $e");
-      return dateString; // Return original string jika parsing gagal
+      debugPrint("Error formatting date: $e");
+      return dateString;
     }
   }
 
@@ -83,13 +90,13 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
     if (_isMounted) {
       setState(() {
         isLoading = true;
+        _statusCache.clear(); // Clear cache saat refresh
       });
     }
 
     try {
       final data = await CheckServices.getRiwayatKesehatan(context);
-      await Future.delayed(const Duration(seconds: 1));
-
+      
       if (_isMounted) {
         setState(() {
           checkData = data;
@@ -97,15 +104,64 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
         });
       }
     } catch (e) {
-      print("Error loading data: $e");
-      await Future.delayed(const Duration(seconds: 1));
-
+      debugPrint("Error loading data: $e");
+      
       if (_isMounted) {
         setState(() {
           isLoading = false;
         });
       }
     }
+  }
+
+  Future<void> _loadStatusRisiko(int idData) async {
+    if (_statusCache.containsKey(idData)) {
+      return; // Data sudah ada di cache
+    }
+
+    try {
+      final statusData = await CheckServices.getStatusRisiko(context, idData);
+      
+      if (_isMounted && statusData != null) {
+        setState(() {
+          _statusCache[idData] = statusData;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error loading status for id $idData: $e");
+    }
+  }
+
+  String _getStatusText(Map<String, dynamic>? statusData) {
+    if (statusData == null) return "Loading";
+    if (statusData['kategori_risiko'] == 'Error') {
+      return "Error";
+    }
+    return statusData['kategori_risiko'] ?? "Tidak Diketahui";
+  }
+
+  Color _getStatusColor(String status) {
+    return status == "Tinggi"
+        ? Colors.red
+        : (status == "Sedang"
+            ? Colors.orange
+            : (status == "Rendah" 
+                ? Colors.green 
+                : (status == "Error"
+                    ? Colors.grey
+                    : Colors.grey)));
+  }
+
+  IconData _getStatusIcon(String status) {
+    return status == "Tinggi"
+        ? Iconsax.danger
+        : (status == "Sedang"
+            ? Iconsax.warning_2
+            : (status == "Rendah" 
+                ? Iconsax.tick_circle 
+                : (status == "Error"
+                    ? Iconsax.close_circle
+                    : Iconsax.clock)));
   }
 
   @override
@@ -137,10 +193,10 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
             ),
             child: IconButton(
               onPressed: () {
-                Get.offAll(() => NavBottom(userData: widget.userData));
+                _loadData();
               },
               icon: const Icon(
-                FontAwesomeIcons.chevronLeft,
+                FontAwesomeIcons.refresh,
                 color: Colors.white,
                 size: 20,
               ),
@@ -185,14 +241,19 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Data Terbaru",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF199A8E),
-                      ),
-                      textAlign: TextAlign.start,
+                    Row(
+                      children: [
+                        const Text(
+                          "Data Terbaru",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF199A8E),
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
+                        SizedBox(width: 10),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     if (dataTerbaru != null)
@@ -282,208 +343,97 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   }
 
   Widget _buildLatestDataCard(Map<String, dynamic> data) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: CheckServices.getStatusRisiko(context, data["id_data"]),
-      builder: (context, snapshot) {
-        final statusData = snapshot.data;
-        final status = statusData?["kategori_risiko"] ?? "Loading";
-        final statusColor = status == "Tinggi"
-            ? Colors.red
-            : (status == "Sedang"
-                ? Colors.orange
-                : (status == "Rendah" ? Colors.green : Colors.grey));
+    final int idData = data["id_data"];
+    
+    // Load status jika belum ada di cache
+    if (!_statusCache.containsKey(idData)) {
+      _loadStatusRisiko(idData);
+    }
+    
+    final statusData = _statusCache[idData];
+    final status = _getStatusText(statusData);
+    final statusColor = _getStatusColor(status);
+    final statusIcon = _getStatusIcon(status);
 
-        final statusIcon = status == "Tinggi"
-            ? Iconsax.danger
-            : (status == "Sedang"
-                ? Iconsax.warning_2
-                : (status == "Rendah" ? Iconsax.tick_circle : Iconsax.clock));
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Color(0xFFE8F5F4),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF199A8E).withOpacity(0.1),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Color(0xFFE8F5F4),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF199A8E).withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF199A8E).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            FontAwesomeIcons.calendarDay,
-                            color: Color(0xFF199A8E),
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          _formatTanggal(data["tanggal_pemeriksaan"]),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF199A8E),
-                          ),
-                        ),
-                      ],
-                    ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        color: const Color(0xFF199A8E).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            statusIcon,
-                            size: 16,
-                            color: statusColor,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            status,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
-                            ),
-                          ),
-                        ],
+                      child: const Icon(
+                        FontAwesomeIcons.calendarDay,
+                        color: Color(0xFF199A8E),
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _formatTanggal(data["tanggal_pemeriksaan"]),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF199A8E),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
                 Container(
-                  height: 2,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF199A8E).withOpacity(0.2),
-                        const Color(0xFF199A8E).withOpacity(0.1),
-                        Colors.transparent,
-                      ],
-                    ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                ),
-                const SizedBox(height: 10),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 2.8,
-                  children: [
-                    _buildInfoCard(
-                      FontAwesomeIcons.ruler,
-                      "${data["tinggi_badan"]} cm",
-                      "Tinggi Badan",
-                      const Color(0xFF199A8E),
-                    ),
-                    _buildInfoCard(
-                      FontAwesomeIcons.weightScale,
-                      "${data["berat_badan"]} kg",
-                      "Berat Badan",
-                      const Color(0xFF199A8E),
-                    ),
-                    _buildInfoCard(
-                      FontAwesomeIcons.droplet,
-                      "${data["gula_darah"]} mg/dL",
-                      "Gula Darah",
-                      const Color(0xFF199A8E),
-                    ),
-                    _buildInfoCard(
-                      FontAwesomeIcons.heartPulse,
-                      data["tensi_darah"].toString(),
-                      "Tensi Darah",
-                      const Color(0xFF199A8E),
-                    ),
-                    _buildInfoCard(
-                      FontAwesomeIcons.rulerCombined,
-                      "${data["lingkar_pinggang"]} cm",
-                      "Lingkar Pinggang",
-                      const Color(0xFF199A8E),
-                    ),
-                    _buildInfoCard(
-                      FontAwesomeIcons.userClock,
-                      "${data["umur"]} tahun",
-                      "Umur",
-                      const Color(0xFF199A8E),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF199A8E).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                      if (status == "Loading")
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: statusColor,
+                          ),
+                        )
+                      else
+                        Icon(
+                          statusIcon,
+                          size: 16,
+                          color: statusColor,
                         ),
-                        child: const Icon(
-                          FontAwesomeIcons.userGroup,
-                          color: Color(0xFF199A8E),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Riwayat Keluarga",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Text(
-                              data["riwayat_keluarga_diabetes"],
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF199A8E),
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 6),
+                      Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
                         ),
                       ),
                     ],
@@ -491,9 +441,123 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
                 ),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 10),
+            Container(
+              height: 2,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF199A8E).withOpacity(0.2),
+                    const Color(0xFF199A8E).withOpacity(0.1),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 2.8,
+              children: [
+                _buildInfoCard(
+                  FontAwesomeIcons.ruler,
+                  "${data["tinggi_badan"]} cm",
+                  "Tinggi Badan",
+                  const Color(0xFF199A8E),
+                ),
+                _buildInfoCard(
+                  FontAwesomeIcons.weightScale,
+                  "${data["berat_badan"]} kg",
+                  "Berat Badan",
+                  const Color(0xFF199A8E),
+                ),
+                _buildInfoCard(
+                  FontAwesomeIcons.droplet,
+                  "${data["gula_darah"]} mg/dL",
+                  "Gula Darah",
+                  const Color(0xFF199A8E),
+                ),
+                _buildInfoCard(
+                  FontAwesomeIcons.heartPulse,
+                  data["tensi_darah"].toString(),
+                  "Tensi Darah",
+                  const Color(0xFF199A8E),
+                ),
+                _buildInfoCard(
+                  FontAwesomeIcons.rulerCombined,
+                  "${data["lingkar_pinggang"]} cm",
+                  "Lingkar Pinggang",
+                  const Color(0xFF199A8E),
+                ),
+                _buildInfoCard(
+                  FontAwesomeIcons.userClock,
+                  "${data["umur"]} tahun",
+                  "Umur",
+                  const Color(0xFF199A8E),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF199A8E).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      FontAwesomeIcons.userGroup,
+                      color: Color(0xFF199A8E),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Riwayat Keluarga",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          data["riwayat_keluarga_diabetes"],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF199A8E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -561,6 +625,17 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
   }
 
   Widget _buildHistoryItem(Map<String, dynamic> data) {
+    final int idData = data["id_data"];
+    
+    // Load status jika belum ada di cache
+    if (!_statusCache.containsKey(idData)) {
+      _loadStatusRisiko(idData);
+    }
+    
+    final statusData = _statusCache[idData];
+    final status = _getStatusText(statusData);
+    final statusColor = _getStatusColor(status);
+
     return Card(
       color: Color(0xFFE8F5F4),
       elevation: 0,
@@ -571,109 +646,87 @@ class _GlucoCheckScreenState extends State<GlucoCheckScreen> {
           width: 1,
         ),
       ),
-      child: FutureBuilder<Map<String, dynamic>?>(
-        future: CheckServices.getStatusRisiko(context, data["id_data"]),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const ListTile(
-              title: Text("Memuat..."),
-              trailing: CircularProgressIndicator(
-                color: Color(0xFF199A8E),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return const ListTile(
-              title: Text("Error memuat data"),
-            );
-          } else if (!snapshot.hasData) {
-            return const ListTile(
-              title: Text("Tidak ada data"),
-            );
-          }
-
-          final status = snapshot.data!;
-          final statusColor = status["kategori_risiko"] == "Tinggi"
-              ? Colors.red
-              : (status["kategori_risiko"] == "Sedang"
-                  ? Colors.orange
-                  : (status["kategori_risiko"] == "Rendah"
-                      ? Colors.green
-                      : Colors.black45));
-
-          return InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GlucoCheckDetailScreen(
-                    checkData: data,
-                    userData: widget.userData,
-                  ),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      FontAwesomeIcons.fileMedical,
-                      color: const Color(0xFF199A8E),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatTanggal(data["tanggal_pemeriksaan"]),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Gula Darah: ${data["gula_darah"]} mg/dL",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      status["kategori_risiko"],
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: statusColor,
-                      ),
-                    ),
-                  ),
-                ],
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GlucoCheckDetailScreen(
+                checkData: data,
+                userData: widget.userData,
               ),
             ),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  FontAwesomeIcons.fileMedical,
+                  color: const Color(0xFF199A8E),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatTanggal(data["tanggal_pemeriksaan"]),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Gula Darah: ${data["gula_darah"]} mg/dL",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: status == "Loading"
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: statusColor,
+                        ),
+                      )
+                    : Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

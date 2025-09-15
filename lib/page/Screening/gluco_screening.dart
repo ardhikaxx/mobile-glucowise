@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/page/Screening/riwayat_screening.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
 import 'package:medical_app/services/screening_services.dart';
@@ -149,25 +147,25 @@ class GlucoScreeningScreen extends StatelessWidget {
         ),
         centerTitle: true,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(9.0),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF199A8E),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: () => Get.offAll(() => NavBottom(userData: userData)),
-              icon: const Icon(
-                FontAwesomeIcons.chevronLeft,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
+        // leading: Padding(
+        //   padding: const EdgeInsets.all(9.0),
+        //   child: Container(
+        //     height: 40,
+        //     width: 40,
+        //     decoration: BoxDecoration(
+        //       color: const Color(0xFF199A8E),
+        //       borderRadius: BorderRadius.circular(8),
+        //     ),
+        //     child: IconButton(
+        //       onPressed: () => Get.offAll(() => NavBottom(userData: userData)),
+        //       icon: const Icon(
+        //         FontAwesomeIcons.chevronLeft,
+        //         color: Colors.white,
+        //         size: 20,
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -349,7 +347,7 @@ class _HeaderSection extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          "Indikasi Diabetes",
+          "Indikasi Level Diabetes",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,

@@ -151,7 +151,7 @@ class CheckServices {
           CustomAlert.showMessageDialog(
             context: context,
             title: "Gagal",
-            message: jsonData['message'] ?? _errorGetStatus,
+            message: jsonData['message'],
             isSuccess: false,
           );
           return null;

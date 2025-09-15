@@ -72,7 +72,7 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
   }
 
   String _getRiskLevel(int score) {
-    if (score <= 7) return 'Himbauan Rendah';
+    if (score <= 7) return 'Rendah';
     if (score <= 14) return 'Sedang';
     return 'Tinggi';
   }
@@ -103,7 +103,7 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF1A998E),
-            fontSize: 28,
+            fontSize: 30,
             fontWeight: FontWeight.w600,
           ),
         ),
