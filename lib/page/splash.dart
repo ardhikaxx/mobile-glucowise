@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:medical_app/auth/login.dart';
@@ -10,7 +11,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -45,11 +46,7 @@ class _SplashScreenState extends State<SplashScreen>with SingleTickerProviderSta
 
   static Future<Map<String, bool>> _requestAllPermissions() async {
     final results = <String, bool>{};
-    
-    // Pertama, periksa status perizinan yang sudah diberikan
     final currentPermissions = await checkAllPermissions();
-    
-    // Hanya meminta perizinan yang belum diberikan
     if (!currentPermissions['notification']!) {
       results['notification'] = await requestPermission(Permission.notification);
     } else {
@@ -80,17 +77,10 @@ class _SplashScreenState extends State<SplashScreen>with SingleTickerProviderSta
     await Future.delayed(const Duration(seconds: 3));
 
     if (mounted) {
-      // Periksa status perizinan terlebih dahulu
       final permissionStatus = await checkAllPermissions();
       print('Status perizinan sebelum meminta: $permissionStatus');
-      
-      // Hanya meminta perizinan yang belum diberikan
       await _requestAllPermissions();
-      
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+      Get.offAll(() => const LoginScreen());
     }
   }
 
