@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
-import 'package:medical_app/page/chat_bot/chat_ai.dart';
+import 'package:medical_app/page/Chatbot/chat_ai.dart';
 import 'package:medical_app/services/auth_services.dart';
 import 'package:medical_app/services/check_services.dart';
 

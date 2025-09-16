@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:medical_app/auth/login.dart';
 
@@ -9,8 +10,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -30,14 +30,68 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      }
-    });
+    _navigateToNextScreen();
+  }
+
+  static Future<Map<String, bool>> checkAllPermissions() async {
+    final results = <String, bool>{};
+    
+    results['notification'] = await Permission.notification.status.isGranted;
+    results['storage'] = await Permission.storage.status.isGranted;
+    results['location'] = await Permission.location.status.isGranted;
+    
+    return results;
+  }
+
+  static Future<Map<String, bool>> _requestAllPermissions() async {
+    final results = <String, bool>{};
+    
+    // Pertama, periksa status perizinan yang sudah diberikan
+    final currentPermissions = await checkAllPermissions();
+    
+    // Hanya meminta perizinan yang belum diberikan
+    if (!currentPermissions['notification']!) {
+      results['notification'] = await requestPermission(Permission.notification);
+    } else {
+      results['notification'] = true;
+    }
+    
+    if (!currentPermissions['storage']!) {
+      results['storage'] = await requestPermission(Permission.storage);
+    } else {
+      results['storage'] = true;
+    }
+    
+    if (!currentPermissions['location']!) {
+      results['location'] = await requestPermission(Permission.location);
+    } else {
+      results['location'] = true;
+    }
+    
+    return results;
+  }
+
+  static Future<bool> requestPermission(Permission permission) async {
+    final status = await permission.request();
+    return status.isGranted;
+  }
+
+  Future<void> _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    if (mounted) {
+      // Periksa status perizinan terlebih dahulu
+      final permissionStatus = await checkAllPermissions();
+      print('Status perizinan sebelum meminta: $permissionStatus');
+      
+      // Hanya meminta perizinan yang belum diberikan
+      await _requestAllPermissions();
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
 
   @override
@@ -87,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
                   const SizedBox(height: 20),
                   TweenAnimationBuilder<double>(
                     tween: Tween(begin: 0.0, end: 1.0),
-                    duration: const Duration(seconds: 4),
+                    duration: const Duration(seconds: 3),
                     builder: (context, value, child) {
                       return SizedBox(
                         width: 150,

@@ -99,7 +99,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   }) async {
     TZDateTime now = TZDateTime.now(local);
     TZDateTime scheduledDate = now.add(
-      Duration(seconds: 3),
+      Duration(seconds: 5),
     );
 
     await notificationsPlugin.zonedSchedule(
@@ -425,27 +425,27 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
-        // leading: Padding(
-        //   padding: const EdgeInsets.all(9.0),
-        //   child: Container(
-        //     height: 40,
-        //     width: 40,
-        //     decoration: BoxDecoration(
-        //       color: const Color(0xFF199A8E),
-        //       borderRadius: BorderRadius.circular(8),
-        //     ),
-        //     child: IconButton(
-        //       onPressed: () {
-        //         showInstantNotification(id: 5, title: 'Halo', body: 'Ini Notifikasi');
-        //       },
-        //       icon: const Icon(
-        //         FontAwesomeIcons.bell,
-        //         color: Colors.white,
-        //         size: 20,
-        //       ),
-        //     ),
-        //   ),
-        // ),
+        leading: Padding(
+          padding: const EdgeInsets.all(9.0),
+          child: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFF199A8E),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: IconButton(
+              onPressed: () {
+                scheduleReminder(id: 5, title: 'Halo', body: 'Ini Notifikasi');
+              },
+              icon: const Icon(
+                FontAwesomeIcons.bell,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
