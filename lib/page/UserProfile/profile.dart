@@ -52,30 +52,6 @@ class _UserScreenState extends State<UserScreen> {
     super.dispose();
   }
 
-  String _formatTanggal(String tanggalString) {
-    try {
-      DateTime tanggal = DateTime.parse(tanggalString);
-      List<String> namaBulan = [
-        'Januari',
-        'Februari',
-        'Maret',
-        'April',
-        'Mei',
-        'Juni',
-        'Juli',
-        'Agustus',
-        'September',
-        'Oktober',
-        'November',
-        'Desember'
-      ];
-
-      return '${tanggal.day} ${namaBulan[tanggal.month - 1]} ${tanggal.year}';
-    } catch (e) {
-      return tanggalString;
-    }
-  }
-
   bool isUserDataIncomplete(UserData user) {
     return user.namaLengkap.isEmpty ||
         user.nik.isEmpty ||
@@ -710,14 +686,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildInfoItem(
-            icon: FontAwesomeIcons.birthdayCake,
-            title: "Tempat & Tanggal Lahir",
-            value: user.tanggalLahir != null && user.tanggalLahir!.isNotEmpty
-                ? "${user.tempatLahir ?? 'Tidak ada data'}, ${_formatTanggal(user.tanggalLahir!)}"
-                : "Tidak ada data",
-          ),
-          const Divider(height: 24, color: Color(0xFFE8F3F1)),
-          _buildInfoItem(
             icon: FontAwesomeIcons.locationDot,
             title: "Alamat",
             value: user.alamatLengkap ?? "Tidak ada data",
@@ -799,6 +767,18 @@ class _UserScreenState extends State<UserScreen> {
           _buildMenuButton(
             icon: FontAwesomeIcons.key,
             title: 'Kata Sandi & Keamanan',
+            onTap: () {},
+          ),
+          const Divider(height: 24, color: Color(0xFFE8F3F1)),
+          _buildMenuButton(
+            icon: FontAwesomeIcons.circleQuestion,
+            title: 'Pusat Bantuan',
+            onTap: () {},
+          ),
+          const Divider(height: 24, color: Color(0xFFE8F3F1)),
+          _buildMenuButton(
+            icon: FontAwesomeIcons.phone,
+            title: 'Nomor Gawat Darurat Nasional',
             onTap: () {},
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
