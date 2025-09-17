@@ -13,7 +13,7 @@ class AboutGlucoWisePage extends StatelessWidget {
       backgroundColor: const Color(0xFFF7FBFA),
       appBar: AppBar(
         title: const Text(
-          "Tentang GlucoWise",
+          "Tentang",
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             fontWeight: FontWeight.bold,
