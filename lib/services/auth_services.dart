@@ -39,7 +39,7 @@ class AuthServices {
             "Selamat Datang, ${userResponse.user.namaLengkap}!", 
             true,
             onConfirm: () {
-              Get.off(() => NavBottom(userData: userResponse.user));
+              Get.offAll(() => NavBottom(userData: userResponse.user));
             }
           );
         } else {
@@ -51,18 +51,14 @@ class AuthServices {
         _showLoginAlert(context, "Login Gagal", errorMessage, false);
       }
     } catch (e) {
-      print("Terjadi error: $e");
+      debugPrint("Terjadi error: $e");
       _showLoginAlert(context, "Error", "Terjadi kesalahan koneksi. Silakan coba lagi.", false);
     }
   }
 
   Future<void> logout(BuildContext context) async {
     _nik = null;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    Get.offAll(() => const LoginScreen());
   }
 
   static Future<void> register(BuildContext context,
@@ -88,10 +84,7 @@ class AuthServices {
       if (response.statusCode == 200 || response.statusCode == 201) {
         _showLoginAlert(context, "Registrasi Berhasil", jsonData['message'], true,
             onConfirm: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
+          Get.offAll(() => LoginScreen());
         });
       } else {
         if (jsonData.containsKey('errors')) {
@@ -104,7 +97,7 @@ class AuthServices {
         }
       }
     } catch (e) {
-      print("Terjadi error: $e");
+      debugPrint("Terjadi error: $e");
       _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
@@ -121,17 +114,13 @@ class AuthServices {
       final jsonData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChangePasswordPage(nik: jsonData['nik']),
-          ),
-        );
+        // Menggunakan Get.to untuk navigasi ke ChangePasswordPage
+        Get.to(() => ChangePasswordPage(nik: jsonData['nik']));
       } else {
         _showLoginAlert(context, "Error", jsonData['message'], false);
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
@@ -155,17 +144,15 @@ class AuthServices {
       if (response.statusCode == 200) {
         _showLoginAlert(context, "Sukses", jsonData['message'], true,
             onConfirm: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
+          // Menggunakan Get.offAll untuk navigasi ke LoginScreen
+          Get.offAll(() => LoginScreen());
         });
       } else {
         _showLoginAlert(
             context, "Error", jsonData['message'] ?? 'Terjadi kesalahan.', false);
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
     }
   }
@@ -175,7 +162,7 @@ class AuthServices {
       String? nik = await SessionManager.getNik();
 
       if (nik == null) {
-        print("NIK tidak ditemukan. Silakan login ulang.");
+        debugPrint("NIK tidak ditemukan. Silakan login ulang.");
         return null;
       }
 
@@ -192,15 +179,15 @@ class AuthServices {
         if (jsonData.containsKey('data')) {
           return UserData.fromJson(jsonData['data']);
         } else {
-          print("Data profil tidak ditemukan.");
+          debugPrint("Data profil tidak ditemukan.");
           return null;
         }
       } else {
-        print("Gagal mengambil profil: ${response.body}");
+        debugPrint("Gagal mengambil profil: ${response.body}");
         return null;
       }
     } catch (e) {
-      print("Terjadi kesalahan saat mengambil profil: $e");
+      debugPrint("Terjadi kesalahan saat mengambil profil: $e");
       return null;
     }
   }
@@ -237,7 +224,7 @@ class AuthServices {
         return false;
       }
     } catch (e) {
-      print("Terjadi error: $e");
+      debugPrint("Terjadi error: $e");
       _showLoginAlert(context, "Error", "Terjadi kesalahan, coba lagi nanti.", false);
       return false;
     }
