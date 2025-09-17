@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:medical_app/services/connect.dart';
 import 'package:medical_app/utils/session_manager.dart';
@@ -170,7 +171,7 @@ class CareServices {
       isSuccess: true,
       buttonText: "OK",
       onPressed: () {
-        Navigator.pop(context);
+        Get.back();
       },
     );
   }

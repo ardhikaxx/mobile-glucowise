@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/data/data_videoedukasi.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -73,7 +74,7 @@ class _VideoEdukasiScreenState extends State<VideoEdukasiScreen> {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.back();
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

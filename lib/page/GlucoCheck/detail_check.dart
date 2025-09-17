@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:medical_app/services/check_services.dart';
 import 'package:medical_app/model/user.dart';
@@ -508,7 +509,7 @@ class _GlucoCheckDetailScreenState extends State<GlucoCheckDetailScreen> {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.back();
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

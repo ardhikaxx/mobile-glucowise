@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -103,7 +104,7 @@ class _ChatBotPageState extends State<ChatBotPage> {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.back();
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

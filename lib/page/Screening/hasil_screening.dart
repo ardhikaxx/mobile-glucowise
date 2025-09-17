@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/page/Screening/detail_hasil_screening.dart';
 import 'package:medical_app/services/screening_services.dart';
@@ -124,7 +125,7 @@ class _HasilScreeningScreenState extends State<HasilScreeningScreen> {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.back();
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

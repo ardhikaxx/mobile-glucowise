@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:medical_app/page/Screening/riwayat_screening.dart';
 import 'package:medical_app/page/Screening/test_screening.dart';
@@ -67,7 +68,7 @@ class GlucoScreeningScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text(
               "Tutup",
               style: TextStyle(color: Colors.grey),
@@ -77,7 +78,7 @@ class GlucoScreeningScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF199A8E),
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text(
               "Mengerti",
               style: TextStyle(color: Colors.white),
@@ -96,7 +97,7 @@ class GlucoScreeningScreen extends StatelessWidget {
         content: Text("Gagal memuat data: $error"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text("Tutup"),
           ),
         ],

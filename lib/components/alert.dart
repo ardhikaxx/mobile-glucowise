@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart'; // Import iconsax
 
 class CustomAlert {
@@ -239,7 +240,7 @@ class CustomAlert {
                     [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Get.back(),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF199A8E),
                             padding: const EdgeInsets.symmetric(vertical: 12),

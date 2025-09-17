@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:medical_app/services/care_services.dart';
 import 'package:medical_app/components/alert.dart'; // Import komponen alert
@@ -95,7 +96,7 @@ class _EditCareScreenState extends State<EditCareScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Get.back(),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,

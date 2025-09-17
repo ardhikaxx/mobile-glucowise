@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
@@ -185,22 +186,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildGlucoziaAICard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const ChatBotPage(),
-            transitionsBuilder: (_, animation, __, child) {
-              return ScaleTransition(
-                scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-                  CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-                ),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
-          ),
+        // Menggunakan Get.to dengan custom transition
+        Get.to(
+          () => const ChatBotPage(),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
         );
       },
       child: MouseRegion(
@@ -302,27 +293,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildEdukasiCard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) =>
-                EdukasiScreen(userData: _currentUserData),
-            transitionsBuilder: (_, animation, __, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.5, 0.0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
-          ),
+        // Menggunakan Get.to dengan custom transition
+        Get.to(
+          () => EdukasiScreen(userData: _currentUserData),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
         );
       },
       child: MouseRegion(
@@ -494,12 +470,10 @@ class _UserIntroState extends State<UserIntro> {
                 onTap: () async {
                   UserData? currentUserData = await AuthServices().getProfile();
                   if (currentUserData != null && _isMounted) {
-                    bool? isUpdated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            EditProfileScreen(userData: currentUserData),
-                      ),
+                    bool? isUpdated = await Get.to(
+                      () => EditProfileScreen(userData: currentUserData),
+                      transition: Transition.rightToLeft,
+                      duration: const Duration(milliseconds: 300),
                     );
 
                     if (isUpdated == true && _isMounted) {
@@ -915,7 +889,7 @@ class CardGlucoInfo extends StatelessWidget {
               color: statusColor,
               fontWeight: FontWeight.w500,
             ),
-          ),
+            ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
             value: _getGlucoseLevelValue(glucoseLevel),

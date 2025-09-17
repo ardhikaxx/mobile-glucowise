@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 class RiwayatCareScreen extends StatelessWidget {
   final List<Map<String, dynamic>> riwayatObat;
@@ -35,7 +36,7 @@ class RiwayatCareScreen extends StatelessWidget {
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
+                Get.back(); // Kembali ke halaman sebelumnya
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,

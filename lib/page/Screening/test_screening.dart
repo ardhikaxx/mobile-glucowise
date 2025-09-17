@@ -42,7 +42,7 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
       // Show error and go back
       _showAlert("Error", "Gagal memuat pertanyaan screening");
       Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pop(context);
+        Get.back();
       });
     }
   }
@@ -231,7 +231,7 @@ class _TestScreeningScreenState extends State<TestScreeningScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Get.back(),
                 icon: const Icon(
                   FontAwesomeIcons.chevronLeft,
                   color: Colors.white,

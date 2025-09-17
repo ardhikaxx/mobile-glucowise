@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/model/edukasi.dart';
 import 'package:medical_app/services/edukasi_services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -110,7 +111,7 @@ class _DetailEdukasiScreenState extends State<DetailEdukasiScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Get.back(),
                     icon: const Icon(
                       FontAwesomeIcons.chevronLeft,
                       color: Color(0xFF199A8E),

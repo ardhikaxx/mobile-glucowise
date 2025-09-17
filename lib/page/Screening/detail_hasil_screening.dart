@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:medical_app/model/screening_detail.dart';
 import 'package:medical_app/services/screening_services.dart';
 
@@ -102,7 +103,7 @@ class _DetailHasilScreeningScreenState
             ),
             child: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.back();
               },
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
