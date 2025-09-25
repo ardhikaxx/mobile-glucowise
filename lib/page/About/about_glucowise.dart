@@ -169,7 +169,6 @@ class AboutGlucoWisePage extends StatelessWidget {
                           horizontal: 16, vertical: 8),
                       child: GestureDetector(
                         onTap: () {
-                          // Navigasi ke halaman syarat dan ketentuan
                           Get.to(() => TermsConditionsPage());
                         },
                         child: const Text(

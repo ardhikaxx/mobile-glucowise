@@ -508,8 +508,8 @@ class _UserScreenState extends State<UserScreen> {
                   },
                   borderRadius: BorderRadius.circular(30),
                   child: Container(
-                    width: 45,
-                    height: 45,
+                    width: 43,
+                    height: 43,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
@@ -531,7 +531,7 @@ class _UserScreenState extends State<UserScreen> {
                     child: const Center(
                       child: Icon(
                         FontAwesomeIcons.pencil,
-                        size: 20,
+                        size: 19,
                         color: Colors.white,
                       ),
                     ),
@@ -772,8 +772,8 @@ class _UserScreenState extends State<UserScreen> {
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildMenuButton(
-            icon: FontAwesomeIcons.circleQuestion,
-            title: 'Pusat Bantuan',
+            icon: FontAwesomeIcons.hospital,
+            title: 'Rumah Sakit Terdekat',
             onTap: () {},
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),

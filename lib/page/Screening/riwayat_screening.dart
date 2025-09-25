@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:medical_app/components/navbottom.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/Screening/detail_hasil_screening.dart';
 import 'package:medical_app/page/Screening/gluco_screening.dart';
@@ -119,9 +118,7 @@ class _RiwayatScreeningState extends State<RiwayatScreening> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {
-                Get.offAll(() => NavBottom(userData: widget.userData));
-              },
+              onPressed: () => Get.back(),
               icon: const Icon(
                 FontAwesomeIcons.chevronLeft,
                 color: Colors.white,

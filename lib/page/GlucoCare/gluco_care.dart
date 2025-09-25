@@ -30,8 +30,14 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
   bool _isAlarmPlaying = false;
   bool _isDisposed = false;
   Timer? _alarmRepeatTimer;
+  Timer? _reminderTimer;
   final FlutterLocalNotificationsPlugin notificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
+  int _currentAlarmId = 0;
+  Map<String, dynamic>? _currentAlarmData;
+  Set<int> _activeNotificationIds = {};
+  int _notificationCount = 0;
 
   @override
   void initState() {
@@ -40,6 +46,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     _loadData();
     init();
     _startAlarmChecker();
+    _initializeNotifications();
   }
 
   @override
@@ -47,79 +54,70 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     _isDisposed = true;
     _alarmTimer?.cancel();
     _alarmRepeatTimer?.cancel();
+    _reminderTimer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
 
   Future<void> init() async {
     initializeTimeZones();
+    setLocalLocation(getLocation('Asia/Jakarta'));
+  }
 
-    setLocalLocation(
-      getLocation('Asia/Jakarta'),
-    );
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/launcher_icon');
-    const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings();
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
+  Future<void> _initializeNotifications() async {
+    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
+    const DarwinInitializationSettings iosSettings = DarwinInitializationSettings();
+    const InitializationSettings initializationSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
-    await notificationsPlugin.initialize(initializationSettings);
+
+    await notificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        if (response.payload != null && response.payload!.startsWith('stop_alarm_')) {
+          await _stopAlarmSound();
+        } else if (response.actionId == 'stop_action') {
+          await _stopAlarmSound();
+        }
+      },
+    );
   }
 
   Future<void> showInstantNotification({
     required int id,
     required String title,
     required String body,
+    String? payload,
   }) async {
+    _activeNotificationIds.add(id);
     await notificationsPlugin.show(
       id,
       title,
       body,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'instant_notification_channel_id',
           'Instant Notifications',
           channelDescription: 'Instant notification channel',
           importance: Importance.max,
           priority: Priority.high,
+          ongoing: true,
+          autoCancel: false,
+          actions: [
+            AndroidNotificationAction(
+              'stop_action',
+              'Matikan Alarm',
+              cancelNotification: true,
+            ),
+          ],
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: DarwinNotificationDetails(
+          categoryIdentifier: 'alarm_category',
+          threadIdentifier: 'alarm_thread',
+        ),
       ),
-    );
-  }
-
-  Future<void> scheduleReminder({
-    required int id,
-    required String title,
-    String? body,
-  }) async {
-    TZDateTime now = TZDateTime.now(local);
-    TZDateTime scheduledDate = now.add(
-      Duration(seconds: 5),
-    );
-
-    await notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_reminder_channel_id', // A unique ID to group notifications together.
-          'Daily Reminders', // A human-readable name shown to users in their notification settings.
-          channelDescription: 'Reminder to complete daily habits',
-          importance: Importance.max,
-          priority: Priority.high,
-        ), // AndroidNotificationDetails
-        iOS: DarwinNotificationDetails(),
-      ), // NotificationDetails
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents:
-          DateTimeComponents.dayOfWeekAndTime, // or dateAndTime
+      payload: payload,
     );
   }
 
@@ -143,31 +141,45 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       if (alarmDate == currentDate &&
           alarmTime == currentTime &&
           !_isAlarmPlaying &&
-          !_isDisposed) {
-        await _startRepeatingAlarm();
-        if (!_isDisposed) {
-          _showAlarmNotification(context, alarm);
-        }
-        break;
+          !_isDisposed &&
+          _notificationCount == 0) {
+        _currentAlarmId = DateTime.now().millisecondsSinceEpoch % 100000;
+        _currentAlarmData = alarm;
+        await showInstantNotification(
+          id: _currentAlarmId,
+          title: 'Waktunya Minum Obat!',
+          body: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
+          payload: 'stop_alarm_${alarm["id"]}',
+        );
+        await _playAlarmSound();
+        _startRepeatingReminder(alarm);
       }
     }
   }
 
-  Future<void> _startRepeatingAlarm() async {
-    // Mainkan alarm pertama kali
-    await _playAlarmSound();
-
-    // Set timer untuk mengulang alarm setiap 30 detik
-    _alarmRepeatTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_isAlarmPlaying && !_isDisposed) {
-        _playAlarmSound();
+  void _startRepeatingReminder(Map<String, dynamic> alarm) {
+    _notificationCount = 1;
+    _reminderTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+      if (_notificationCount >= 3 || !_isAlarmPlaying || _isDisposed) {
+        timer.cancel();
+        return;
       }
+
+      _notificationCount++;
+      int newId = _currentAlarmId + _notificationCount;
+
+      await showInstantNotification(
+        id: newId,
+        title: 'Pengingat Minum Obat ($_notificationCount/3)',
+        body: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
+        payload: 'stop_alarm_${alarm["id"]}',
+      );
     });
   }
 
   Future<void> _playAlarmSound() async {
     try {
-      await _audioPlayer.stop(); // Hentikan dulu jika sedang bermain
+      await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('alarm.mp3'),
           mode: PlayerMode.lowLatency);
       _audioPlayer.setReleaseMode(ReleaseMode.loop);
@@ -185,93 +197,24 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     try {
       await _audioPlayer.stop();
       _alarmRepeatTimer?.cancel();
-      _alarmRepeatTimer = null;
+      _reminderTimer?.cancel();
+
+      for (var id in _activeNotificationIds) {
+        await notificationsPlugin.cancel(id);
+      }
+      _activeNotificationIds.clear();
+
       if (!_isDisposed) {
         setState(() {
           _isAlarmPlaying = false;
+          _currentAlarmId = 0;
+          _currentAlarmData = null;
+          _notificationCount = 0;
         });
       }
     } catch (e) {
       print("Error stopping alarm: $e");
     }
-  }
-
-  void _showAlarmNotification(
-      BuildContext context, Map<String, dynamic> alarm) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.warning_amber_outlined,
-                  size: 60,
-                  color: Colors.orange,
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  "Waktunya Minum Obat!",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  '${alarm["nama_obat"]} - ${alarm["dosis"]}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _stopAlarmSound();
-                    Navigator.of(context).pop();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            RiwayatCareScreen(riwayatObat: riwayatObat),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Text(
-                    "Stop",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void _loadData() async {
@@ -307,15 +250,16 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     }
   }
 
-  Widget _buildNoDataCard(
-      {required IconData icon,
-      required String title,
-      required String subtitle}) {
+  Widget _buildNoDataCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return Container(
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
-        color: Color(0xFFF8FDFC),
+        color: const Color(0xFFF8FDFC),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -425,27 +369,6 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         ),
         backgroundColor: Colors.white,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(9.0),
-          child: Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF199A8E),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              onPressed: () {
-                scheduleReminder(id: 5, title: 'Halo', body: 'Ini Notifikasi');
-              },
-              icon: const Icon(
-                FontAwesomeIcons.bell,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
@@ -466,7 +389,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         child: isLoading
             ? Center(
                 child: LoadingAnimationWidget.inkDrop(
-                  color: Color(0xFF199A8E),
+                  color: const Color(0xFF199A8E),
                   size: 50,
                 ),
               )
@@ -598,7 +521,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
     String status = "Aktif",
   }) {
     double cardHeight = 70.0;
-    bool isScrollable = data.length > 3;
+    bool isScrollable = data.length > 4;
 
     return SizedBox(
       height: isScrollable ? cardHeight * 3.5 : null,
