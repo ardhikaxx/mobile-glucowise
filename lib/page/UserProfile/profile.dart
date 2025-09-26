@@ -6,6 +6,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/About/about_glucowise.dart';
 import 'package:medical_app/page/GawatDarurat/nomor_gawat_darurat.dart';
+import 'package:medical_app/page/Hospital/hospital_page.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
 // import 'package:medical_app/page/UserProfile/qr_identitas.dart';
 import 'package:medical_app/services/auth_services.dart';
@@ -774,7 +775,14 @@ class _UserScreenState extends State<UserScreen> {
           _buildMenuButton(
             icon: FontAwesomeIcons.hospital,
             title: 'Rumah Sakit Terdekat',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HospitalPage(),
+              ),
+            );
+            },
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildMenuButton(

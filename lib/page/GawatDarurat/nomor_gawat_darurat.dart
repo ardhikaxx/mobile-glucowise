@@ -136,85 +136,6 @@ class EmergencyContactCard extends StatelessWidget {
     print('Error: $title - $message');
   }
 
-  void _showNumberDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 40,
-                color: color,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                phoneNumber,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Tutup',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _makePhoneCall(phoneNumber);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: color,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: const Text(
-                'Hubungi',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -267,44 +188,13 @@ class EmergencyContactCard extends StatelessWidget {
                       color: Color(0xFF717784),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () => _showNumberDialog(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.visibility,
-                            color: color,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Lihat Nomor',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: color,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
             const SizedBox(width: 16),
             Container(
-              width: 56,
-              height: 56,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(28),
@@ -320,7 +210,7 @@ class EmergencyContactCard extends StatelessWidget {
                 icon: const Icon(
                   FontAwesomeIcons.phone,
                   color: Colors.white,
-                  size: 22,
+                  size: 18,
                 ),
                 onPressed: () {
                   _makePhoneCall(phoneNumber);

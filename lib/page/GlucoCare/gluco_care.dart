@@ -170,7 +170,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
 
       await showInstantNotification(
         id: newId,
-        title: 'Pengingat Minum Obat ($_notificationCount/3)',
+        title: 'Pengingat Minum Obat!',
         body: '${alarm["nama_obat"]} - ${alarm["dosis"]}',
         payload: 'stop_alarm_${alarm["id"]}',
       );
