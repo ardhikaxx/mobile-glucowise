@@ -62,6 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (success) {
       Navigator.pop(context, true);
+      Navigator.pop(context, true);
 
       CustomAlert.showMessageDialog(
         context: context,

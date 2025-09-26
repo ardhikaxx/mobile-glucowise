@@ -367,7 +367,7 @@ class _UserScreenState extends State<UserScreen> {
           const Padding(
             padding: EdgeInsets.only(left: 8.0, bottom: 8),
             child: Text(
-              'Pengaturan Lainnya',
+              'Pengaturan dan Layanan',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

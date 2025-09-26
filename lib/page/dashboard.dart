@@ -403,16 +403,45 @@ class UserIntro extends StatefulWidget {
 
 class _UserIntroState extends State<UserIntro> {
   bool _isMounted = false;
+  bool _isLoading = false;
+  late UserData _currentUserData;
 
   @override
   void initState() {
     super.initState();
     _isMounted = true;
+    _currentUserData = widget.userData;
   }
 
   String _formatNIK(String nik) {
     if (nik.length != 16) return '**********';
     return '${nik.substring(0, 3)}**********${nik.substring(13)}';
+  }
+
+  Future<void> _refreshUserData() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      UserData? updatedUserData = await AuthServices().getProfile();
+      
+      if (updatedUserData != null && _isMounted) {
+        setState(() {
+          _currentUserData = updatedUserData;
+        });
+      }
+    } catch (e) {
+      print('Error refreshing user data: $e');
+    } finally {
+      if (_isMounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -445,19 +474,34 @@ class _UserIntroState extends State<UserIntro> {
                           color: Colors.grey[700],
                         ),
                       ),
-                      Text(
-                        widget.userData.namaLengkap,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF199A8E),
-                        ),
-                      ),
+                      _isLoading
+                          ? SizedBox(
+                              width: 120,
+                              height: 24,
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E)),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Text(
+                              _currentUserData.namaLengkap,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF199A8E),
+                              ),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _formatNIK(widget.userData.nik),
+                    _formatNIK(_currentUserData.nik),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -468,6 +512,8 @@ class _UserIntroState extends State<UserIntro> {
               ),
               InkWell(
                 onTap: () async {
+                  if (_isLoading) return;
+                  
                   UserData? currentUserData = await AuthServices().getProfile();
                   if (currentUserData != null && _isMounted) {
                     bool? isUpdated = await Get.to(
@@ -477,7 +523,8 @@ class _UserIntroState extends State<UserIntro> {
                     );
 
                     if (isUpdated == true && _isMounted) {
-                      setState(() {});
+                      // Refresh data setelah edit profile
+                      await _refreshUserData();
                     }
                   }
                 },
@@ -502,13 +549,24 @@ class _UserIntroState extends State<UserIntro> {
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Icon(
-                      FontAwesomeIcons.userPen,
-                      size: 22,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
+                        )
+                      : const Center(
+                          child: Icon(
+                            FontAwesomeIcons.userPen,
+                            size: 22,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],
