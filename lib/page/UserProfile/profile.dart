@@ -8,6 +8,7 @@ import 'package:medical_app/page/About/about_glucowise.dart';
 import 'package:medical_app/page/GawatDarurat/nomor_gawat_darurat.dart';
 import 'package:medical_app/page/Hospital/hospital_page.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
+import 'package:medical_app/page/UserProfile/nik_konfirmasi.dart';
 // import 'package:medical_app/page/UserProfile/qr_identitas.dart';
 import 'package:medical_app/services/auth_services.dart';
 
@@ -769,7 +770,14 @@ class _UserScreenState extends State<UserScreen> {
           _buildMenuButton(
             icon: FontAwesomeIcons.key,
             title: 'Kata Sandi & Keamanan',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NIKKonfirmasiPage(),
+                ),
+              );
+            },
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),
           _buildMenuButton(
@@ -777,11 +785,11 @@ class _UserScreenState extends State<UserScreen> {
             title: 'Rumah Sakit Terdekat',
             onTap: () {
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HospitalPage(),
-              ),
-            );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HospitalPage(),
+                ),
+              );
             },
           ),
           const Divider(height: 24, color: Color(0xFFE8F3F1)),

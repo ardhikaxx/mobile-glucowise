@@ -256,6 +256,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.5),
           ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF199A8E), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF199A8E), width: 1.5),
+          ),
         ),
       ),
     );
