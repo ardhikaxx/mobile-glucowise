@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:medical_app/services/hospital_services.dart';
 import 'hospital_detail.dart';
-import '../../services/hospital.dart';
 
 class HospitalPage extends StatefulWidget {
   const HospitalPage({super.key});
