@@ -218,7 +218,7 @@ class _UserScreenState extends State<UserScreen> {
       backgroundColor: const Color(0xFFF7FBFA),
       appBar: AppBar(
         title: const Text(
-          'Profile',
+          'Profil',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),

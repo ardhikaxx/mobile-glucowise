@@ -55,7 +55,7 @@ class CustomAlert {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Get.back(),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: const BorderSide(color: Color(0xFF199A8E)),

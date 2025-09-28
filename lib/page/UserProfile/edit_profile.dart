@@ -39,7 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     CustomAlert.showConfirmDialog(
       context: context,
       title: "Konfirmasi",
-      message: "Anda yakin ingin keluar dari halaman Edit Profile?",
+      message: "Anda yakin ingin keluar dari halaman Edit Profil?",
       onConfirm: () {
         Navigator.pop(context);
       },
@@ -114,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'Edit Profile',
+          'Edit Profil',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
