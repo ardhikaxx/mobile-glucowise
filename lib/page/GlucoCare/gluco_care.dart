@@ -35,8 +35,7 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
       FlutterLocalNotificationsPlugin();
 
   int _currentAlarmId = 0;
-  Map<String, dynamic>? _currentAlarmData;
-  Set<int> _activeNotificationIds = {};
+  final Set<int> _activeNotificationIds = {};
   int _notificationCount = 0;
 
   @override
@@ -144,7 +143,6 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
           !_isDisposed &&
           _notificationCount == 0) {
         _currentAlarmId = DateTime.now().millisecondsSinceEpoch % 100000;
-        _currentAlarmData = alarm;
         await showInstantNotification(
           id: _currentAlarmId,
           title: 'Waktunya Minum Obat!',
@@ -208,7 +206,6 @@ class _GlucoCareScreenState extends State<GlucoCareScreen> {
         setState(() {
           _isAlarmPlaying = false;
           _currentAlarmId = 0;
-          _currentAlarmData = null;
           _notificationCount = 0;
         });
       }
