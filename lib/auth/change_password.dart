@@ -16,7 +16,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   bool _showRepeatPassword = false;
 
   final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController repeatPasswordController = TextEditingController();
+  final TextEditingController repeatPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(
-          'Ubah Password',
+          'Ubah Kata Sandi',
           style: TextStyle(
             fontFamily: 'DarumadropOne',
             color: Color(0xFF199A8E),
@@ -74,7 +75,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       _buildImageWithBackground(),
                       const SizedBox(height: 20),
                       const Text(
-                        "Ubah Password Anda",
+                        "Ubah Kata Sandi Anda",
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -85,7 +86,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
-                          "Masukkan password baru Anda di bawah.",
+                          "Masukkan kata sandi baru anda dibawah.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -96,13 +97,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const SizedBox(height: 20),
                       _buildInputField(
                         controller: newPasswordController,
-                        labelText: "Password Baru",
+                        labelText: "Kata Sandi Baru",
                         prefixIcon: Icons.lock,
                         obscureText: !_showNewPassword,
                         suffixIcon: IconButton(
                           icon: Icon(
                             color: const Color(0xFF199A8E),
-                            _showNewPassword ? Icons.visibility : Icons.visibility_off,
+                            _showNewPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () {
                             setState(() {
@@ -114,13 +117,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       const SizedBox(height: 20),
                       _buildInputField(
                         controller: repeatPasswordController,
-                        labelText: "Ulangi Password Baru",
+                        labelText: "Ulangi Kata Sandi Baru",
                         prefixIcon: Icons.lock,
                         obscureText: !_showRepeatPassword,
                         suffixIcon: IconButton(
                           icon: Icon(
                             color: const Color(0xFF199A8E),
-                            _showRepeatPassword ? Icons.visibility : Icons.visibility_off,
+                            _showRepeatPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () {
                             setState(() {
@@ -187,7 +192,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
           labelStyle: const TextStyle(color: Color(0xFF199A8E)),
           prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
@@ -223,10 +229,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           if (newPassword.isEmpty || confirmPassword.isEmpty) {
             _showCustomAlert(context, "Harap isi semua field!", "error");
           } else if (newPassword != confirmPassword) {
-            _showCustomAlert(context, "Konfirmasi password tidak sesuai!", "error");
+            _showCustomAlert(
+                context, "Konfirmasi password tidak sesuai!", "error");
           } else {
             AuthServices.updatePassword(
-              context, widget.nik, newPassword, confirmPassword);
+                context, widget.nik, newPassword, confirmPassword);
           }
         },
         style: ElevatedButton.styleFrom(
@@ -237,9 +244,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
           elevation: 5,
         ),
-        child: const Text(
-          "Ubah",
-          style: TextStyle(fontSize: 18, color: Colors.white),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.lock_reset, size: 26, color: Colors.white),
+            SizedBox(width: 3),
+            Text(
+              "Ubah Kata Sandi",
+              style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
@@ -315,7 +333,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),

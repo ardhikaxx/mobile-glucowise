@@ -25,6 +25,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             color: Color(0xFF199A8E),
             fontSize: 30,
             fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
         centerTitle: true,
@@ -157,7 +158,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         decoration: InputDecoration(
           filled: true,
           fillColor: const Color(0xFFF9FAFB),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           labelText: labelText,
           labelStyle: const TextStyle(color: Color(0xFF199A8E)),
           prefixIcon: Icon(prefixIcon, color: const Color(0xFF199A8E)),
@@ -205,9 +207,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
           elevation: 5,
         ),
-        child: const Text(
-          "Konfirmasi",
-          style: TextStyle(fontSize: 18, color: Colors.white),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.how_to_reg, color: Colors.white, size: 28),
+            SizedBox(width: 4),
+            Text(
+              "Konfirmasi",
+              style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

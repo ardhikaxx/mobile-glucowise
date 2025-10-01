@@ -12,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _showPassword = false;
-  bool _rememberMe = false;
+  bool _tampilkanPassword = false;
+  bool _ingatSaya = false;
   late SharedPreferences _preferences;
 
   final TextEditingController _emailController = TextEditingController();
@@ -22,22 +22,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _muatPreferensi();
   }
 
-  Future<void> _loadPreferences() async {
+  Future<void> _muatPreferensi() async {
     _preferences = await SharedPreferences.getInstance();
     setState(() {
-      _rememberMe = _preferences.getBool('rememberMe') ?? false;
-      if (_rememberMe) {
+      _ingatSaya = _preferences.getBool('ingatSaya') ?? false;
+      if (_ingatSaya) {
         _emailController.text = _preferences.getString('email') ?? '';
       }
     });
   }
 
-  Future<void> _savePreferences() async {
-    await _preferences.setBool('rememberMe', _rememberMe);
-    if (_rememberMe) {
+  Future<void> _simpanPreferensi() async {
+    await _preferences.setBool('ingatSaya', _ingatSaya);
+    if (_ingatSaya) {
       await _preferences.setString('email', _emailController.text);
     } else {
       await _preferences.remove('email');
@@ -53,12 +53,12 @@ class _LoginScreenState extends State<LoginScreen> {
           Positioned(
             top: -50,
             left: -50,
-            child: _buildCircle(200, const Color(0xFFE8F3F1).withOpacity(0.8)),
+            child: _buildLingkaran(200, const Color(0xFFE8F3F1).withOpacity(0.8)),
           ),
           Positioned(
             bottom: 15,
             right: -40,
-            child: _buildCircle(135, const Color(0xFFE8F3F1).withOpacity(0.5)),
+            child: _buildLingkaran(135, const Color(0xFFE8F3F1).withOpacity(0.5)),
           ),
           Center(
             child: SingleChildScrollView(
@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Image.asset("assets/logo.png", width: 180, height: 180),
                     const Text(
-                      "Welcome Back!",
+                      "Masuk Ke Akun Anda",
                       style: TextStyle(
                           fontSize: 32,
                           fontFamily: 'DarumadropOne',
@@ -77,51 +77,52 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Color(0xFF199A8E)),
                     ),
                     Text(
-                      "Please login to your account",
+                      "Untuk mengakses berbagai layanan",
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 15),
-                    _buildInputField(
+                    _buildFieldInput(
                       controller: _emailController,
                       labelText: "Email",
                       prefixIcon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 15),
-                    _buildInputField(
+                    _buildFieldInput(
                       controller: _passwordController,
-                      labelText: "Password",
+                      labelText: "Kata Sandi",
                       prefixIcon: Icons.lock,
-                      obscureText: !_showPassword,
+                      obscureText: !_tampilkanPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
                           color: const Color(0xFF199A8E),
-                          _showPassword
+                          _tampilkanPassword
                               ? Icons.visibility
                               : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
-                            _showPassword = !_showPassword;
+                            _tampilkanPassword = !_tampilkanPassword;
                           });
                         },
                       ),
                     ),
                     const SizedBox(height: 10),
-                    _buildRememberMeRow(),
+                    _buildBarisIngatSaya(),
                     const SizedBox(height: 10),
-                    _buildLoginButton(),
+                    _buildTombolMasuk(),
                     const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don't have an account? ",
+                          "Belum Punya Akun?",
                           style: TextStyle(
                               color: Colors.black.withOpacity(0.7),
                               fontSize: 16,
                               fontWeight: FontWeight.w500),
                         ),
+                        const SizedBox(width: 5),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -130,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     builder: (context) =>
                                         const RegisterScreen()));
                           },
-                          child: const Text("Register",
+                          child: const Text("Daftar Sekarang",
                               style: TextStyle(
                                   color: Color(0xFF199A8E),
                                   fontSize: 16,
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildCircle(double size, Color color) {
+  Widget _buildLingkaran(double size, Color color) {
     return Container(
       width: size,
       height: size,
@@ -159,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildInputField({
+  Widget _buildFieldInput({
     required TextEditingController controller,
     required String labelText,
     required IconData prefixIcon,
@@ -211,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRememberMeRow() {
+  Widget _buildBarisIngatSaya() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -224,18 +225,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 side: const BorderSide(color: Color(0xFF199A8E), width: 1.5),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4.0)),
-                value: _rememberMe,
+                value: _ingatSaya,
                 onChanged: (value) {
                   setState(() {
-                    _rememberMe = value!;
-                    _savePreferences();
+                    _ingatSaya = value!;
+                    _simpanPreferensi();
                   });
                 },
                 activeColor: const Color(0xFF199A8E),
                 checkColor: Colors.white,
               ),
               const Text(
-                "Remember me",
+                "Ingat Saya",
                 style: TextStyle(
                   color: Color(0xFF199A8E),
                   fontWeight: FontWeight.w600,
@@ -253,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
               );
             },
             child: const Text(
-              "Forgot Password?",
+              "Lupa Kata Sandi?",
               style: TextStyle(
                 color: Color(0xFF199A8E),
                 fontWeight: FontWeight.w600,
@@ -265,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildTombolMasuk() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: SizedBox(
@@ -276,13 +277,13 @@ class _LoginScreenState extends State<LoginScreen> {
             String password = _passwordController.text;
 
             if (email.isEmpty && password.isEmpty) {
-              _showLoginAlert(context, "Peringatan", "Email dan password tidak boleh kosong", false);
+              _tampilkanPeringatanLogin(context, "Peringatan", "Email dan kata sandi tidak boleh kosong", false);
               return;
             } else if (email.isEmpty) {
-              _showLoginAlert(context, "Peringatan", "Email tidak boleh kosong", false);
+              _tampilkanPeringatanLogin(context, "Peringatan", "Email tidak boleh kosong", false);
               return;
             } else if (password.isEmpty) {
-              _showLoginAlert(context, "Peringatan", "Password tidak boleh kosong", false);
+              _tampilkanPeringatanLogin(context, "Peringatan", "Kata sandi tidak boleh kosong", false);
               return;
             }
             
@@ -295,14 +296,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 5,
           ),
-          child: const Text("Login",
-              style: TextStyle(fontSize: 18, color: Colors.white)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(Icons.lock, size: 24, color: Colors.white),
+              SizedBox(width: 3),
+              Text("Masuk",style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _showLoginAlert(BuildContext context, String title, String message, bool isSuccess) {
+  void _tampilkanPeringatanLogin(BuildContext context, String judul, String pesan, bool isSuccess) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -326,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  title,
+                  judul,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -335,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  message,
+                  pesan,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 16,
@@ -354,7 +362,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: const Text(
-                      "OK",
+                      "MENGERTI",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

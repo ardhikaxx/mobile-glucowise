@@ -30,7 +30,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      _showCustomAlert(context, "Password dan konfirmasi password tidak sama!", "error");
+      _showCustomAlert(
+          context, "Password dan konfirmasi password tidak sama!", "error");
       return;
     }
 
@@ -61,7 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 180,
               ),
               const Text(
-                "Create Account",
+                "Buat Akun Anda",
                 style: TextStyle(
                   fontSize: 32,
                   fontFamily: 'DarumadropOne',
@@ -70,7 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               Text(
-                "Fill in the details to get started",
+                "Lengkapi data berikut untuk membuat akun",
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
@@ -100,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 15),
               _buildInputField(
                 controller: _passwordController,
-                labelText: "Password",
+                labelText: "Kata Sandi",
                 prefixIcon: Icons.lock,
                 obscureText: !_showPassword,
                 suffixIcon: IconButton(
@@ -118,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 15),
               _buildInputField(
                 controller: _confirmPasswordController,
-                labelText: "Ulangi Password",
+                labelText: "Ulangi Kata Sandi",
                 prefixIcon: Icons.lock,
                 obscureText: !_showConfirmPassword,
                 suffixIcon: IconButton(
@@ -142,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Already have an account? ",
+                    "Sudah memiliki akun? ",
                     style: TextStyle(
                       color: Colors.black.withOpacity(0.7),
                       fontSize: 16,
@@ -158,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       );
                     },
                     child: const Text(
-                      "Login",
+                      "Masuk Sekarang",
                       style: TextStyle(
                           color: Color(0xFF199A8E),
                           fontSize: 16,
@@ -241,9 +242,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           elevation: 5,
         ),
-        child: const Text(
-          "Register",
-          style: TextStyle(fontSize: 18, color: Colors.white),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.person, color: Colors.white, size: 26),
+            SizedBox(width: 3),
+            Text(
+              "Daftar Akun",
+              style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
@@ -313,7 +322,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF199A8E),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
