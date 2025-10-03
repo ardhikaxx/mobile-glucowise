@@ -96,6 +96,9 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/img/image1.jpg
+    - assets/img/image2.jpg
+    - assets/img/image3.jpg
     - assets/logo.png
     - assets/Lock.png
     - assets/Key.png

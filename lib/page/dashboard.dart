@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:medical_app/page/Chat/chat_select.dart';
+import 'dart:async';
 import 'package:medical_app/page/Edukasi/edukasi.dart';
 import 'package:medical_app/model/user.dart';
 import 'package:medical_app/page/UserProfile/edit_profile.dart';
@@ -24,6 +26,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? statusData;
   bool _mounted = false;
   late UserData _currentUserData;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -31,6 +36,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _mounted = true;
     _currentUserData = widget.userData;
     _loadData();
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      if (_pageController.hasClients) {
+        if (_currentPage < 2) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -46,6 +66,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void dispose() {
     _mounted = false;
+    _timer.cancel();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -89,6 +111,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  final List<String> _carouselImages = [
+    'assets/img/image1.jpg',
+    'assets/img/image2.jpg',
+    'assets/img/image3.jpg',
+  ];
+
+  Widget _buildCarouselSlider() {
+    return Container(
+      height: 180,
+      margin: const EdgeInsets.only(bottom: 1),
+      child: Stack(
+        children: [
+          // Carousel Items
+          PageView.builder(
+            controller: _pageController,
+            itemCount: _carouselImages.length,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+            itemBuilder: (context, index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    _carouselImages[index],
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFFE8F3F1),
+                        child: const Center(
+                          child: Icon(
+                            Icons.image,
+                            color: Color(0xFF199A8E),
+                            size: 50,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 15,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_carouselImages.length, (index) {
+                return Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.5),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,11 +211,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               UserIntro(userData: _currentUserData),
-              const SizedBox(height: 15),
-              _buildGlucoziaAICard(context),
-              const SizedBox(height: 10),
-              _buildEdukasiCard(context),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
+              _buildCarouselSlider(),
+              // const SizedBox(height: 20),
+              // _buildGlucoziaAICard(context),
+              const SizedBox(height: 12),
+              _buildMenuSection(),
+              const SizedBox(height: 12),
               isLoading
                   ? _buildLoadingCard()
                   : latestHealthData != null
@@ -140,6 +237,422 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         )
                       : const CardNoData(),
               SizedBox(height: MediaQuery.of(context).padding.bottom + 100),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'Layanan Kesehatan',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF138075),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildEdukasiMenuCard(),
+            ),
+            const SizedBox(width: 12),
+            // Expanded(
+            //   child: _buildKonsultasiDokterMenuCard(),
+              // ),
+              Expanded(
+                child: _buildGlucoziaAI(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEdukasiMenuCard() {
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => EdukasiScreen(userData: _currentUserData),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 140,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF138075),
+                Color(0xFF199A8E),
+                Color(0xFF23B8A9),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF138075).withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -10,
+                right: -10,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: -20,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        FontAwesomeIcons.graduationCap,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Edukasi',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'DarumadropOne',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Pelajari diabetes',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Hover Effect
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Get.to(
+                        () => EdukasiScreen(userData: _currentUserData),
+                        transition: Transition.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    splashColor: Colors.white.withOpacity(0.2),
+                    highlightColor: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlucoziaAI() {
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => const ChatBotPage(),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 140,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF34D399),
+                Color(0xFF10B981),
+                Color(0xFF059669),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF059669).withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Background Pattern
+              Positioned(
+                top: -10,
+                right: -10,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: -20,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Glucozia AI',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'DarumadropOne',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tanya Seputar Diabetes',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Hover Effect
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Get.to(
+                        () => const ChatBotPage(),
+                        transition: Transition.rightToLeft,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                    splashColor: Colors.white.withOpacity(0.2),
+                    highlightColor: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildKonsultasiDokterMenuCard() {
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => const ChatSelectPage());
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 140,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFF34D399),
+                Color(0xFF10B981),
+                Color(0xFF059669),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF059669).withOpacity(0.1),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Background Pattern
+              Positioned(
+                top: -10,
+                right: -10,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: -20,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.medical_services_outlined,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Konsultasi',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'DarumadropOne',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Dengan ahli',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Hover Effect
+              Positioned.fill(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      Get.to(() => const ChatSelectPage());
+                    },
+                    splashColor: Colors.white.withOpacity(0.2),
+                    highlightColor: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -186,7 +699,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildGlucoziaAICard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Menggunakan Get.to dengan custom transition
         Get.to(
           () => const ChatBotPage(),
           transition: Transition.rightToLeft,
@@ -215,6 +727,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: Colors.white.withOpacity(0.2),
               width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF138075).withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -229,9 +748,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -278,112 +797,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-                size: 16,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEdukasiCard(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Menggunakan Get.to dengan custom transition
-        Get.to(
-          () => EdukasiScreen(userData: _currentUserData),
-          transition: Transition.rightToLeft,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: const Color(0xFF199A8E),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF199A8E).withOpacity(0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF138075), Color(0xFF23B8A9)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
+                  color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF199A8E),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: const Icon(
-                  FontAwesomeIcons.graduationCap,
+                  Icons.arrow_forward_ios,
                   color: Colors.white,
-                  size: 28,
+                  size: 16,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      'Edukasi Diabetes',
-                      style: TextStyle(
-                        color: Color(0xFF138075),
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'DarumadropOne',
-                        letterSpacing: 0.5,
-                        height: 1.2,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Pelajari tentang diabetes',
-                      style: TextStyle(
-                        color: Color(0xFF199A8E),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Color(0xFF199A8E),
-                size: 16,
               ),
             ],
           ),
@@ -393,6 +817,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
+// Kode untuk UserIntro, CardNoData, CardGlucoInfo tetap sama...
 class UserIntro extends StatefulWidget {
   final UserData userData;
   const UserIntro({super.key, required this.userData});
@@ -427,7 +852,7 @@ class _UserIntroState extends State<UserIntro> {
 
     try {
       UserData? updatedUserData = await AuthServices().getProfile();
-      
+
       if (updatedUserData != null && _isMounted) {
         setState(() {
           _currentUserData = updatedUserData;
@@ -484,7 +909,8 @@ class _UserIntroState extends State<UserIntro> {
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF199A8E)),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF199A8E)),
                                   ),
                                 ),
                               ),
@@ -513,7 +939,7 @@ class _UserIntroState extends State<UserIntro> {
               InkWell(
                 onTap: () async {
                   if (_isLoading) return;
-                  
+
                   UserData? currentUserData = await AuthServices().getProfile();
                   if (currentUserData != null && _isMounted) {
                     bool? isUpdated = await Get.to(
@@ -523,7 +949,6 @@ class _UserIntroState extends State<UserIntro> {
                     );
 
                     if (isUpdated == true && _isMounted) {
-                      // Refresh data setelah edit profile
                       await _refreshUserData();
                     }
                   }
@@ -543,8 +968,8 @@ class _UserIntroState extends State<UserIntro> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 6,
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 8,
                         offset: const Offset(2, 2),
                       ),
                     ],
@@ -556,7 +981,8 @@ class _UserIntroState extends State<UserIntro> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           ),
                         )
@@ -757,7 +1183,7 @@ class CardGlucoInfo extends StatelessWidget {
                       'Gluco Info',
                       style: TextStyle(
                         fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
                         color: Color(0xFF199A8E),
                       ),
                     ),
@@ -947,7 +1373,7 @@ class CardGlucoInfo extends StatelessWidget {
               color: statusColor,
               fontWeight: FontWeight.w500,
             ),
-            ),
+          ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
             value: _getGlucoseLevelValue(glucoseLevel),

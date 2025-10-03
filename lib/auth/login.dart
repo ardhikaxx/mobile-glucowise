@@ -300,8 +300,8 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.lock, size: 24, color: Colors.white),
-              SizedBox(width: 3),
+              Icon(Icons.login, size: 20, color: Colors.white),
+              SizedBox(width: 6),
               Text("Masuk",style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
             ],
           ),

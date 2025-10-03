@@ -43,10 +43,10 @@ class _HospitalPageState extends State<HospitalPage> {
               final tempatLower = hospital.tempat.toLowerCase();
               final jenisLower = hospital.jenis.toLowerCase();
               final queryLower = query.toLowerCase();
-              
+
               return namaLower.contains(queryLower) ||
-                     tempatLower.contains(queryLower) ||
-                     jenisLower.contains(queryLower);
+                  tempatLower.contains(queryLower) ||
+                  jenisLower.contains(queryLower);
             }).toList();
           }
         });
@@ -157,7 +157,7 @@ class _HospitalPageState extends State<HospitalPage> {
               ),
             ),
           ),
-          
+
           // Info jumlah rumah sakit
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -173,9 +173,9 @@ class _HospitalPageState extends State<HospitalPage> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 10),
-          
+
           // List rumah sakit
           Expanded(
             child: FutureBuilder<HospitalResponse>(
@@ -233,7 +233,8 @@ class _HospitalPageState extends State<HospitalPage> {
                           ElevatedButton(
                             onPressed: () {
                               setState(() {
-                                _hospitalsFuture = HospitalService.getHospitals();
+                                _hospitalsFuture =
+                                    HospitalService.getHospitals();
                               });
                             },
                             style: ElevatedButton.styleFrom(
@@ -253,7 +254,7 @@ class _HospitalPageState extends State<HospitalPage> {
                   );
                 } else if (snapshot.hasData) {
                   final hospitals = _filteredHospitals;
-                  
+
                   if (hospitals.isEmpty) {
                     return Center(
                       child: Column(
@@ -297,7 +298,7 @@ class _HospitalPageState extends State<HospitalPage> {
                       ),
                     );
                   }
-                  
+
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: hospitals.length,
