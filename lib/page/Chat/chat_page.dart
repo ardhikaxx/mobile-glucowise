@@ -416,11 +416,12 @@ class _ChatPageState extends State<ChatPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Mulai percakapan dengan ${widget.dokterName}',
+            'Mulai percakapan ${widget.dokterName}',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
